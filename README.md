@@ -1,5 +1,22 @@
 # linklist project
 
+## How JWT keys were created
+
+See: https://quarkus.io/guides/security-jwt#generating-a-jwt
+
+```bash
+openssl genrsa -out rsaPrivateKey.pem 2048
+openssl rsa -pubout -in rsaPrivateKey.pem -out publicKey.pem
+openssl pkcs8 -topk8 -nocrypt -inform pem -in rsaPrivateKey.pem -outform pem -out privateKey.pem
+```
+
+- `publicKey.pem` is referenced in `application.properties`, `mp.jwt.verify.publickey.location`.
+- `privateKey.pem` is passed as an env var `smallrye.jwt.sign.key-location` (although this is deprecated).  
+
+---
+
+## Original README:
+
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
 If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
