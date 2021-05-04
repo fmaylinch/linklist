@@ -1,5 +1,27 @@
 # linklist project
 
+## Sample calls
+
+```bash
+# Register
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"may", "password":"12345", "password2":"12345"}' \
+  http://127.0.0.1:8070/security/register | jq
+
+# Login
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{"username":"may", "password":"12345"}' \
+  http://127.0.0.1:8070/security/login | jq
+
+# Login again, but sets JWT variable with the token
+JWT=$(curl -X POST --silent \
+  -H "Content-Type: application/json" \
+  -d '{"username":"may", "password":"12345"}' \
+  http://127.0.0.1:8070/security/login | jq -r .token)
+```
+
 ## How JWT keys were created
 
 See: https://quarkus.io/guides/security-jwt#generating-a-jwt
