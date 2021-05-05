@@ -1,4 +1,30 @@
-# linklist project
+# LinkList
+
+Stores a list of links.
+Actually, it stores a list of items that may optionally contain a link.
+Every item contains a title, and optionally: link, notes, image, tags.
+
+Application in development. Ideas to implement:
+
+- When you type the link, the application will try to retrieve the title and the image.
+You can then modify the fields as you wish.
+- You can search your notes by text or tag (write `#tag` to search only by tag).
+- When you search by tag(s), you can share that list.
+- You can share lists (in read-only mode, for now), using share rules.
+    - For every share rule, you specify tags and optionally a username. That user (or all users by default) will be able to see the items with those tags.
+    - You can add, remove, modify the share rules.
+    - Maybe the rule can also allow edit/add/remove items.
+- Shared links will be like `linklist.com/username/tag1+tag2+tag3`
+    - The application will check that you are `username` or that this user has a share rule allowing you to access those items.
+
+
+## Technologies used
+
+- Quarkus : https://quarkus.io
+- JWT : https://quarkus.io/guides/security-jwt
+- MongoDB : https://www.mongodb.com – [Java driver](https://mongodb.github.io/mongo-java-driver/4.1/driver/getting-started/quick-start/)
+- Argon2 : https://github.com/phxql/argon2-jvm
+
 
 ## Sample calls
 
@@ -15,12 +41,27 @@ curl -X POST \
   -d '{"username":"may", "password":"12345"}' \
   http://127.0.0.1:8070/security/login | jq
 
-# Login again, but sets JWT variable with the token
+# Login and sets JWT variable (for the following calls)
 JWT=$(curl -X POST --silent \
   -H "Content-Type: application/json" \
   -d '{"username":"may", "password":"12345"}' \
   http://127.0.0.1:8070/security/login | jq -r .token)
+
+# Create item
+curl -X POST \
+  -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"title":"item1", "tags":["tag1", "tag2"]}' \
+  http://127.0.0.1:8070/items/upsertOne | jq
+
+# Search items
+curl -X POST \
+  -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"may"}' \
+  http://127.0.0.1:8070/items/search | jq
 ```
+
 
 ## How JWT keys were created
 
