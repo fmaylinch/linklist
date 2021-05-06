@@ -20,10 +20,15 @@ You can then modify the fields as you wish.
 
 ## Technologies used
 
-- Quarkus : https://quarkus.io
-- JWT : https://quarkus.io/guides/security-jwt
-- MongoDB : https://www.mongodb.com – [Java driver](https://mongodb.github.io/mongo-java-driver/4.1/driver/getting-started/quick-start/)
-- Argon2 : https://github.com/phxql/argon2-jvm
+- Backend
+  - [Quarkus](https://quarkus.io)
+  - [JWT](https://quarkus.io/guides/security-jwt)
+  - [MongoDB](https://www.mongodb.com) – [Java driver](https://mongodb.github.io/mongo-java-driver/4.1/driver/getting-started/quick-start/)
+  - [Argon2](https://github.com/phxql/argon2-jvm)
+
+- Webapp  
+  - [Vue.js](https://vuejs.org)
+  - [Vuetify.js](https://vuetifyjs.com)
 
 
 ## Sample calls
