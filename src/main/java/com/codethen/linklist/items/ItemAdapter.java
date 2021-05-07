@@ -18,6 +18,7 @@ public class ItemAdapter {
         public static String url = "utl";
         public static String notes = "notes";
         public static String image = "image";
+        public static String score = "score";
         public static String tags = "tags";
     }
 
@@ -43,6 +44,7 @@ public class ItemAdapter {
                 .url(doc.getString(Fields.url))
                 .image(doc.getString(Fields.image))
                 .notes(doc.getString(Fields.notes))
+                .score(doc.getInteger(Fields.score))
                 .tags(doc.getList(Fields.tags, String.class))
                 .build();
     }
@@ -56,6 +58,7 @@ public class ItemAdapter {
                 .append(Fields.url, item.getUrl())
                 .append(Fields.image, item.getImage())
                 .append(Fields.notes, item.getNotes())
+                .append(Fields.score, item.getScore())
                 .append(Fields.tags, item.getTags());
     }
 }

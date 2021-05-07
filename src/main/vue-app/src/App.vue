@@ -1,7 +1,11 @@
 <template>
-  <div id="app">
-    <router-view/>
-  </div>
+  <v-app>
+    <transition>
+      <keep-alive>
+        <router-view />
+      </keep-alive>
+    </transition>
+  </v-app>
 </template>
 
 <style lang="scss">

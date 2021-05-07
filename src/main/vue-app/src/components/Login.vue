@@ -6,7 +6,7 @@
       <v-btn icon @click="loginOrRegister()"><v-icon>mdi-login</v-icon></v-btn>
     </v-app-bar>
     <v-main>
-      <v-card flat tile>
+      <v-card flat tile dark>
         <v-container>
           <v-text-field v-model="loginData.username" label="username" auto-grow rows="1" />
           <v-text-field v-model="loginData.password" type="password" label="password" auto-grow rows="1" />

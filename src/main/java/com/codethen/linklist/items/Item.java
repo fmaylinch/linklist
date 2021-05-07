@@ -15,5 +15,6 @@ public class Item {
     String url;
     String image;
     String notes;
+    int score;
     List<String> tags;
 }
