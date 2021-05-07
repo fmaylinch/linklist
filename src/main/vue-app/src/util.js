@@ -1,7 +1,7 @@
 export default class Util {
 
   static getItemRawContent(item) {
-    const tags = item.tags ? item.tags.join(" ") : "";
+    const tags = item.tags ? item.tags.map(t => "#" + t).join(" ") : "";
     return item.title + " " + item.url + " " + item.image + " " + item.notes + " " + tags;
   }
 
