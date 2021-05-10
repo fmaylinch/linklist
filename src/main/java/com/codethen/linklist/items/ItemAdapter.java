@@ -15,7 +15,7 @@ public class ItemAdapter {
     private static class Fields {
         public static String userId = "userId";
         public static String title = "title";
-        public static String url = "utl";
+        public static String url = "url";
         public static String notes = "notes";
         public static String image = "image";
         public static String score = "score";
