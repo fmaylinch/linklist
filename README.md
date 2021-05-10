@@ -66,6 +66,13 @@ curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"username":"may"}' \
   http://127.0.0.1:8070/items/search | jq
+
+# Delete item
+curl -v -X POST \
+  -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"id":"ITEM_ID"}' \
+  http://127.0.0.1:8070/items/deleteOne | jq
 ```
 
 

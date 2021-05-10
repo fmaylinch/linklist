@@ -86,19 +86,19 @@ public class ItemsApi {
 
     @POST @Path("getOne")
     @RolesAllowed({ Roles.USER })
-    public Item getOne(@Context SecurityContext ctx, String id) {
+    public Item getOne(@Context SecurityContext ctx, ItemId itemId) {
 
-        final Document doc = items.find(byIdAndUserId(id, SecurityUtil.getUserId(ctx))).first();
+        final Document doc = items.find(byIdAndUserId(itemId.getId(), SecurityUtil.getUserId(ctx))).first();
         return ItemAdapter.from(doc);
     }
 
     @POST @Path("deleteOne")
     @RolesAllowed({ Roles.USER })
-    public Item deleteOne(@Context SecurityContext ctx, String id) {
+    public Item deleteOne(@Context SecurityContext ctx, ItemId itemId) {
 
-        final Item item = getOne(ctx, id);
+        final Item item = getOne(ctx, itemId);
         if (item != null) {
-            items.deleteOne(byIdAndUserId(id, SecurityUtil.getUserId(ctx)));
+            items.deleteOne(byIdAndUserId(itemId.getId(), SecurityUtil.getUserId(ctx)));
         }
 
         return item;

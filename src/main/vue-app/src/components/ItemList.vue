@@ -108,7 +108,7 @@ export default {
         } else if (event.action === UpdateAction.delete) {
           console.log("Deleting item", event.item.id, event.item.title);
           this.axiosInstance
-            .post("items/deleteOne", event.item.id)
+            .post("items/deleteOne", {id: event.item.id})
             .then(() => this.retrieveItemsFromApi())
             .catch(e => console.error("API Error", e));
         }
