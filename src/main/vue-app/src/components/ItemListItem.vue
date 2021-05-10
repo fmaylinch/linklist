@@ -1,5 +1,4 @@
 <template>
-  <v-list-item>
     <v-list-item-content>
       <v-list-item-title>
         {{ item.title }}
@@ -7,13 +6,15 @@
       <v-list-item-subtitle>
         {{ subtitle }}
       </v-list-item-subtitle>
+      <v-list-item-subtitle style="color: #6d6d6d">
+        {{ subtitle2 }}
+      </v-list-item-subtitle>
       <v-progress-linear
         height="1"
         :color="colorForItem(item)"
         :value="item.score">
       </v-progress-linear>
     </v-list-item-content>
-  </v-list-item>
 </template>
 
 <script>
@@ -26,6 +27,9 @@ export default {
   },
   computed: {
     subtitle() {
+      return this.item.notes;
+    },
+    subtitle2() {
       return Util.getTagsString(this.item);
     }
   },

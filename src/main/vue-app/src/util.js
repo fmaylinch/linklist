@@ -1,7 +1,7 @@
 export default class Util {
 
   static getItemRawContent(item) {
-    return item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item);
+    return item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item) + " " + item.score;
   }
 
   static getTagsString(item) {

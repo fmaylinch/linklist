@@ -16,12 +16,13 @@
           />
         </v-container>
         <v-list>
-          <ItemListItem
+          <!-- If the v-list-item is inside ItemListItem, the @click handler doesn't work -->
+          <v-list-item
             v-for="item in searchedItems"
             :key="item.id"
-            :item="item"
-            @click="editItem(item)"
-          />
+            @click="editItem(item)">
+            <ItemListItem :item="item" />
+          </v-list-item>
         </v-list>
       </v-card>
     </v-main>
@@ -31,7 +32,7 @@
 <script>
 import axios from "axios";
 import constants from "@/constants.js";
-import { EventBus } from '@/event-bus.js';
+import {AppEvent, EventBus, UpdateAction} from '@/event-bus.js';
 import Util from "@/util.js";
 import Cookies from "js-cookie";
 import ItemListItem from "@/components/ItemListItem";
@@ -42,6 +43,7 @@ export default {
   created() {
     this.axiosInstance = this.createAxiosInstance();
     this.retrieveItemsFromApi();
+    this.listenToItemUpdated();
   },
   data: () => ({
     search: null,
@@ -92,14 +94,44 @@ export default {
         item.rawContent = Util.getItemRawContent(item).toLowerCase();
       }
     },
+    listenToItemUpdated() {
+      EventBus.$on(AppEvent.itemChanged, event => {
+        console.log("Item changed", event);
+
+        if (event.action === UpdateAction.update) {
+          console.log("Inserting or updating item", event.item.id, event.item.title);
+          this.axiosInstance
+            .post("items/upsertOne", event.item)
+            .then(() => this.retrieveItemsFromApi())
+            .catch(e => console.error("API Error", e));
+
+        } else if (event.action === UpdateAction.delete) {
+          console.log("Deleting item", event.item.id, event.item.title);
+          this.axiosInstance
+            .post("items/deleteOne", event.item.id)
+            .then(() => this.retrieveItemsFromApi())
+            .catch(e => console.error("API Error", e));
+        }
+      });
+    },
     colorForItem(item) {
       return Util.colorFromScore(item.score);
     },
-    addItem() { // TODO
-      console.log("Add item");
+    addItem() {
+      this.editItem(null);
     },
-    editItem(item) { // TODO
-      console.log("Edit item", item.id, item.title);
+    editItem(item) {
+      if (item) {
+        console.log("Going to edit item", item.id, item.title);
+      } else {
+        console.log("Going to create a new item");
+      }
+      // The name of the route is defined in "src/router/index.js".
+      // The route definition there doesn't have params like :id, so we're
+      // actually passing an object directly. As you can read in
+      // https://forum.vuejs.org/t/passing-objects-to-vue-router/32070
+      // when the page is reloaded it won't contain the props.
+      this.$router.push({ name: "EditItem", params: { item: item } });
     },
     handleError(error) {
       console.error("API Error:", error);

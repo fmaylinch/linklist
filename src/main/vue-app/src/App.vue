@@ -1,7 +1,8 @@
 <template>
   <v-app>
     <transition>
-      <keep-alive>
+      <!-- https://vuejs.org/v2/api/#keep-alive -->
+      <keep-alive include="Home">
         <router-view />
       </keep-alive>
     </transition>
