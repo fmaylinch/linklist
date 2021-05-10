@@ -16,22 +16,12 @@
           />
         </v-container>
         <v-list>
-          <v-list-item
+          <ItemListItem
             v-for="item in searchedItems"
             :key="item.id"
+            :item="item"
             @click="editItem(item)"
-          >
-            <v-list-item-content>
-              <v-list-item-title class="card-title">
-                {{ item.title }}
-              </v-list-item-title>
-              <v-progress-linear
-                height="1"
-                :color="colorForItem(item)"
-                :value="item.score">
-              </v-progress-linear>
-            </v-list-item-content>
-          </v-list-item>
+          />
         </v-list>
       </v-card>
     </v-main>
@@ -44,9 +34,11 @@ import constants from "@/constants.js";
 import { EventBus } from '@/event-bus.js';
 import Util from "@/util.js";
 import Cookies from "js-cookie";
+import ItemListItem from "@/components/ItemListItem";
 
 export default {
   name: 'ItemList',
+  components: {ItemListItem},
   created() {
     this.axiosInstance = this.createAxiosInstance();
     this.retrieveItemsFromApi();
@@ -57,8 +49,16 @@ export default {
   }),
   computed: {
     searchedItems: function() {
-      const lowerSearch = this.search ? this.search.toLowerCase() : "";
-      return this.items.filter(it => it.rawContent.indexOf(lowerSearch) >= 0);
+      const lowerSearch = this.search ? this.search.trim().toLowerCase() : "";
+      const parts = lowerSearch.split(/ +/)
+        .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
+      return this.items.filter(it => {
+        for (let part of parts) {
+          // Search for all parts
+          if (it.rawContent.indexOf(part) < 0) return false;
+        }
+        return true;
+      });
     }
   },
   methods: {
