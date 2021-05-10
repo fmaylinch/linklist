@@ -1,0 +1,5 @@
+# Ignore files copied from Vue dist folder
+css/
+js/
+favicon.ico
+index.html
