@@ -9,12 +9,14 @@ import Vue from "vue";
 export const EventBus = new Vue();
 
 export const AppEvent = {
-  itemChanged: "item-updated" // {item: Object, action: UpdateAction}
+  itemChanged: "item-changed", // {item: Object, action: UpdateAction}
+  logout: "logout",
+  refreshList: "refresh-list"
 };
 
 // action for AppEvent.itemChanged
 export const UpdateAction = {
   update: "update",
   delete: "delete",
-  nothing: "nothing"
+  nothing: "nothing" // nothing changed, item is not indicated
 };

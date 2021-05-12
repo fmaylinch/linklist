@@ -44,6 +44,7 @@ export default {
     this.axiosInstance = this.createAxiosInstance();
     this.retrieveItemsFromApi();
     this.listenToItemUpdated();
+    this.listenToRefreshList();
   },
   data: () => ({
     search: null,
@@ -109,6 +110,11 @@ export default {
             .then(() => this.retrieveItemsFromApi())
             .catch(e => console.error("API Error", e));
         }
+      });
+    },
+    listenToRefreshList() {
+      EventBus.$on(AppEvent.refreshList, () => {
+        this.retrieveItemsFromApi()
       });
     },
     colorForItem(item) {
