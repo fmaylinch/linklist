@@ -25,6 +25,7 @@ import {AppEvent, EventBus, UpdateAction} from "@/event-bus.js";
 import Util from "@/util.js";
 
 export default {
+  name: 'EditItem',
   props: {
     item: Object // route params that comes as props thanks to configuration in routes
   },
@@ -60,7 +61,7 @@ export default {
         action: UpdateAction.delete,
         item: this.item
       });
-      this.$router.go(-1); // go back to CardList
+      this.$router.go(-1);
     },
     buildItemUpdate() {
       let item = this.formToItem(this.itemForm);

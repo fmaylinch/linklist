@@ -3,7 +3,7 @@
     <v-app-bar app dark>
       <v-toolbar-title>Item List</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn icon @click="logout"><v-icon>mdi-logout</v-icon></v-btn>
+      <v-btn icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
       <v-btn icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
@@ -64,9 +64,6 @@ export default {
     }
   },
   methods: {
-    logout() {
-      EventBus.$emit('logout');
-    },
     createAxiosInstance() {
       const token = Cookies.get("token");
       console.log("Creating axios instance");
@@ -132,6 +129,9 @@ export default {
       // https://forum.vuejs.org/t/passing-objects-to-vue-router/32070
       // when the page is reloaded it won't contain the props.
       this.$router.push({ name: "EditItem", params: { item: item } });
+    },
+    options() {
+      this.$router.push({ name: "Options" });
     },
     handleError(error) {
       console.error("API Error:", error);

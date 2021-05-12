@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
-import EditItem from '../views/EditItem'
-import About from '../views/About.vue'
+import Home from '@/views/Home.vue'
+import EditItem from '@/views/EditItem'
+import Options from '@/views/Options.vue'
 
 Vue.use(VueRouter)
 
@@ -19,9 +19,9 @@ const routes = [
     props: true
   },
   {
-    path: '/about',
-    name: 'About',
-    component: About
+    path: '/options',
+    name: 'Options',
+    component: Options
   }
 ]
 
