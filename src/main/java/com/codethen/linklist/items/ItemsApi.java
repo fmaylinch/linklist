@@ -135,9 +135,10 @@ public class ItemsApi {
             final CSVReader csvReader = new CSVReader(new FileReader(csvFile));
 
             String[] row = csvReader.readNext();
-            final String[] expectedHeader = {"title", "url", "image", "notes", "tags", "score"};
-            if (!Arrays.equals(row, expectedHeader)) {
-                return "CSV must have this header row: " + String.join(",", expectedHeader);
+            final var expectedHeader = List.of("title", "url", "image", "notes", "tags", "score");
+            final var rowFirstColumns = Arrays.asList(row).subList(0, expectedHeader.size());
+            if (!rowFirstColumns.equals(expectedHeader)) {
+                return "CSV must have a header with these columns: " + String.join(",", expectedHeader);
             }
 
             while ((row = csvReader.readNext()) != null) {
