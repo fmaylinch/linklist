@@ -9,6 +9,8 @@ import java.util.List;
 
 public class Item {
 
+    public static final int DEFAULT_SCORE = 50;
+
     String id;
     String userId;
     String title;

@@ -7,7 +7,6 @@ import com.codethen.linklist.db.MongoUtil.Ops;
 import com.codethen.linklist.security.Roles;
 import com.codethen.linklist.security.User;
 import com.codethen.linklist.users.UserService;
-import com.codethen.linklist.util.SecurityUtil;
 import com.codethen.linklist.util.Util;
 import com.mongodb.client.MongoCollection;
 import com.opencsv.CSVReader;
@@ -27,6 +26,7 @@ import java.io.FileReader;
 import java.util.*;
 
 import static com.codethen.linklist.items.ItemAdapter.*;
+import static com.codethen.linklist.util.SecurityUtil.getUserId;
 
 @Path("items")
 @Consumes(MediaType.APPLICATION_JSON)
@@ -47,7 +47,7 @@ public class ItemsApi {
     @RolesAllowed({ Roles.USER })
     public SearchResult search(@Context SecurityContext ctx, Search search) {
 
-        final String userId = SecurityUtil.getUserId(ctx);
+        final String userId = getUserId(ctx);
 
         final User searchedUser = userService.findByUsername(search.username);
 
@@ -72,19 +72,18 @@ public class ItemsApi {
     @POST @Path("upsertOne")
     @RolesAllowed({ Roles.USER })
     public Item upsertOne(@Context SecurityContext ctx, Item item) {
+        return upsertItem(item.setUserId(getUserId(ctx)));
+    }
+
+    private Item upsertItem(Item item) {
 
         if (Util.isEmpty(item.getTitle()))
             throw new WebApplicationException("At least title is required", Response.Status.BAD_REQUEST);
 
-        final String userId = SecurityUtil.getUserId(ctx);
-        item.setUserId(userId);
+        if (item.score < 0 || item.score > 100) {
+            item.setScore(Item.DEFAULT_SCORE);
+        }
 
-        upsertItem(item);
-
-        return item;
-    }
-
-    private void upsertItem(Item item) {
         final Document doc = ItemAdapter.from(item);
         assert doc != null;
 
@@ -94,25 +93,24 @@ public class ItemsApi {
             items.insertOne(doc);
             item.setId(doc.getObjectId(CommonFields._id).toString());
         }
+
+        return item;
     }
 
     @POST @Path("getOne")
     @RolesAllowed({ Roles.USER })
     public Item getOne(@Context SecurityContext ctx, ItemId itemId) {
-
-        final Document doc = items.find(byIdAndUserId(itemId.getId(), SecurityUtil.getUserId(ctx))).first();
+        final Document doc = items.find(byIdAndUserId(itemId.getId(), getUserId(ctx))).first();
         return ItemAdapter.from(doc);
     }
 
     @POST @Path("deleteOne")
     @RolesAllowed({ Roles.USER })
     public Item deleteOne(@Context SecurityContext ctx, ItemId itemId) {
-
         final Item item = getOne(ctx, itemId);
         if (item != null) {
-            items.deleteOne(byIdAndUserId(itemId.getId(), SecurityUtil.getUserId(ctx)));
+            items.deleteOne(byIdAndUserId(itemId.getId(), getUserId(ctx)));
         }
-
         return item;
     }
 
@@ -122,7 +120,7 @@ public class ItemsApi {
     public ItemsUploadResponse fileUpload(@Context SecurityContext ctx, @MultipartForm ItemsUpload upload) {
 
         final var commonTags = parseTags(upload.tags);
-        final String userId = SecurityUtil.getUserId(ctx);
+        final String userId = getUserId(ctx);
         final File csvFile = upload.file;
 
         final String error = importItemsFromCsv(csvFile, commonTags, userId);
@@ -149,31 +147,37 @@ public class ItemsApi {
                     continue;
                 }
 
-                final var tags = new ArrayList<>(commonTags);
-                final var specificTags = parseTags(row[4]);
-                tags.addAll(specificTags);
-
-                final String scoreStr = cleanString(row[5]);
-                final int score = scoreStr == null ? 50 : Integer.parseInt(scoreStr);
-
-                Item item = Item.builder()
+                final Item item = upsertItem(Item.builder()
                         .userId(userId)
                         .title(title)
                         .url(cleanString(row[1]))
                         .image(cleanString(row[2]))
                         .notes(cleanString(row[3]))
-                        .tags(tags)
-                        .score(score)
-                        .build();
+                        .tags(joinLists(commonTags, parseTags(row[4])))
+                        .score(parseScore(row[5]))
+                        .build());
 
-                upsertItem(item);
-
-                log.info("Inserted item with data: " + Arrays.toString(row));
+                log.info("Inserted item " + item.getId() + " with data: " + Arrays.toString(row));
             }
             return null;
 
         } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+
+    private List<String> joinLists(Collection<String> col1, Collection<String> col2) {
+        final var result = new ArrayList<>(col1);
+        result.addAll(col2);
+        return result;
+    }
+
+    private int parseScore(String rawScore) {
+        final String scoreStr = cleanString(rawScore);
+        try {
+            return scoreStr == null ? Item.DEFAULT_SCORE : Integer.parseInt(scoreStr);
+        } catch (NumberFormatException e) {
+            return Item.DEFAULT_SCORE;
         }
     }
 
