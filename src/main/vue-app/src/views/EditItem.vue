@@ -11,9 +11,16 @@
           <v-text-field v-model="itemForm.title" label="Title" />
           <v-text-field v-model="itemForm.url" label="Url" />
           <v-text-field v-model="itemForm.image" label="Image url" />
-          <v-textarea v-model="itemForm.notes" label="Notes" auto-grow rows="1" />
+          <v-textarea v-model="itemForm.notes" label="Notes"
+                      auto-grow rows="1" />
           <v-text-field v-model="itemForm.tags" label="Tags" />
-          <v-slider :color="sliderColor" label="Score" v-model="itemForm.score" min="0" max="100" />
+          <v-container />
+          <v-slider v-model="itemForm.score" label="Score"
+                    :color="sliderColor"
+                    thumb-label="always"
+                    min="0" max="100">
+            <!-- <template v-slot:append>{{ itemForm.score }}</template> -->
+          </v-slider>
         </v-container>
       </v-card>
     </v-main>

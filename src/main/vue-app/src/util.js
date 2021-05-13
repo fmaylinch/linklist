@@ -9,14 +9,14 @@ export default class Util {
   }
 
   static colorFromScore(score) {
-    if (score < 10) return "red";
-    if (score < 20) return "deep-orange";
-    if (score < 30) return "orange";
-    if (score < 40) return "amber";
-    if (score < 50) return "yellow";
+    if (score < 10) return "red darken-2";
+    if (score < 20) return "deep-orange darken-2";
+    if (score < 30) return "orange darken-3";
+    if (score < 40) return "amber darken-3";
+    if (score < 50) return "yellow darken-3";
     if (score < 60) return "grey darken-3";
-    if (score < 70) return "blue lighten-2";
-    if (score < 80) return "blue";
+    if (score < 70) return "blue";
+    if (score < 80) return "cyan";
     if (score < 90) return "teal";
     return "green";
   }
