@@ -22,6 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
+import java.io.File;
 import java.io.FileReader;
 import java.util.*;
 
@@ -122,54 +123,58 @@ public class ItemsApi {
 
         final var commonTags = parseTags(upload.tags);
         final String userId = SecurityUtil.getUserId(ctx);
+        final File csvFile = upload.file;
 
-        String error = "";
-
-        try {
-            // TODO: limit size of CSV
-
-            final CSVReader reader = new CSVReader(new FileReader(upload.file));
-            String[] row = reader.readNext();
-            final String[] expectedHeader = {"title", "url", "image", "notes", "tags", "score"};
-            if (Arrays.equals(row, expectedHeader)) {
-                while ((row = reader.readNext()) != null) {
-                    final String title = cleanString(row[0]);
-                    if (title == null) {
-                        log.warn("Ignored row without title: " + Arrays.toString(row));
-                        continue;
-                    }
-
-                    final var tags = new ArrayList<>(commonTags);
-                    final var specificTags = parseTags(row[4]);
-                    tags.addAll(specificTags);
-
-                    final String scoreStr = cleanString(row[5]);
-                    final int score = scoreStr == null ? 50 : Integer.parseInt(scoreStr);
-
-                    Item item = Item.builder()
-                            .userId(userId)
-                            .title(title)
-                            .url(cleanString(row[1]))
-                            .image(cleanString(row[2]))
-                            .notes(cleanString(row[3]))
-                            .tags(tags)
-                            .score(score)
-                            .build();
-
-                    upsertItem(item);
-
-                    log.info("Inserted item with data: " + Arrays.toString(row));
-                }
-            } else {
-                error = "Expected header: " + Arrays.toString(expectedHeader);
-            }
-        } catch (Exception e) {
-            error = e.getMessage();
-        }
+        final String error = importItemsFromCsv(csvFile, commonTags, userId);
 
         return ItemsUploadResponse.builder()
                 .error(error)
                 .build();
+    }
+
+    private String importItemsFromCsv(File csvFile, Collection<String> commonTags, String userId) {
+        try {
+            final CSVReader csvReader = new CSVReader(new FileReader(csvFile));
+
+            String[] row = csvReader.readNext();
+            final String[] expectedHeader = {"title", "url", "image", "notes", "tags", "score"};
+            if (!Arrays.equals(row, expectedHeader)) {
+                return "CSV must have this header row: " + String.join(",", expectedHeader);
+            }
+
+            while ((row = csvReader.readNext()) != null) {
+                final String title = cleanString(row[0]);
+                if (title == null) {
+                    log.warn("Ignored row without title: " + Arrays.toString(row));
+                    continue;
+                }
+
+                final var tags = new ArrayList<>(commonTags);
+                final var specificTags = parseTags(row[4]);
+                tags.addAll(specificTags);
+
+                final String scoreStr = cleanString(row[5]);
+                final int score = scoreStr == null ? 50 : Integer.parseInt(scoreStr);
+
+                Item item = Item.builder()
+                        .userId(userId)
+                        .title(title)
+                        .url(cleanString(row[1]))
+                        .image(cleanString(row[2]))
+                        .notes(cleanString(row[3]))
+                        .tags(tags)
+                        .score(score)
+                        .build();
+
+                upsertItem(item);
+
+                log.info("Inserted item with data: " + Arrays.toString(row));
+            }
+            return null;
+
+        } catch (Exception e) {
+            return e.getMessage();
+        }
     }
 
     private Collection<String> parseTags(String rawTags) {

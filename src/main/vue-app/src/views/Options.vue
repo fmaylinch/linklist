@@ -67,11 +67,18 @@ export default {
         return;
       }
 
+      if (this.uploadForm.file.size > 1024 * 1024) {
+        this.uploadForm.error = { message: "The file is too big. Max 1MB.", visible: true };
+        return;
+      }
+
       const formData = new FormData();
       formData.append('tags', this.uploadForm.tags);
       formData.append('file', this.uploadForm.file);
 
       console.log("Uploading...");
+      this.uploadForm.error = { message: "", visible: false };
+
       this.axiosInstance
         .post("items/import", formData, { "Content-Type": "multipart/form-data" })
         .then(resp => {
