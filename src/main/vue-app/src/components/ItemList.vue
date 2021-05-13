@@ -85,6 +85,12 @@ export default {
     prepareItems(searchResult) {
       console.log("Preparing items");
       this.fillRawContent(searchResult.items);
+      let byTitle = (x,y) => {
+        if (x.title < y.title) return -1;
+        if (x.title > y.title) return 1;
+        return 0;
+      };
+      searchResult.items.sort(byTitle);
       this.items = searchResult.items;
     },
     fillRawContent(items) {
