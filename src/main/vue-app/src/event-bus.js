@@ -9,14 +9,15 @@ import Vue from "vue";
 export const EventBus = new Vue();
 
 export const AppEvent = {
-  itemChanged: "item-changed", // {item: Object, action: UpdateAction}
+  itemChanged: "item-changed", // {newItem: Object, oldItem: object, action: UpdateAction}
   logout: "logout",
   refreshList: "refresh-list"
 };
 
 // action for AppEvent.itemChanged
 export const UpdateAction = {
-  update: "update",
-  delete: "delete",
-  nothing: "nothing" // nothing changed, item is not indicated
+  insert: "insert",  // oldItem is null
+  update: "update",  // oldItem is the original item, newItem the updated item
+  delete: "delete",  // newItem is null
+  nothing: "nothing" // newItem is irrelevant, but contains the data in the form
 };

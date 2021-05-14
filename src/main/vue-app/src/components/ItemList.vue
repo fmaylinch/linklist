@@ -85,35 +85,64 @@ export default {
     prepareItems(searchResult) {
       console.log("Preparing items");
       this.fillRawContent(searchResult.items);
+      this.sortAndSetItems(searchResult.items);
+    },
+    sortAndSetItems(items) {
       let byTitle = (x,y) => {
         if (x.title < y.title) return -1;
         if (x.title > y.title) return 1;
         return 0;
       };
-      searchResult.items.sort(byTitle);
-      this.items = searchResult.items;
+      items.sort(byTitle);
+      for (let i = 0; i < items.length; i++) {
+        items[i].index = i;
+      }
+      this.items = items;
     },
     fillRawContent(items) {
       for (let item of items) {
-        item.rawContent = Util.getItemRawContent(item).toLowerCase();
+        this.fillItemRawContent(item);
       }
+    },
+    fillItemRawContent(item) {
+      item.rawContent = Util.getItemRawContent(item).toLowerCase();
     },
     listenToItemUpdated() {
       EventBus.$on(AppEvent.itemChanged, event => {
         console.log("Item changed", event);
 
-        if (event.action === UpdateAction.update) {
-          console.log("Inserting or updating item", event.item.id, event.item.title);
+        const handleResponse = (resp, handleItem) => {
+          const item = resp.data;
+          this.fillItemRawContent(item);
+          handleItem(item);
+          this.sortAndSetItems(this.items);
+        };
+
+        if (event.action === UpdateAction.insert) {
+          console.log("Inserting item", event.newItem.title);
           this.axiosInstance
-            .post("items/upsertOne", event.item)
-            .then(() => this.retrieveItemsFromApi())
+              .post("items/upsertOne", event.newItem)
+              .then(resp => handleResponse(resp, item => {
+                this.items.push(item);
+              }))
+              .catch(e => console.error("API Error", e));
+
+        } else if (event.action === UpdateAction.update) {
+          console.log("Updating item", event.newItem.id, event.newItem.title);
+          this.axiosInstance
+            .post("items/upsertOne", event.newItem)
+            .then(resp => handleResponse(resp, item => {
+              this.items[event.oldItem.index] = item;
+            }))
             .catch(e => console.error("API Error", e));
 
         } else if (event.action === UpdateAction.delete) {
-          console.log("Deleting item", event.item.id, event.item.title);
+          console.log("Deleting item", event.oldItem.id, event.oldItem.title);
           this.axiosInstance
-            .post("items/deleteOne", {id: event.item.id})
-            .then(() => this.retrieveItemsFromApi())
+            .post("items/deleteOne", {id: event.oldItem.id})
+            .then(resp => handleResponse(resp, () => {
+              this.items.splice(event.oldItem.index, 1);
+            }))
             .catch(e => console.error("API Error", e));
         }
       });

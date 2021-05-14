@@ -66,7 +66,8 @@ export default {
     deleteItem() {
       EventBus.$emit(AppEvent.itemChanged, {
         action: UpdateAction.delete,
-        item: this.item
+        newItem: null,
+        oldItem: this.item
       });
       this.$router.go(-1);
     },
@@ -74,7 +75,8 @@ export default {
       let item = this.formToItem(this.itemForm);
       return {
         action: this.decideAction(item),
-        item: item
+        newItem: item,
+        oldItem: this.item
       };
     },
     decideAction(item) {
@@ -82,7 +84,7 @@ export default {
         return UpdateAction.nothing;
 
       if (!this.item)
-        return UpdateAction.update;
+        return UpdateAction.insert;
 
       if (Util.getItemRawContent(item) === Util.getItemRawContent(this.item))
         return UpdateAction.nothing;
