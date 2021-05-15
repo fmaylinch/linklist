@@ -5,6 +5,7 @@
   >
     <div class="fixed-div">
       <div
+          id="listDiv"
           class="fixed-div"
           :style="styleForView(this.views.ItemList)">
         <ItemList
@@ -38,6 +39,13 @@
             @logout="logout"
         />
       </div>
+      <v-btn
+          v-show="currentView === this.views.ItemList"
+          style="z-index: 3; position: fixed; right: 20px; bottom: 20px;"
+          @click="scrollToTop"
+          elevation="2">
+        <v-icon>mdi-chevron-double-up</v-icon>
+      </v-btn>
     </div>
   </Secured>
 </template>
@@ -149,6 +157,9 @@ export default {
       setTimeout(() => {
         this.currentView = this.views.EditItem;
       }, 300);
+    },
+    scrollToTop() {
+      document.getElementById("listDiv").scrollTop = 0;
     },
     onNavigation(to, from) {
       console.log("Tried to navigate from " + from.name + " to " + to.name);
