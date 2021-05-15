@@ -10,8 +10,10 @@
       <v-card flat tile>
         <v-container>
           <v-text-field v-model="itemForm.title" label="Title" />
-          <v-text-field v-model="itemForm.url" label="Url" />
-          <v-text-field v-model="itemForm.image" label="Image url" />
+          <v-text-field v-model="itemForm.url" label="Url"
+              :append-icon="itemForm.url ? 'mdi-open-in-new' : ''" @click:append="openUrl" />
+          <v-text-field v-model="itemForm.image" label="Image url"
+              :append-icon="itemForm.image ? 'mdi-open-in-new' : ''" @click:append="openImage" />
           <v-textarea v-model="itemForm.notes" label="Notes"
                       auto-grow rows="1" />
           <v-text-field v-model="itemForm.tags" label="Tags" />
@@ -86,6 +88,18 @@ export default {
         });
       } else {
         this.$emit("create", this.formToItem(this.itemForm));
+      }
+    },
+    openUrl() {
+      const url = this.itemForm.url;
+      if (url) {
+        window.open(url);
+      }
+    },
+    openImage() {
+      const url = this.itemForm.image;
+      if (url) {
+        window.open(url);
       }
     },
     formToItem(form) {
