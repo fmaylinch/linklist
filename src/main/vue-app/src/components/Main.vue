@@ -131,8 +131,8 @@ export default {
       console.log("Main: item to delete", item.id, item.title)
       this.ctx.axios
           .post("items/deleteOne", {id: item.id})
-          .then(resp => {
-            this.$refs.itemList.itemDeleted(resp.data);
+          .then(() => {
+            this.$refs.itemList.itemDeleted(item); // Note that item has index but resp.data not
             this.displayList();
           })
           .catch(e => this.handleError(e));
