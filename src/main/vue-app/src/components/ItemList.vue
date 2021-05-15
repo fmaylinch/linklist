@@ -2,6 +2,11 @@
   <div>
     <v-app-bar app dark>
       <v-toolbar-title>Item List</v-toolbar-title>
+      <div>
+        <span style="margin-left: 10px; font-size: 75%;">
+          {{ itemCount }}
+        </span>
+      </div>
       <v-spacer></v-spacer>
       <v-btn icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
       <v-btn icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
@@ -47,9 +52,14 @@ export default {
     items: []
   }),
   computed: {
+    lowerSearch() {
+      return this.search ? this.search.trim().toLowerCase() : "";
+    },
     searchedItems: function() {
-      const lowerSearch = this.search ? this.search.trim().toLowerCase() : "";
-      const parts = lowerSearch.split(/ +/)
+      if (!this.lowerSearch) {
+        return this.items;
+      }
+      const parts = this.lowerSearch.split(/ +/)
         .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
       return this.items.filter(it => {
         for (let part of parts) {
@@ -58,6 +68,13 @@ export default {
         }
         return true;
       });
+    },
+    itemCount() {
+      if (this.lowerSearch) {
+        return this.searchedItems.length + " of " + this.items.length;
+      } else {
+        return this.items.length;
+      }
     }
   },
   methods: {
