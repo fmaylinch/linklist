@@ -25,10 +25,9 @@ export default {
   methods: {
     login(credentials) {
       console.log("Secured: storing cookies for credentials");
+      const cookie = JSON.stringify(credentials);
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
-      // TODO: store credentials object stringified
-      Cookies.set("token", credentials.token, { sameSite: "strict" });
-      Cookies.set("username", credentials.username, { sameSite: "strict" });
+      Cookies.set("credentials", cookie, { sameSite: "strict" });
       this.reloadCredentials();
     },
     logout() {
@@ -36,19 +35,15 @@ export default {
     },
     removeCredentials() {
       console.log("Secured: removing credentials");
-      // TODO: store credentials object stringified
-      Cookies.remove("token");
-      Cookies.remove("username");
+      Cookies.remove("credentials");
       this.updateCredentials(null);
     },
     reloadCredentials() {
       console.log("Secured: reloading credentials");
-      // TODO: store credentials object stringified
-      const token = Cookies.get("token");
-      const username = Cookies.get("username");
-      if (token && username) {
+      const cookie = Cookies.get("credentials");
+      if (cookie) {
         console.log("Secured: credentials found");
-        this.updateCredentials({ username, token });
+        this.updateCredentials(JSON.parse(cookie));
       } else {
         console.log("Secured: credentials not found");
         this.removeCredentials();
