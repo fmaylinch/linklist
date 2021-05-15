@@ -8,7 +8,6 @@
 </template>
 
 <script>
-import { AppEvent } from '@/event-bus.js';
 import Login from "@/components/Login";
 import Cookies from "js-cookie";
 
@@ -31,6 +30,9 @@ export default {
       Cookies.set("token", credentials.token, { sameSite: "strict" });
       Cookies.set("username", credentials.username, { sameSite: "strict" });
       this.reloadCredentials();
+    },
+    logout() {
+      this.removeCredentials();
     },
     removeCredentials() {
       console.log("Secured: removing credentials");
@@ -55,7 +57,7 @@ export default {
     updateCredentials(credentials) {
       console.log("Secured: updating credentials");
       this.credentials = credentials;
-      this.$emit(AppEvent.credentialsChanged, credentials)
+      this.$emit("credentials-changed", credentials)
     }
   }
 }

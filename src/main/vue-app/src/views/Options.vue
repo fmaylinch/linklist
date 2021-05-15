@@ -2,6 +2,8 @@
   <div>
     <v-app-bar app dark>
       <v-toolbar-title>Options</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile>
@@ -31,13 +33,12 @@
 </template>
 
 <script>
-import {AppEvent, EventBus} from "@/event-bus.js";
-import constants from "@/constants.js";
-import Cookies from "js-cookie";
-import axios from "axios";
 
 export default {
   name: 'Options',
+  props: {
+    ctx: Object
+  },
   data: () => ({
     uploadForm: {
       file: null,
@@ -45,21 +46,12 @@ export default {
       error: { message: "", visible: false }
     }
   }),
-  created() {
-    this.axiosInstance = this.createAxiosInstance();
-  },
   methods: {
-    createAxiosInstance() { // TODO: Refactor, this is also used in ItemsApi
-      const token = Cookies.get("token");
-      console.log("Creating axios instance");
-      return axios.create({
-        baseURL: constants.apiUrl,
-        headers: { Authorization: "Bearer " + token }
-      });
-    },
     logout() {
-      EventBus.$emit(AppEvent.logout);
-      this.$router.go(-1);
+      this.$emit("logout");
+    },
+    close() {
+      this.$emit("close");
     },
     upload() {
       if (!this.uploadForm.file) {
@@ -79,14 +71,13 @@ export default {
       console.log("Uploading...");
       this.uploadForm.error = { message: "", visible: false };
 
-      this.axiosInstance
+      this.ctx.axios
         .post("items/import", formData, { "Content-Type": "multipart/form-data" })
         .then(resp => {
           console.log(resp.data);
           this.uploadForm.error = { message: resp.data.error, visible: !!resp.data.error };
           if (!resp.data.error) {
-            EventBus.$emit(AppEvent.refreshList);
-            this.$router.go(-1);
+            this.$emit("items-uploaded");
           }
         })
         .catch(e => console.error(e));

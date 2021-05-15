@@ -111,8 +111,11 @@ export default {
       this.items.splice(item.index, 1);
       this.sortAndSetItems(this.items);
     },
+    refreshItems() {
+      this.retrieveItemsFromApi();
+    },
     options() {
-      this.$router.push({ name: "Options" }); // TODO: send event for Main to show Options
+      this.$emit("options")
     },
     handleError(error) {
       console.error("API Error:", error);

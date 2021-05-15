@@ -21,7 +21,6 @@
 <script>
 import axios from "axios";
 import constants from "@/constants";
-import {AppEvent} from '@/event-bus';
 
 export default {
   name: 'Login',
@@ -49,8 +48,7 @@ export default {
         .catch(e => this.handleError(e));
     },
     handleCredentials(credentials) {
-      console.log("Login: emitting event", AppEvent.login);
-      this.$emit(AppEvent.login, credentials);
+      this.$emit("login", credentials);
     },
     handleError(error) {
       this.error = error;

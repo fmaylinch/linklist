@@ -1,28 +1,41 @@
 <template>
-  <Secured @credentials-changed="updateCredentials">
+  <Secured
+      ref="secured"
+      @credentials-changed="updateCredentials"
+  >
     <div class="fixed-div">
       <div
           class="fixed-div"
-          :style="{zIndex: this.currentView === this.views.ItemList ? 2 : 1, backgroundColor: 'black'}">
+          :style="styleForView(this.views.ItemList)">
         <ItemList
             ref="itemList"
             :ctx="ctx"
             @open-item="openItem"
             @add-item="addItem"
+            @options="options"
         />
       </div>
       <div
           id="editDiv"
           class="fixed-div"
-          :style="{zIndex: this.currentView === this.views.EditItem ? 2 : 1, backgroundColor: 'black'}">
+          :style="styleForView(this.views.EditItem)">
         <EditItem
             ref="editItem"
-            class="edit"
             :ctx="ctx"
             @update="itemToUpdate"
             @create="itemToCreate"
             @delete="itemToDelete"
-            @close="itemClosed"
+            @close="displayList"
+        />
+      </div>
+      <div
+          class="fixed-div"
+          :style="styleForView(this.views.Options)">
+        <Options
+            :ctx="ctx"
+            @items-uploaded="refreshList"
+            @close="displayList"
+            @logout="logout"
         />
       </div>
     </div>
@@ -35,10 +48,13 @@ import ItemList from '@/components/ItemList';
 import EditItem from '@/components/EditItem';
 import axios from 'axios';
 import constants from '@/constants';
+import Options from '@/views/Options';
 
 export default {
   name: 'Main',
-  components: {EditItem, ItemList, Secured },
+  components: {
+    Options,
+    EditItem, ItemList, Secured },
   beforeRouteLeave(to, from, next) {
     console.log("Going back")
     next(false); // Avoid leaving the app
@@ -47,7 +63,8 @@ export default {
     ctx: { },
     views: {
       ItemList: "ItemList",
-      EditItem: "EditItem"
+      EditItem: "EditItem",
+      Options: "Options"
     },
     currentView: null
   }),
@@ -61,9 +78,13 @@ export default {
     },
     updateCredentials(credentials) {
       console.log("Main: update credentials", credentials);
-      this.ctx.credentials = credentials;
-      this.ctx.axios = this.createAxiosInstance(credentials);
-      this.displayList();
+      if (credentials) {
+        this.ctx.credentials = credentials;
+        this.ctx.axios = this.createAxiosInstance(credentials);
+        this.displayList();
+      } else {
+        this.currentView = null;
+      }
     },
     addItem() {
       this.displayEdit(null);
@@ -71,9 +92,6 @@ export default {
     openItem(item) {
       console.log("Main: open item", item.id, item.title)
       this.displayEdit(item);
-    },
-    itemClosed() {
-      this.displayList();
     },
     itemToUpdate(itemUpdate) {
       console.log("Main: item to update", itemUpdate);
@@ -111,6 +129,10 @@ export default {
     handleError(e) {
       console.error("API Error", e);
     },
+    refreshList() {
+      this.$refs.itemList.refreshItems();
+      this.displayList();
+    },
     displayList() {
       this.currentView = this.views.ItemList;
     },
@@ -134,6 +156,13 @@ export default {
         zIndex: this.currentView === view ? 2 : 1,
         backgroundColor: 'black'
       };
+    },
+    options() {
+      this.currentView = this.views.Options;
+    },
+    logout() {
+      this.currentView = null;
+      this.$refs.secured.logout();
     }
   }
 }

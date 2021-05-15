@@ -3,7 +3,6 @@
     <v-app-bar app dark>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <!-- <v-btn v-if="isEditing" @click="deleteItem" icon><v-icon>mdi-delete</v-icon></v-btn> -->
       <v-btn v-if="isDataCorrect" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
       <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
@@ -28,7 +27,13 @@
       <v-divider />
       <v-card flat tile>
         <v-container>
-          <v-btn v-if="isEditing" @click="deleteItem" elevation="2">Delete <v-icon right>mdi-delete</v-icon></v-btn>
+          <v-btn
+              v-if="isEditing"
+              @click="deleteItem"
+              color="error"
+              elevation="2">
+            Delete <v-icon right>mdi-delete</v-icon>
+          </v-btn>
         </v-container>
       </v-card>
     </v-main>

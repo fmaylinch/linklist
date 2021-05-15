@@ -11,9 +11,3 @@ import Vue from "vue";
  *       so components can do `this.$emit`.
  */
 export const EventBus = new Vue();
-
-export const AppEvent = {
-  logout: "logout",
-  login: "login", // {credentials: Object}
-  credentialsChanged: "credentials-changed" // {credentials: Object?}
-};
