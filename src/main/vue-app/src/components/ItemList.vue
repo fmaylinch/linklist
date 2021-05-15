@@ -20,7 +20,7 @@
           <v-list-item
             v-for="item in searchedItems"
             :key="item.id"
-            @click="editItem(item)">
+            @click="openItem(item)">
             <ItemListItem :item="item" />
           </v-list-item>
         </v-list>
@@ -30,21 +30,17 @@
 </template>
 
 <script>
-import axios from "axios";
-import constants from "@/constants.js";
-import {AppEvent, EventBus, UpdateAction} from '@/event-bus.js';
 import Util from "@/util.js";
-import Cookies from "js-cookie";
 import ItemListItem from "@/components/ItemListItem";
 
 export default {
   name: 'ItemList',
   components: {ItemListItem},
+  props: {
+    ctx: Object
+  },
   created() {
-    this.axiosInstance = this.createAxiosInstance();
     this.retrieveItemsFromApi();
-    this.listenToItemUpdated();
-    this.listenToRefreshList();
   },
   data: () => ({
     search: null,
@@ -65,25 +61,16 @@ export default {
     }
   },
   methods: {
-    createAxiosInstance() {
-      const token = Cookies.get("token");
-      console.log("Creating axios instance");
-      return axios.create({
-        baseURL: constants.apiUrl,
-        headers: { Authorization: "Bearer " + token }
-      });
-    },
     retrieveItemsFromApi() {
       console.log("Loading items from API");
-      const username = Cookies.get("username");
-      const search = { username };
-      this.axiosInstance
+      const search = { username: this.ctx.credentials.username };
+      this.ctx.axios
         .post("items/search", search)
         .then(resp => this.prepareItems(resp.data))
         .catch(e => this.handleError(e));
     },
     prepareItems(searchResult) {
-      console.log("Preparing items");
+      console.log("Preparing items", searchResult);
       this.fillRawContent(searchResult.items);
       this.sortAndSetItems(searchResult.items);
     },
@@ -101,84 +88,34 @@ export default {
     },
     fillRawContent(items) {
       for (let item of items) {
-        this.fillItemRawContent(item);
+        Util.fillItemRawContent(item);
       }
-    },
-    fillItemRawContent(item) {
-      item.rawContent = Util.getItemRawContent(item).toLowerCase();
-    },
-    listenToItemUpdated() {
-      EventBus.$on(AppEvent.itemChanged, event => {
-        console.log("Item changed", event);
-
-        const handleResponse = (resp, handleItem) => {
-          const item = resp.data;
-          this.fillItemRawContent(item);
-          handleItem(item);
-          this.sortAndSetItems(this.items);
-        };
-
-        if (event.action === UpdateAction.insert) {
-          console.log("Inserting item", event.newItem.title);
-          this.axiosInstance
-              .post("items/upsertOne", event.newItem)
-              .then(resp => handleResponse(resp, item => {
-                this.items.push(item);
-              }))
-              .catch(e => console.error("API Error", e));
-
-        } else if (event.action === UpdateAction.update) {
-          console.log("Updating item", event.newItem.id, event.newItem.title);
-          this.axiosInstance
-            .post("items/upsertOne", event.newItem)
-            .then(resp => handleResponse(resp, item => {
-              this.items[event.oldItem.index] = item;
-            }))
-            .catch(e => console.error("API Error", e));
-
-        } else if (event.action === UpdateAction.delete) {
-          console.log("Deleting item", event.oldItem.id, event.oldItem.title);
-          this.axiosInstance
-            .post("items/deleteOne", {id: event.oldItem.id})
-            .then(resp => handleResponse(resp, () => {
-              this.items.splice(event.oldItem.index, 1);
-            }))
-            .catch(e => console.error("API Error", e));
-        }
-      });
-    },
-    listenToRefreshList() {
-      EventBus.$on(AppEvent.refreshList, () => {
-        this.retrieveItemsFromApi()
-      });
-    },
-    colorForItem(item) {
-      return Util.colorFromScore(item.score);
     },
     addItem() {
-      this.editItem(null);
+      this.$emit("add-item");
     },
-    editItem(item) {
-      if (item) {
-        console.log("Going to edit item", item.id, item.title);
-      } else {
-        console.log("Going to create a new item");
-      }
-      // The name of the route is defined in "src/router/index.js".
-      // The route definition there doesn't have params like :id, so we're
-      // actually passing an object directly. As you can read in
-      // https://forum.vuejs.org/t/passing-objects-to-vue-router/32070
-      // when the page is reloaded it won't contain the props.
-      this.$router.push({ name: "EditItem", params: { item: item } });
+    openItem(item) {
+      this.$emit("open-item", item);
+    },
+    itemUpdated(itemUpdate) {
+      Util.fillItemRawContent(itemUpdate.newItem);
+      this.items[itemUpdate.oldItem.index] = itemUpdate.newItem;
+      this.sortAndSetItems(this.items);
+    },
+    itemAdded(item) {
+      Util.fillItemRawContent(item);
+      this.items.push(item);
+      this.sortAndSetItems(this.items);
+    },
+    itemDeleted(item) {
+      this.items.splice(item.index, 1);
+      this.sortAndSetItems(this.items);
     },
     options() {
-      this.$router.push({ name: "Options" });
+      this.$router.push({ name: "Options" }); // TODO: send event for Main to show Options
     },
     handleError(error) {
       console.error("API Error:", error);
-      if (error.response.status === 401) {
-        this.logout();
-      }
     }
   }
 }

@@ -19,9 +19,9 @@
 </template>
 
 <script>
-import { EventBus } from "@/event-bus.js";
 import axios from "axios";
 import constants from "@/constants";
+import {AppEvent} from '@/event-bus';
 
 export default {
   name: 'Login',
@@ -42,14 +42,15 @@ export default {
         this.error = "Passwords don't match";
         return;
       }
-      console.log("action:", action);
+      console.log("Login: ", action);
       axios
         .post(constants.apiUrl + "/security/" + action, this.loginData)
         .then(resp => this.handleCredentials(resp.data))
         .catch(e => this.handleError(e));
     },
     handleCredentials(credentials) {
-      EventBus.$emit("login", credentials);
+      console.log("Login: emitting event", AppEvent.login);
+      this.$emit(AppEvent.login, credentials);
     },
     handleError(error) {
       this.error = error;

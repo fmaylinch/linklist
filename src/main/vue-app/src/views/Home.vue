@@ -1,18 +1,15 @@
 <template>
-  <Secured>
-    <ItemList/>
-  </Secured>
+    <div />
 </template>
 
 <script>
-// @ is an alias to /src
-import ItemList from '@/components/ItemList';
-import Secured from "@/components/Secured";
 
 export default {
   name: 'Home',
-  components: {
-    Secured,
-    ItemList
-  }}
+  created() {
+    // Although we rarely use routes, we start navigating to a route
+    // because from there we can intercept the browser back button
+    this.$router.push({ name: "AppStart" });
+  }
+}
 </script>

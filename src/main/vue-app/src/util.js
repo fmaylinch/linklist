@@ -4,6 +4,10 @@ export default class Util {
     return item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item) + " " + item.score;
   }
 
+  static fillItemRawContent(item) {
+    item.rawContent = Util.getItemRawContent(item).toLowerCase();
+  }
+
   static getTagsString(item) {
     return item.tags ? item.tags.map(t => "#" + t + " ").join("") : "";
   }

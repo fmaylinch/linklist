@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/Home.vue'
-import EditItem from '@/views/EditItem'
 import Options from '@/views/Options.vue'
+import AppStart from '@/views/AppStart';
+import SampleView from '@/views/SampleView';
 
 Vue.use(VueRouter)
 
@@ -13,10 +14,14 @@ const routes = [
     component: Home
   },
   {
-    path: "/edit",
-    name: "EditItem",
-    component: EditItem,
-    props: true
+    path: '/app',
+    name: 'AppStart',
+    component: AppStart
+  },
+  {
+    path: '/sample',
+    name: 'SampleView',
+    component: SampleView
   },
   {
     path: '/options',
@@ -26,17 +31,11 @@ const routes = [
 ]
 
 const router = new VueRouter({
-  mode: 'history',
+  // Without history mode, the url path is always the root (so Quarkus won't be confused)
+  // Let's wee what we do when you share a list view (e.g. linklist.es/may/movie).
+  //mode: 'history',
   base: process.env.BASE_URL,
-  routes,
-  scrollBehavior (to, from, savedPosition) {
-    // console.log("savedPosition", savedPosition);
-    if (savedPosition) {
-      return savedPosition
-    } else {
-      return { x: 0, y: 0 }
-    }
-  }
+  routes
 })
 
 export default router

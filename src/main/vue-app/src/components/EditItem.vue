@@ -3,7 +3,9 @@
     <v-app-bar app dark>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn v-if="isEditing" @click="deleteItem()" icon><v-icon>mdi-delete</v-icon></v-btn>
+      <!-- <v-btn v-if="isEditing" @click="deleteItem" icon><v-icon>mdi-delete</v-icon></v-btn> -->
+      <v-btn v-if="isDataCorrect" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
+      <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile>
@@ -23,21 +25,27 @@
           </v-slider>
         </v-container>
       </v-card>
+      <v-divider />
+      <v-card flat tile>
+        <v-container>
+          <v-btn v-if="isEditing" @click="deleteItem" elevation="2">Delete <v-icon right>mdi-delete</v-icon></v-btn>
+        </v-container>
+      </v-card>
     </v-main>
   </div>
 </template>
 
 <script>
-import {AppEvent, EventBus, UpdateAction} from "@/event-bus.js";
-import Util from "@/util.js";
+import Util from "@/util";
 
 export default {
   name: 'EditItem',
   props: {
-    item: Object // route params that comes as props thanks to configuration in routes
+    ctx: Object
   },
   data: () => ({
-    itemForm: {}
+    itemForm: {},
+    item: null
   }),
   computed: {
     sliderColor() {
@@ -46,50 +54,34 @@ export default {
     isEditing() {
       return this.item != null;
     },
+    isDataCorrect() {
+      return this.itemForm.title && this.itemForm.title.trim();
+    },
     title() {
       return this.isEditing ? "Edit Item" : "Create Item";
     }
   },
-  created() {
-    // Note that we pass an object to params, the card won't be available if page is reloaded.
-    // It will then think that we are going to create a new item. See computed title.
-    this.itemForm = this.itemToForm(this.item);
-  },
-  beforeRouteLeave(to, from, next) {
-    // When going back home, notify the action in the card
-    if (from.name === "EditItem" && to.name === "Home") {
-      EventBus.$emit(AppEvent.itemChanged, this.buildItemUpdate());
-    }
-    next();
-  },
   methods: {
+    setItem(item) {
+      console.log("EditItem:", item ? item.title : "(new item)");
+      this.item = item;
+      this.itemForm = this.itemToForm(this.item);
+    },
+    close() {
+      this.$emit("close");
+    },
     deleteItem() {
-      EventBus.$emit(AppEvent.itemChanged, {
-        action: UpdateAction.delete,
-        newItem: null,
-        oldItem: this.item
-      });
-      this.$router.go(-1);
+      this.$emit("delete", this.item);
     },
-    buildItemUpdate() {
-      let item = this.formToItem(this.itemForm);
-      return {
-        action: this.decideAction(item),
-        newItem: item,
-        oldItem: this.item
-      };
-    },
-    decideAction(item) {
-      if (item.title.length === 0)
-        return UpdateAction.nothing;
-
-      if (!this.item)
-        return UpdateAction.insert;
-
-      if (Util.getItemRawContent(item) === Util.getItemRawContent(this.item))
-        return UpdateAction.nothing;
-
-      return UpdateAction.update;
+    saveItem() {
+      if (this.isEditing) {
+        this.$emit("update", {
+          newItem: this.formToItem(this.itemForm),
+          oldItem: this.item
+        });
+      } else {
+        this.$emit("create", this.formToItem(this.itemForm));
+      }
     },
     formToItem(form) {
       return {
