@@ -66,6 +66,9 @@ export default {
       EditItem: "EditItem",
       Options: "Options"
     },
+    // This component doesn't use routes. It just swaps different components.
+    // We used some hacky CSS to avoid layout problems (see "fixed-div").
+    // It would be great to find a better solution.
     currentView: null
   }),
   methods: {
@@ -83,7 +86,7 @@ export default {
         this.ctx.axios = this.createAxiosInstance(credentials);
         this.displayList();
       } else {
-        this.currentView = null;
+        this.hideCurrentView();
       }
     },
     addItem() {
@@ -147,8 +150,10 @@ export default {
         this.currentView = this.views.EditItem;
       }, 300);
     },
-    backButtonPressed(to, from) {
-      console.log("Tried to go navigate from " + from.name + " to " + to.name);
+    onNavigation(to, from) {
+      console.log("Tried to navigate from " + from.name + " to " + to.name);
+      // For now, we suppose that the user pressed the back button on the browser,
+      // so we display the item list. We will probably need more sophisticated logic.
       this.displayList();
     },
     styleForView(view) {
@@ -161,8 +166,11 @@ export default {
       this.currentView = this.views.Options;
     },
     logout() {
-      this.currentView = null;
+      this.hideCurrentView();
       this.$refs.secured.logout();
+    },
+    hideCurrentView() {
+      this.currentView = null;
     }
   }
 }

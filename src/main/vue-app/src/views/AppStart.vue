@@ -11,9 +11,13 @@ export default {
     Main
   },
   beforeRouteLeave(to, from, next) {
-    console.log("Intercepting back button")
+    console.log("Navigation intercepted")
+    // This intercepts back button in browser,
+    // but it also intercepts other route navigation, so in those cases we will
+    // need to make an exception and call `next()`, not `next(false)`.
     next(false);
-    this.$refs.main.backButtonPressed(to, from);
+    // See how Main component handles this
+    this.$refs.main.onNavigation(to, from);
   }
 }
 </script>
