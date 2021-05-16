@@ -24,7 +24,11 @@
             clearable
             v-model="query"
             label="Search"
+            placeholder="Search words or #tags"
           />
+          <div v-if="shareable">
+            Share link: <a :href="shareLink()" target="_blank"> {{shareLink()}}</a>
+          </div>
         </v-container>
         <v-list>
           <!-- If the v-list-item is inside ItemListItem, the @click handler doesn't work -->
@@ -47,8 +51,8 @@
 </template>
 
 <script>
-import Util from "@/util.js";
-import ItemListItem from "@/components/ItemListItem";
+import Util from '@/util.js';
+import ItemListItem from '@/components/ItemListItem';
 
 export default {
   name: 'ItemList',
@@ -61,11 +65,16 @@ export default {
   },
   data: () => ({
     query: null,
-    items: []
+    items: [],
   }),
   computed: {
     lowerSearch() {
       return this.query ? this.query.trim().toLowerCase() : "";
+    },
+    shareable() {
+      if (this.lowerSearch[0] !== "#") return false;
+      if (this.searchedItems.length === 0) return false;
+      return this.lowerSearch.split(/ +/).filter(x => x[0] !== "#").length === 0; // Only searching tags
     },
     searchedItems: function() {
       if (!this.lowerSearch) {
@@ -148,6 +157,14 @@ export default {
     },
     options() {
       this.$emit("options")
+    },
+    openShareLink() {
+      window.open(this.shareLink());
+    },
+    shareLink() {
+      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1)).join(",");
+      const url = new URL(location.href);
+      return url.protocol + "//" + url.host + "/?user=" + this.ctx.credentials.username + "&tags=" + tags;
     },
     handleError(error) {
       console.error("API Error:", error);
