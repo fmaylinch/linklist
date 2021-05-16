@@ -9,15 +9,21 @@
       </div>
       <v-spacer></v-spacer>
       <v-btn icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
-      <v-btn icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn v-if="ctx.viewingMyItems" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile dark>
+        <v-container v-if="!ctx.viewingMyItems">
+          <v-alert dismissible type="info">
+            Viewing items from user <strong>{{ctx.search.username}}</strong>
+            with tags <strong>{{ctx.search.tags.join(", ")}}</strong>.
+          </v-alert>
+        </v-container>
         <v-container>
           <v-text-field
             clearable
-            v-model="search"
-            placeholder="Search…"
+            v-model="query"
+            label="Search"
           />
         </v-container>
         <v-list>
@@ -54,12 +60,12 @@ export default {
     this.retrieveItemsFromApi();
   },
   data: () => ({
-    search: null,
+    query: null,
     items: []
   }),
   computed: {
     lowerSearch() {
-      return this.search ? this.search.trim().toLowerCase() : "";
+      return this.query ? this.query.trim().toLowerCase() : "";
     },
     searchedItems: function() {
       if (!this.lowerSearch) {
@@ -85,8 +91,8 @@ export default {
   },
   methods: {
     retrieveItemsFromApi() {
-      console.log("Loading items from API");
-      const search = { username: this.ctx.credentials.username };
+      console.log("Loading items from API", this.ctx.search);
+      const search = this.ctx.search;
       this.ctx.axios
         .post("items/search", search)
         .then(resp => this.prepareItems(resp.data))

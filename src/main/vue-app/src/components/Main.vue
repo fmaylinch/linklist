@@ -105,10 +105,19 @@ export default {
     onNavigation(to, from) {
       console.log("Tried to navigate from " + from.name + " to " + to.name);
       // For now, we suppose that the user pressed the back button on the browser,
-      // so we display the item list. We will probably need more sophisticated logic.
-      this.displayList();
+      // We will probably need more sophisticated logic.
+      if (this.currentView === this.views.ItemList) {
+        // If the user is viewing items from another user, go back to his items
+        if (!this.ctx.viewingMyItems) {
+          location.href = "/"; // remove url parameters from share link, to view your items
+        }
+      } else {
+        this.displayList();
+      }
     },
     styleForView(view) {
+      // We use zIndex instead of v-show or v-if, to preserve component scroll position, especially for ItemList.
+      // We could use v-if for the other components (in fact, it would be preferable), but I had problems with that.
       return {
         zIndex: this.currentView === view ? 2 : 1
       };

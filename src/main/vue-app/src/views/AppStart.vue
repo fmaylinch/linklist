@@ -30,15 +30,6 @@ export default {
     displayMain: false
   }),
   created() {
-    // TODO: test get url params for sharing link
-    console.log("location", location.href);
-    const queryString = window.location.search;
-    console.log("queryString", queryString);
-    if (queryString) {
-      const urlParams = new URLSearchParams(queryString);
-      console.log(urlParams.get("user"));
-      console.log(urlParams.get("tags").split(","));
-    }
   },
   methods: {
     updateCredentials(credentials) {
@@ -46,9 +37,22 @@ export default {
       if (credentials) {
         this.ctx.credentials = credentials;
         this.ctx.axios = this.createAxiosInstance(credentials);
+        this.ctx.search = this.createSearchFromUrlParameters() || { username: credentials.username };
+        this.ctx.viewingMyItems = this.ctx.credentials.username === this.ctx.search.username;
         this.displayMain = true;
       } else {
         this.displayMain = false;
+      }
+    },
+    createSearchFromUrlParameters() {
+      const queryString = window.location.search;
+      if (!queryString) {
+        return null;
+      }
+      const urlParams = new URLSearchParams(queryString);
+      return {
+        username: urlParams.get("user"),
+        tags: urlParams.get("tags").split(",")
       }
     },
     createAxiosInstance(credentials) {
@@ -60,6 +64,7 @@ export default {
     },
     logout() {
       this.$refs.secured.logout();
+      location.href = "/"; // To remove possible url parameters, to view your items
     }
   },
   beforeRouteLeave(to, from, next) {

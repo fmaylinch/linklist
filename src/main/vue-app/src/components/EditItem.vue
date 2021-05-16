@@ -3,7 +3,7 @@
     <v-app-bar app dark>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-btn v-if="isDataCorrect" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
+      <v-btn v-if="isDataCorrect && !readonly" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
       <v-btn @click="cancel" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
     <v-main>
@@ -13,21 +13,22 @@
               v-model="error.visible"
               color="red"
               dismissible
-              elevation="2"
               type="error"
           >{{ error.message }}</v-alert>
         </v-container>
         <v-container>
-          <v-text-field v-model="itemForm.title" label="Title" />
-          <v-text-field v-model="itemForm.url" label="Url"
+          <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
+          <v-text-field :readonly="readonly" v-model="itemForm.url" label="Url"
               :append-icon="itemForm.url ? 'mdi-open-in-new' : ''" @click:append="openUrl" />
-          <v-text-field v-model="itemForm.image" label="Image url"
+          <v-text-field :readonly="readonly" v-model="itemForm.image" label="Image url"
               :append-icon="itemForm.image ? 'mdi-open-in-new' : ''" @click:append="openImage" />
-          <v-textarea v-model="itemForm.notes" label="Notes"
+          <v-textarea :readonly="readonly" v-model="itemForm.notes" label="Notes"
                       auto-grow rows="1" />
-          <v-text-field v-model="itemForm.tags" label="Tags" />
+          <v-text-field :readonly="readonly" v-model="itemForm.tags" label="Tags" />
           <v-container />
-          <v-slider v-model="itemForm.score" label="Score"
+          <v-slider :readonly="readonly"
+                    v-model="itemForm.score"
+                    label="Score"
                     :color="sliderColor"
                     thumb-label="always"
                     min="0" max="100">
@@ -39,7 +40,7 @@
       <v-card flat tile>
         <v-container>
           <v-btn
-              v-if="isEditing"
+              v-if="isEditing && !readonly"
               @click="deleteItem"
               color="error"
               elevation="2">
@@ -65,6 +66,9 @@ export default {
     error: { message: "", visible: false }
   }),
   computed: {
+    readonly() {
+     return !this.ctx.viewingMyItems;
+    },
     sliderColor() {
       return Util.colorFromScore(this.itemForm.score);
     },
@@ -75,6 +79,7 @@ export default {
       return this.itemForm.title && this.itemForm.title.trim();
     },
     title() {
+      if (this.readonly) return "View Item";
       return this.isEditing ? "Edit Item" : "Create Item";
     }
   },
@@ -137,6 +142,7 @@ export default {
     formToItem(form) {
       return {
         id: form.id,
+        userId: form.userId,
         title: form.title,
         url: form.url,
         image: form.image,
@@ -149,6 +155,7 @@ export default {
       if (item) {
         return {
           id: item.id,
+          userId: item.userId,
           title: item.title,
           url: item.url,
           image: item.image,
@@ -159,6 +166,7 @@ export default {
       } else {
         return {
           id: null,
+          userId: null,
           title: "",
           url: "",
           image: "",

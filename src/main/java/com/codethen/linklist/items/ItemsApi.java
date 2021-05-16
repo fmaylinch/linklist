@@ -72,13 +72,30 @@ public class ItemsApi {
     @POST @Path("upsertOne")
     @RolesAllowed({ Roles.USER })
     public Item upsertOne(@Context SecurityContext ctx, Item item) {
-        return upsertItem(item.setUserId(getUserId(ctx)));
+        return upsertItem(item, getUserId(ctx));
     }
 
-    private Item upsertItem(Item item) {
+    /**
+     * Updates or inserts an {@link Item}.
+     *
+     * @param item   item to upsert (if {@link Item#getId()} is null, we're inserting a new item)
+     * @param userId user that is performing the upsert
+     * @return item created or modified
+     */
+    private Item upsertItem(Item item, String userId) {
 
         if (Util.isEmpty(item.getTitle()))
             throw new WebApplicationException("At least title is required", Response.Status.BAD_REQUEST);
+
+        if (Util.isEmpty(item.getId())) {
+            // It's a new item. Set owner.
+            item.setUserId(userId);
+        } else {
+            // It's an existing item. Only the same user can modify it.
+            if (!userId.equals(item.getUserId())) {
+                throw new WebApplicationException("Access denied", Response.Status.UNAUTHORIZED);
+            }
+        }
 
         if (item.score < 0 || item.score > 100) {
             item.setScore(Item.DEFAULT_SCORE);
@@ -148,15 +165,16 @@ public class ItemsApi {
                     continue;
                 }
 
-                final Item item = upsertItem(Item.builder()
-                        .userId(userId)
+                final Item item = Item.builder()
                         .title(title)
                         .url(cleanString(row[1]))
                         .image(cleanString(row[2]))
                         .notes(cleanString(row[3]))
                         .tags(joinLists(commonTags, parseTags(row[4])))
                         .score(parseScore(row[5]))
-                        .build());
+                        .build();
+
+                upsertItem(item, userId);
 
                 log.info("Inserted item " + item.getId() + " with data: " + Arrays.toString(row));
             }
