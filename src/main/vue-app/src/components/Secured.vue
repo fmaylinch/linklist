@@ -1,5 +1,5 @@
 <template>
-  <div v-if="credentials">
+  <div v-if="credentials || bypass">
     <slot />
   </div>
   <div v-else>
@@ -18,6 +18,9 @@ export default {
   },
   created() {
     this.reloadCredentials();
+  },
+  props: {
+    bypass: Boolean
   },
   data: () => ({
     credentials: null

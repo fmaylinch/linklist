@@ -14,6 +14,7 @@ import org.bson.Document;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -44,7 +45,7 @@ public class ItemsApi {
     }
 
     @POST @Path("search")
-    @RolesAllowed({ Roles.USER })
+    @PermitAll
     public SearchResult search(@Context SecurityContext ctx, Search search) {
 
         final String userId = getUserId(ctx);

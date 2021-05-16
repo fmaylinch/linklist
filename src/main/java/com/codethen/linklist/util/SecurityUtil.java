@@ -15,6 +15,6 @@ public class SecurityUtil {
 
     public static String getUserId(SecurityContext ctx) {
         final JsonWebToken jwt = getJwt(ctx);
-        return jwt.getClaim(Claims.upn.name());
+        return jwt == null ? null : jwt.getClaim(Claims.upn.name());
     }
 }

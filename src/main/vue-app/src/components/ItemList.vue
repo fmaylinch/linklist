@@ -8,7 +8,7 @@
         </span>
       </div>
       <v-spacer></v-spacer>
-      <v-btn icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
+      <v-btn v-if="ctx.credentials" icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
       <v-btn v-if="!ctx.viewingSharedLink" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
@@ -72,6 +72,7 @@ export default {
       return this.query ? this.query.trim().toLowerCase() : "";
     },
     shareable() {
+      if (!this.ctx.viewingMyItems) return false;
       if (this.lowerSearch[0] !== "#") return false;
       if (this.searchedItems.length === 0) return false;
       return this.lowerSearch.split(/ +/).filter(x => x[0] !== "#").length === 0; // Only searching tags

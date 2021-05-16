@@ -1,6 +1,7 @@
 <template>
   <Secured
       ref="secured"
+      :bypass="ctx.viewingSharedLink"
       @credentials-changed="updateCredentials">
 
     <Main
@@ -34,13 +35,17 @@ export default {
   methods: {
     updateCredentials(credentials) {
       console.log("Main: update credentials", credentials);
-      if (credentials) {
-        this.ctx.credentials = credentials;
-        this.ctx.axios = this.createAxiosInstance(credentials);
-        const searchFromSharedLink = this.createSearchFromSharedLink();
-        this.ctx.search = searchFromSharedLink || { username: credentials.username };
-        this.ctx.viewingMyItems = this.ctx.credentials.username === this.ctx.search.username;
-        this.ctx.viewingSharedLink = searchFromSharedLink !== null;
+
+      const searchFromSharedLink = this.createSearchFromSharedLink();
+      this.ctx.viewingSharedLink = searchFromSharedLink !== null;
+
+      this.ctx.credentials = credentials;
+      this.ctx.axios = this.createAxiosInstance(credentials);
+
+      let displayMain = credentials || this.ctx.viewingSharedLink;
+      if (displayMain) {
+        this.ctx.search = searchFromSharedLink || {username: credentials.username};
+        this.ctx.viewingMyItems = credentials && credentials.username === this.ctx.search.username;
         this.displayMain = true;
       } else {
         this.displayMain = false;
@@ -59,10 +64,13 @@ export default {
     },
     createAxiosInstance(credentials) {
       console.log("Creating axios instance");
-      return axios.create({
-        baseURL: constants.apiUrl,
-        headers: { Authorization: "Bearer " + credentials.token }
-      });
+      const config = {
+        baseURL: constants.apiUrl
+      };
+      if (credentials) {
+        config.headers = { Authorization: "Bearer " + credentials.token };
+      }
+      return axios.create(config);
     },
     logout() {
       this.$refs.secured.logout();
@@ -76,7 +84,9 @@ export default {
     // need to make an exception and call `next()`, not `next(false)`.
     next(false);
     // See how Main component handles this
-    this.$refs.main.onNavigation(to, from);
+    if (this.displayMain) {
+      this.$refs.main.onNavigation(to, from);
+    }
   }
 }
 </script>
