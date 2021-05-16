@@ -1,8 +1,4 @@
 <template>
-  <Secured
-      ref="secured"
-      @credentials-changed="updateCredentials"
-  >
     <div class="fixed-div">
       <div
           id="listDiv"
@@ -48,24 +44,27 @@
         <v-icon>mdi-chevron-double-up</v-icon>
       </v-btn>
     </div>
-  </Secured>
 </template>
 
 <script>
-import Secured from '@/components/Secured';
 import ItemList from '@/components/ItemList';
 import EditItem from '@/components/EditItem';
-import axios from 'axios';
-import constants from '@/constants';
 import Options from '@/views/Options';
 
 export default {
   name: 'Main',
   components: {
     Options,
-    EditItem, ItemList, Secured },
+    EditItem,
+    ItemList
+  },
+  props: {
+    ctx: Object
+  },
+  created() {
+    this.currentView = this.views.ItemList;
+  },
   data: () => ({
-    ctx: { },
     views: {
       ItemList: "ItemList",
       EditItem: "EditItem",
@@ -77,23 +76,6 @@ export default {
     currentView: null
   }),
   methods: {
-    createAxiosInstance(credentials) {
-      console.log("Creating axios instance");
-      return axios.create({
-        baseURL: constants.apiUrl,
-        headers: { Authorization: "Bearer " + credentials.token }
-      });
-    },
-    updateCredentials(credentials) {
-      console.log("Main: update credentials", credentials);
-      if (credentials) {
-        this.ctx.credentials = credentials;
-        this.ctx.axios = this.createAxiosInstance(credentials);
-        this.displayList();
-      } else {
-        this.hideCurrentView();
-      }
-    },
     addItem() {
       this.displayEdit(null);
     },
@@ -159,11 +141,7 @@ export default {
       this.currentView = this.views.Options;
     },
     logout() {
-      this.hideCurrentView();
-      this.$refs.secured.logout();
-    },
-    hideCurrentView() {
-      this.currentView = null;
+      this.$emit("logout");
     }
   }
 }

@@ -1,5 +1,7 @@
 <template>
-    <div />
+  <div>
+    <!-- This is a dummy view, we quickly navigate to another view -->
+  </div>
 </template>
 
 <script>
