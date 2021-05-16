@@ -1,48 +1,32 @@
 <template>
     <div class="fixed-div">
-      <div
-          id="listDiv"
+      <ItemList
           class="fixed-div"
-          :style="styleForView(this.views.ItemList)">
-        <ItemList
-            ref="itemList"
-            :ctx="ctx"
-            @open-item="openItem"
-            @add-item="addItem"
-            @options="options"
-        />
-      </div>
-      <div
-          id="editDiv"
+          :style="styleForView(this.views.ItemList)"
+          ref="itemList"
+          :ctx="ctx"
+          @open-item="openItem"
+          @add-item="addItem"
+          @options="options"
+      />
+      <EditItem
           class="fixed-div"
-          :style="styleForView(this.views.EditItem)">
-        <EditItem
-            ref="editItem"
-            :ctx="ctx"
-            @updated="itemUpdated"
-            @created="itemCreated"
-            @deleted="itemDeleted"
-            @canceled="displayList"
-            @scroll-to-top="scrollEditToTop"
-        />
-      </div>
-      <div
+          :style="styleForView(this.views.EditItem)"
+          ref="editItem"
+          :ctx="ctx"
+          @updated="itemUpdated"
+          @created="itemCreated"
+          @deleted="itemDeleted"
+          @canceled="displayList"
+      />
+      <Options
           class="fixed-div"
-          :style="styleForView(this.views.Options)">
-        <Options
-            :ctx="ctx"
-            @items-uploaded="refreshList"
-            @close="displayList"
-            @logout="logout"
-        />
-      </div>
-      <v-btn
-          v-show="currentView === this.views.ItemList"
-          style="z-index: 3; position: fixed; right: 20px; bottom: 20px;"
-          @click="scrollListToTop"
-          elevation="2">
-        <v-icon>mdi-chevron-double-up</v-icon>
-      </v-btn>
+          :style="styleForView(this.views.Options)"
+          :ctx="ctx"
+          @items-uploaded="refreshList"
+          @close="displayList"
+          @logout="logout"
+      />
     </div>
 </template>
 
@@ -113,18 +97,10 @@ export default {
       // I wanted to use v-if to pass item as props and re-render EditItem, but it created some layout problems.
       // So, now I tell EditItem to refresh the item.
       this.$refs.editItem.setItem(item);
-      // Since we reuse this component, reset the scroll because it could be currently in another position.
-      this.scrollEditToTop();
       // The setItem performs animations, so wait a little bit to change the view.
       setTimeout(() => {
         this.currentView = this.views.EditItem;
       }, 300);
-    },
-    scrollEditToTop() {
-      document.getElementById("editDiv").scrollTop = 0;
-    },
-    scrollListToTop() {
-      document.getElementById("listDiv").scrollTop = 0;
     },
     onNavigation(to, from) {
       console.log("Tried to navigate from " + from.name + " to " + to.name);

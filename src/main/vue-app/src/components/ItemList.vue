@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="listDiv">
     <v-app-bar app dark>
       <v-toolbar-title>Item List</v-toolbar-title>
       <div>
@@ -30,6 +30,12 @@
           </v-list-item>
         </v-list>
       </v-card>
+      <v-btn
+          style="z-index: 3; position: fixed; right: 20px; bottom: 20px;"
+          @click="scrollToTop"
+          elevation="2">
+        <v-icon>mdi-chevron-double-up</v-icon>
+      </v-btn>
     </v-main>
   </div>
 </template>
@@ -130,6 +136,9 @@ export default {
     },
     refreshItems() {
       this.retrieveItemsFromApi();
+    },
+    scrollToTop() {
+      document.getElementById("listDiv").scrollTop = 0;
     },
     options() {
       this.$emit("options")

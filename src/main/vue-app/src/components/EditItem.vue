@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="editDiv">
     <v-app-bar app dark>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
@@ -83,6 +83,11 @@ export default {
       console.log("EditItem:", item ? item.title : "(new item)");
       this.item = item;
       this.itemForm = this.itemToForm(this.item);
+      // Since we reuse this component, reset the scroll because it could be currently in another position.
+      this.scrollToTop();
+    },
+    scrollToTop() {
+      document.getElementById("editDiv").scrollTop = 0;
     },
     cancel() {
       this.$emit("canceled");
@@ -115,7 +120,7 @@ export default {
     handleError(e) {
       console.error("API Error", e);
       this.error = { message: e, visible: true };
-      this.$emit("scroll-to-top");
+      this.scrollToTop();
     },
     openUrl() {
       const url = this.itemForm.url;
