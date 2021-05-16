@@ -42,7 +42,7 @@
       <v-btn
           v-show="currentView === this.views.ItemList"
           style="z-index: 3; position: fixed; right: 20px; bottom: 20px;"
-          @click="scrollToTop"
+          @click="scrollListToTop"
           elevation="2">
         <v-icon>mdi-chevron-double-up</v-icon>
       </v-btn>
@@ -63,10 +63,6 @@ export default {
   components: {
     Options,
     EditItem, ItemList, Secured },
-  beforeRouteLeave(to, from, next) {
-    console.log("Going back")
-    next(false); // Avoid leaving the app
-  },
   data: () => ({
     ctx: { },
     views: {
@@ -109,6 +105,8 @@ export default {
       this.ctx.axios
           .post("items/upsertOne", itemUpdate.newItem)
           .then(resp => {
+            // Use $refs to call a method in child component
+            // https://stackoverflow.com/a/45463576/1121497
             this.$refs.itemList.itemUpdated({
               oldItem: itemUpdate.oldItem,
               newItem: resp.data
@@ -132,7 +130,7 @@ export default {
       this.ctx.axios
           .post("items/deleteOne", {id: item.id})
           .then(() => {
-            this.$refs.itemList.itemDeleted(item); // Note that item has index but resp.data not
+            this.$refs.itemList.itemDeleted(item.index); // Note that item has index but resp.data not
             this.displayList();
           })
           .catch(e => this.handleError(e));
@@ -148,17 +146,17 @@ export default {
       this.currentView = this.views.ItemList;
     },
     displayEdit(item) {
-      // I wanted to use v-if to pass item as props and re-render EditItem, but it created some layout problem.
+      // I wanted to use v-if to pass item as props and re-render EditItem, but it created some layout problems.
       // So, now I tell EditItem to refresh the item.
-      // https://stackoverflow.com/a/45463576/1121497
       this.$refs.editItem.setItem(item);
-      // The previous update performs animations, so wait a little bit to change the view
+      // Since we reuse this component, reset the scroll because it could be currently in another position.
       document.getElementById("editDiv").scrollTop = 0;
+      // The setItem performs animations, so wait a little bit to change the view.
       setTimeout(() => {
         this.currentView = this.views.EditItem;
       }, 300);
     },
-    scrollToTop() {
+    scrollListToTop() {
       document.getElementById("listDiv").scrollTop = 0;
     },
     onNavigation(to, from) {
@@ -169,8 +167,7 @@ export default {
     },
     styleForView(view) {
       return {
-        zIndex: this.currentView === view ? 2 : 1,
-        backgroundColor: 'black'
+        zIndex: this.currentView === view ? 2 : 1
       };
     },
     options() {
@@ -193,5 +190,6 @@ export default {
   width: 100%;
   overflow-y: auto;
   position: fixed;
+  background-color: black;
 }
 </style>

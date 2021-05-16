@@ -124,8 +124,8 @@ export default {
       this.items.push(item);
       this.sortAndSetItems(this.items);
     },
-    itemDeleted(item) {
-      this.items.splice(item.index, 1);
+    itemDeleted(itemIndex) {
+      this.items.splice(itemIndex, 1);
       this.sortAndSetItems(this.items);
     },
     refreshItems() {
