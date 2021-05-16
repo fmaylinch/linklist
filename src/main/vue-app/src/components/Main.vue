@@ -23,10 +23,10 @@
         <EditItem
             ref="editItem"
             :ctx="ctx"
-            @update="itemToUpdate"
-            @create="itemToCreate"
-            @delete="itemToDelete"
-            @close="displayList"
+            @updated="itemUpdated"
+            @created="itemCreated"
+            @deleted="itemDeleted"
+            @canceled="displayList"
         />
       </div>
       <div
@@ -100,41 +100,22 @@ export default {
       console.log("Main: open item", item.id, item.title)
       this.displayEdit(item);
     },
-    itemToUpdate(itemUpdate) {
-      console.log("Main: item to update", itemUpdate);
-      this.ctx.axios
-          .post("items/upsertOne", itemUpdate.newItem)
-          .then(resp => {
-            // Use $refs to call a method in child component
-            // https://stackoverflow.com/a/45463576/1121497
-            this.$refs.itemList.itemUpdated({
-              oldItem: itemUpdate.oldItem,
-              newItem: resp.data
-            });
-            this.displayList();
-          })
-          .catch(e => this.handleError(e));
+    itemUpdated(itemUpdate) {
+      console.log("Main: item updated", itemUpdate);
+      this.$refs.itemList.itemUpdated(itemUpdate);
+      this.displayList();
     },
-    itemToCreate(item) {
-      console.log("Main: item to create", item.title)
-      this.ctx.axios
-          .post("items/upsertOne", item)
-          .then(resp => {
-            this.$refs.itemList.itemAdded(resp.data);
-            this.displayList();
-          })
-          .catch(e => this.handleError(e));
+    itemCreated(item) {
+      console.log("Main: item created", item.title)
+      this.$refs.itemList.itemAdded(item);
+      this.displayList();
     },
-    itemToDelete(item) {
-      console.log("Main: item to delete", item.id, item.title)
-      this.ctx.axios
-          .post("items/deleteOne", {id: item.id})
-          .then(() => {
-            this.$refs.itemList.itemDeleted(item.index); // Note that item has index but resp.data not
-            this.displayList();
-          })
-          .catch(e => this.handleError(e));
+    itemDeleted(item) {
+      console.log("Main: item deleted", item.id, item.index, item.title)
+      this.$refs.itemList.itemDeleted(item.index);
+      this.displayList();
     },
+
     handleError(e) {
       console.error("API Error", e);
     },

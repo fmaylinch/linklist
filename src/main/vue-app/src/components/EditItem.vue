@@ -4,10 +4,19 @@
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-btn v-if="isDataCorrect" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
-      <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
+      <v-btn @click="cancel" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile>
+        <v-container>
+          <v-alert
+              v-model="error.visible"
+              color="red"
+              dismissible
+              elevation="2"
+              type="error"
+          >{{ error.message }}</v-alert>
+        </v-container>
         <v-container>
           <v-text-field v-model="itemForm.title" label="Title" />
           <v-text-field v-model="itemForm.url" label="Url"
@@ -52,7 +61,8 @@ export default {
   },
   data: () => ({
     itemForm: {},
-    item: null
+    item: null,
+    error: { message: "", visible: false }
   }),
   computed: {
     sliderColor() {
@@ -74,21 +84,37 @@ export default {
       this.item = item;
       this.itemForm = this.itemToForm(this.item);
     },
-    close() {
-      this.$emit("close");
+    cancel() {
+      this.$emit("canceled");
     },
     deleteItem() {
-      this.$emit("delete", this.item);
+      this.ctx.axios
+          .post("items/deleteOne", {id: this.item.id})
+          .then(() => {
+            // we send this.item and not resp.data, because we need this.item.index
+            this.$emit("deleted", this.item);
+          })
+          .catch(e => this.handleError(e));
     },
     saveItem() {
-      if (this.isEditing) {
-        this.$emit("update", {
-          newItem: this.formToItem(this.itemForm),
-          oldItem: this.item
-        });
-      } else {
-        this.$emit("create", this.formToItem(this.itemForm));
-      }
+      const itemFromForm = this.formToItem(this.itemForm);
+      this.ctx.axios
+          .post("items/upsertOne", itemFromForm)
+          .then(resp => {
+            if (this.isEditing) {
+              this.$emit("updated", {
+                newItem: resp.data,
+                oldItem: this.item
+              });
+            } else {
+              this.$emit("created", resp.data);
+            }
+          })
+          .catch(e => this.handleError(e));
+    },
+    handleError(e) {
+      console.error("API Error", e);
+      this.uploadForm.error = { message: e, visible: true };
     },
     openUrl() {
       const url = this.itemForm.url;
