@@ -27,6 +27,7 @@
             @created="itemCreated"
             @deleted="itemDeleted"
             @canceled="displayList"
+            @scroll-to-top="scrollEditToTop"
         />
       </div>
       <div
@@ -131,11 +132,14 @@ export default {
       // So, now I tell EditItem to refresh the item.
       this.$refs.editItem.setItem(item);
       // Since we reuse this component, reset the scroll because it could be currently in another position.
-      document.getElementById("editDiv").scrollTop = 0;
+      this.scrollEditToTop();
       // The setItem performs animations, so wait a little bit to change the view.
       setTimeout(() => {
         this.currentView = this.views.EditItem;
       }, 300);
+    },
+    scrollEditToTop() {
+      document.getElementById("editDiv").scrollTop = 0;
     },
     scrollListToTop() {
       document.getElementById("listDiv").scrollTop = 0;

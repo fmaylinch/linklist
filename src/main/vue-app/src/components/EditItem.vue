@@ -114,7 +114,8 @@ export default {
     },
     handleError(e) {
       console.error("API Error", e);
-      this.uploadForm.error = { message: e, visible: true };
+      this.error = { message: e, visible: true };
+      this.$emit("scroll-to-top");
     },
     openUrl() {
       const url = this.itemForm.url;

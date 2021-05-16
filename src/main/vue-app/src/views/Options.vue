@@ -80,7 +80,11 @@ export default {
             this.$emit("items-uploaded");
           }
         })
-        .catch(e => console.error(e));
+        .catch(e => this.handleError(e));
+    },
+    handleError(e) {
+      console.error("API Error", e);
+      this.uploadForm.error = { message: e, visible: true };
     }
   }
 };
