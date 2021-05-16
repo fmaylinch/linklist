@@ -67,7 +67,7 @@ export default {
   }),
   computed: {
     readonly() {
-     return !this.ctx.viewingMyItems;
+     return this.ctx.viewingSharedLink;
     },
     sliderColor() {
       return Util.colorFromScore(this.itemForm.score);

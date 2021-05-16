@@ -37,14 +37,16 @@ export default {
       if (credentials) {
         this.ctx.credentials = credentials;
         this.ctx.axios = this.createAxiosInstance(credentials);
-        this.ctx.search = this.createSearchFromUrlParameters() || { username: credentials.username };
+        const searchFromSharedLink = this.createSearchFromSharedLink();
+        this.ctx.search = searchFromSharedLink || { username: credentials.username };
         this.ctx.viewingMyItems = this.ctx.credentials.username === this.ctx.search.username;
+        this.ctx.viewingSharedLink = searchFromSharedLink !== null;
         this.displayMain = true;
       } else {
         this.displayMain = false;
       }
     },
-    createSearchFromUrlParameters() {
+    createSearchFromSharedLink() {
       const queryString = window.location.search;
       if (!queryString) {
         return null;

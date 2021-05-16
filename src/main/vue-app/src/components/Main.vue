@@ -108,7 +108,7 @@ export default {
       // We will probably need more sophisticated logic.
       if (this.currentView === this.views.ItemList) {
         // If the user is viewing items from another user, go back to his items
-        if (!this.ctx.viewingMyItems) {
+        if (this.ctx.viewingSharedLink) {
           location.href = "/"; // remove url parameters from share link, to view your items
         }
       } else {

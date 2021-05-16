@@ -9,14 +9,14 @@
       </div>
       <v-spacer></v-spacer>
       <v-btn icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
-      <v-btn v-if="ctx.viewingMyItems" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn v-if="!ctx.viewingSharedLink" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile dark>
-        <v-container v-if="!ctx.viewingMyItems">
+        <v-container v-if="ctx.viewingSharedLink">
           <v-alert dismissible type="info">
-            Viewing items from user <strong>{{ctx.search.username}}</strong>
-            with tags <strong>{{ctx.search.tags.join(", ")}}</strong>.
+            Viewing items from user <strong>{{ ctx.search.username }}</strong>
+            with tags <strong>{{ ctx.search.tags.join(", ") }}</strong>.
           </v-alert>
         </v-container>
         <v-container>
