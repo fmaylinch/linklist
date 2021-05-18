@@ -1,4 +1,4 @@
-package com.codethen.linklist.security;
+package com.codethen.linklist.users;
 
 import com.codethen.linklist.db.MongoUtil.CommonFields;
 import com.mongodb.lang.Nullable;

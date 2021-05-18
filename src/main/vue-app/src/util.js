@@ -1,11 +1,15 @@
 export default class Util {
 
-  static getItemRawContent(item) {
-    return item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item) + " " + item.score;
+  static fillItemRawContent(item) {
+    const raw = item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item) + " " + item.score;
+    item.rawContent = raw.toLowerCase();
   }
 
-  static fillItemRawContent(item) {
-    item.rawContent = Util.getItemRawContent(item).toLowerCase();
+  // TODO: check that usernames and tags are always stored in lowercase,
+  //       when registering and when creating items and permissions
+
+  static fillPermissionRawContent(permission) {
+    permission.rawContent = this.getTagsString(permission) + " " + permission.usernames.join(" ");
   }
 
   static getTagsString(item) {

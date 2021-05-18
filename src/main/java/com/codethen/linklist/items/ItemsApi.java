@@ -4,8 +4,10 @@ import com.codethen.linklist.db.MongoService;
 import com.codethen.linklist.db.MongoUtil;
 import com.codethen.linklist.db.MongoUtil.CommonFields;
 import com.codethen.linklist.db.MongoUtil.Ops;
+import com.codethen.linklist.permissions.Permission;
+import com.codethen.linklist.permissions.PermissionService;
 import com.codethen.linklist.security.Roles;
-import com.codethen.linklist.security.User;
+import com.codethen.linklist.users.User;
 import com.codethen.linklist.users.UserService;
 import com.codethen.linklist.util.Util;
 import com.mongodb.client.MongoCollection;
@@ -37,6 +39,7 @@ public class ItemsApi {
     private final MongoCollection<Document> items;
 
     @Inject UserService userService;
+    @Inject PermissionService permissionService;
 
     @Inject Logger log;
 
@@ -81,7 +84,7 @@ public class ItemsApi {
      *
      * @param item   item to upsert (if {@link Item#getId()} is null, we're inserting a new item)
      * @param userId user that is performing the upsert
-     * @return item created or modified
+     * @return {@link Item} created or modified
      */
     private Item upsertItem(Item item, String userId) {
 
@@ -89,8 +92,7 @@ public class ItemsApi {
             throw new WebApplicationException("At least title is required", Response.Status.BAD_REQUEST);
 
         if (Util.isEmpty(item.getId())) {
-            // It's a new item. Set owner.
-            item.setUserId(userId);
+            item.setUserId(userId); // It's a new item. Set owner.
         } else {
             // It's an existing item. Only the same user can modify it.
             if (!userId.equals(item.getUserId())) {
@@ -215,8 +217,26 @@ public class ItemsApi {
         return trimmed.isEmpty() ? null : trimmed;
     }
 
+    /**
+     * Checks that there is a {@link Permission} allowing userId (could be null if anonymous) on targetUserId tags
+     * @param userId        user that wants to access items
+     * @param targetUserId  target user that may allow access
+     * @param tags          tags that userId wants to see -- TODO: ensure that tags are always sorted
+     */
     private boolean isAllowed(String userId, String targetUserId, List<String> tags) {
-        return true; // TODO look for permission allowing userId (could be null if anonymous) on targetUserId tags
+
+        final List<Permission> permissions = permissionService.findByUserId(targetUserId);
+
+        // TODO: find in DB directly
+        for (Permission permission : permissions) {
+            if (permission.getTags().equals(tags)) {
+                if (permission.allUsersAllowed() || (userId != null && permission.getUserIds().contains(userId))) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }

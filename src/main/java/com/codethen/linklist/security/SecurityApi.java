@@ -1,5 +1,6 @@
 package com.codethen.linklist.security;
 
+import com.codethen.linklist.users.User;
 import com.codethen.linklist.users.UserService;
 import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.jwt.Claims;

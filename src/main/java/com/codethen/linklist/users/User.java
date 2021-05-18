@@ -1,4 +1,4 @@
-package com.codethen.linklist.security;
+package com.codethen.linklist.users;
 
 @lombok.Data
 @lombok.Builder

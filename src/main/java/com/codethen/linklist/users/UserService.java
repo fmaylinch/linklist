@@ -2,14 +2,12 @@ package com.codethen.linklist.users;
 
 import com.codethen.linklist.db.MongoService;
 import com.codethen.linklist.db.MongoUtil;
-import com.codethen.linklist.security.User;
-import com.codethen.linklist.security.UserAdapter;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 
 import javax.inject.Singleton;
 
-import static com.codethen.linklist.security.UserAdapter.byUsername;
+import static com.codethen.linklist.users.UserAdapter.byUsername;
 
 @Singleton
 public class UserService {

@@ -2,8 +2,8 @@
     <div class="fixed-div">
       <ItemList
           class="fixed-div"
-          :style="styleForView(this.views.ItemList)"
           ref="itemList"
+          :style="styleForView(this.views.ItemList)"
           :ctx="ctx"
           @open-item="openItem"
           @add-item="addItem"
@@ -11,8 +11,8 @@
       />
       <ItemEdit
           class="fixed-div"
-          :style="styleForView(this.views.ItemEdit)"
           ref="editItem"
+          :style="styleForView(this.views.ItemEdit)"
           :ctx="ctx"
           @updated="itemUpdated"
           @created="itemCreated"
@@ -23,16 +23,29 @@
           class="fixed-div"
           :style="styleForView(this.views.Options)"
           :ctx="ctx"
-          @items-uploaded="refreshList"
+          @items-uploaded="refreshItemList"
           @close="displayList"
           @permissions="permissions"
           @logout="logout"
       />
       <PermissionList
           class="fixed-div"
+          ref="permissionList"
           :style="styleForView(this.views.PermissionList)"
           :ctx="ctx"
+          @open-permission="openPermission"
+          @add-permission="addPermission"
           @close="displayList"
+      />
+      <PermissionEdit
+          class="fixed-div"
+          ref="editPermission"
+          :style="styleForView(this.views.PermissionEdit)"
+          :ctx="ctx"
+          @updated="permissionUpdated"
+          @created="permissionCreated"
+          @deleted="permissionDeleted"
+          @canceled="displayPermissionList"
       />
     </div>
 </template>
@@ -42,10 +55,12 @@ import ItemEdit from '@/components/ItemEdit';
 import ItemList from '@/components/ItemList';
 import Options from '@/views/Options';
 import PermissionList from '@/components/PermissionList';
+import PermissionEdit from '@/components/PermissionEdit';
 
 export default {
   name: 'Main',
   components: {
+    PermissionEdit,
     ItemList,
     ItemEdit,
     Options,
@@ -63,6 +78,7 @@ export default {
       ItemEdit: "ItemEdit",
       Options: "Options",
       PermissionList: "PermissionList",
+      PermissionEdit: "PermissionEdit"
     },
     // This component doesn't use routes. It just swaps different components.
     // We used some hacky CSS to avoid layout problems (see "fixed-div").
@@ -71,11 +87,20 @@ export default {
   }),
   methods: {
     addItem() {
-      this.displayEdit(null);
+      this.displayItemEdit(null);
     },
     openItem(item) {
       console.log("Main: open item", item.id, item.title)
-      this.displayEdit(item);
+      this.displayItemEdit(item);
+    },
+    displayItemEdit(item) {
+      // I wanted to use v-if to pass item as props and re-render EditItem, but it created some layout problems.
+      // So, now I tell EditItem to refresh the item.
+      this.$refs.editItem.setItem(item);
+      // The setItem performs animations, so wait a little bit to change the view.
+      setTimeout(() => {
+        this.currentView = this.views.ItemEdit;
+      }, 300);
     },
     itemUpdated(itemUpdate) {
       console.log("Main: item updated", itemUpdate);
@@ -92,25 +117,52 @@ export default {
       this.$refs.itemList.itemDeleted(item.index);
       this.displayList();
     },
-
-    handleError(e) {
-      console.error("API Error", e);
-    },
-    refreshList() {
+    refreshItemList() {
       this.$refs.itemList.refreshItems();
       this.displayList();
     },
     displayList() {
       this.currentView = this.views.ItemList;
     },
-    displayEdit(item) {
-      // I wanted to use v-if to pass item as props and re-render EditItem, but it created some layout problems.
-      // So, now I tell EditItem to refresh the item.
-      this.$refs.editItem.setItem(item);
-      // The setItem performs animations, so wait a little bit to change the view.
+
+    addPermission() {
+      this.displayPermissionEdit(null);
+    },
+    openPermission(permission) {
+      console.log("Main: open permission", permission.id, permission.tags)
+      this.displayPermissionEdit(permission);
+    },
+    displayPermissionEdit(permission) {
+      this.$refs.editPermission.setPermission(permission);
       setTimeout(() => {
-        this.currentView = this.views.ItemEdit;
+        this.currentView = this.views.PermissionEdit;
       }, 300);
+    },
+    permissionUpdated(permissionUpdate) {
+      console.log("Main: permission updated", permissionUpdate);
+      this.$refs.permissionList.permissionUpdated(permissionUpdate);
+      this.displayPermissionList();
+    },
+    permissionCreated(permission) {
+      console.log("Main: permission created", permission.tags)
+      this.$refs.permissionList.permissionAdded(permission);
+      this.displayPermissionList();
+    },
+    permissionDeleted(permission) {
+      console.log("Main: permission deleted", permission.id, permission.index, permission.tags)
+      this.$refs.permissionList.permissionDeleted(permission.index);
+      this.displayPermissionList();
+    },
+    refreshPermissionList() {
+      this.$refs.permissionList.refreshPermissions();
+      this.displayPermissionList();
+    },
+    displayPermissionList() {
+      this.currentView = this.views.PermissionList;
+    },
+
+    handleError(e) {
+      console.error("API Error", e);
     },
     onNavigation(to, from) {
       console.log("Tried to navigate from " + from.name + " to " + to.name);

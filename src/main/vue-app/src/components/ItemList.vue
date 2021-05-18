@@ -172,9 +172,10 @@ export default {
       window.open(this.shareLink());
     },
     shareLink() {
-      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1)).join(",");
+      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1));
+      tags.sort();
       const url = new URL(location.href);
-      return url.protocol + "//" + url.host + "/?user=" + this.ctx.credentials.username + "&tags=" + tags;
+      return url.protocol + "//" + url.host + "/?user=" + this.ctx.credentials.username + "&tags=" + tags.join(",");
     },
     handleError(e) {
       console.error("API Error", e);

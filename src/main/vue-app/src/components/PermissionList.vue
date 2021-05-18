@@ -4,12 +4,12 @@
       <v-toolbar-title>Permissions</v-toolbar-title>
       <div>
         <span style="margin-left: 10px; font-size: 75%;">
-          {{ itemCount }}
+          {{ permissionCount }}
         </span>
       </div>
       <v-spacer></v-spacer>
       <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
-      <v-btn icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn icon @click="addPermission"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile dark>
@@ -29,12 +29,12 @@
           />
         </v-container>
         <v-list>
-          <!-- If the v-list-item is inside ItemListItem, the @click handler doesn't work -->
+          <!-- If the v-list-item is inside PermissionListItem, the @click handler doesn't work -->
           <v-list-item
-            v-for="item in searchedItems"
-            :key="item.id"
-            @click="openItem(item)">
-            <ItemListItem :item="item" />
+            v-for="permission in searchedPermissions"
+            :key="permission.id"
+            @click="openPermission(permission)">
+            <PermissionListItem :permission="permission" />
           </v-list-item>
         </v-list>
       </v-card>
@@ -50,35 +50,33 @@
 
 <script>
 import Util from '@/util.js';
-import ItemListItem from '@/components/ItemListItem';
-
-// TODO: manage permission items and then update ItemsApi.isAllowed()
+import PermissionListItem from '@/components/PermissionListItem';
 
 export default {
   name: 'PermissionList',
-  components: {ItemListItem},
+  components: { PermissionListItem },
   props: {
     ctx: Object
   },
   created() {
-    this.retrieveItemsFromApi();
+    this.retrievePermissionsFromApi();
   },
   data: () => ({
     query: null,
-    items: [],
+    permissions: [],
     error: { message: "", visible: false }
   }),
   computed: {
     lowerSearch() {
       return this.query ? this.query.trim().toLowerCase() : "";
     },
-    searchedItems: function() {
+    searchedPermissions: function() {
       if (!this.lowerSearch) {
-        return this.items;
+        return this.permissions;
       }
       const parts = this.lowerSearch.split(/ +/)
         .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
-      return this.items.filter(it => {
+      return this.permissions.filter(it => {
         for (let part of parts) {
           // Search for all parts
           if (it.rawContent.indexOf(part) < 0) return false;
@@ -86,67 +84,66 @@ export default {
         return true;
       });
     },
-    itemCount() {
+    permissionCount() {
       if (this.lowerSearch) {
-        return this.searchedItems.length + " of " + this.items.length;
+        return this.searchedPermissions.length + " of " + this.permissions.length;
       } else {
-        return this.items.length;
+        return this.permissions.length;
       }
     }
   },
   methods: {
-    retrieveItemsFromApi() {
-      console.log("Loading items from API", this.ctx.search);
-      const search = this.ctx.search;
+    retrievePermissionsFromApi() {
+      console.log("Loading permissions from API", this.ctx.search);
       this.ctx.axios
-        .post("items/search", search)
-        .then(resp => this.prepareItems(resp.data))
+        .post("permissions/search")
+        .then(resp => this.preparePermissions(resp.data))
         .catch(e => this.handleError(e));
     },
-    prepareItems(searchResult) {
-      console.log("Preparing items", searchResult);
-      this.fillRawContent(searchResult.items);
-      this.sortAndSetItems(searchResult.items);
+    preparePermissions(searchResult) {
+      console.log("Preparing permissions", searchResult);
+      this.fillRawContent(searchResult.permissions);
+      this.sortAndSetPermissions(searchResult.permissions);
     },
-    sortAndSetItems(items) {
-      let byTitle = (x,y) => {
-        if (x.title < y.title) return -1;
-        if (x.title > y.title) return 1;
+    sortAndSetPermissions(permissions) {
+      let byRawContent = (x,y) => {
+        if (x.rawContent < y.rawContent) return -1;
+        if (x.rawContent > y.rawContent) return 1;
         return 0;
       };
-      items.sort(byTitle);
-      for (let i = 0; i < items.length; i++) {
-        items[i].index = i;
+      permissions.sort(byRawContent);
+      for (let i = 0; i < permissions.length; i++) {
+        permissions[i].index = i;
       }
-      this.items = items;
+      this.permissions = permissions;
     },
-    fillRawContent(items) {
-      for (let item of items) {
-        Util.fillItemRawContent(item);
+    fillRawContent(permissions) {
+      for (let permission of permissions) {
+        Util.fillPermissionRawContent(permission);
       }
     },
-    addItem() {
-      this.$emit("add-item");
+    addPermission() {
+      this.$emit("add-permission");
     },
-    openItem(item) {
-      this.$emit("open-item", item);
+    openPermission(item) {
+      this.$emit("open-permission", item);
     },
-    itemUpdated(itemUpdate) {
-      Util.fillItemRawContent(itemUpdate.newItem);
-      this.items[itemUpdate.oldItem.index] = itemUpdate.newItem;
-      this.sortAndSetItems(this.items);
+    permissionUpdated(permissionUpdate) {
+      Util.fillPermissionRawContent(permissionUpdate.newPermission);
+      this.permissions[permissionUpdate.oldPermission.index] = permissionUpdate.newPermission;
+      this.sortAndSetPermissions(this.permissions);
     },
-    itemAdded(item) {
-      Util.fillItemRawContent(item);
-      this.items.push(item);
-      this.sortAndSetItems(this.items);
+    permissionAdded(permission) {
+      Util.fillPermissionRawContent(permission);
+      this.permissions.push(permission);
+      this.sortAndSetPermissions(this.permissions);
     },
-    itemDeleted(itemIndex) {
-      this.items.splice(itemIndex, 1);
-      this.sortAndSetItems(this.items);
+    permissionDeleted(permissionIndex) {
+      this.permissions.splice(permissionIndex, 1);
+      this.sortAndSetPermissions(this.permissions);
     },
-    refreshItems() {
-      this.retrieveItemsFromApi();
+    refreshPermissions() {
+      this.retrievePermissionsFromApi();
     },
     scrollToTop() {
       document.getElementById("listDiv").scrollTop = 0;
