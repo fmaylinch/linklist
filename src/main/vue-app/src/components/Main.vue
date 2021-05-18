@@ -9,9 +9,9 @@
           @add-item="addItem"
           @options="options"
       />
-      <EditItem
+      <ItemEdit
           class="fixed-div"
-          :style="styleForView(this.views.EditItem)"
+          :style="styleForView(this.views.ItemEdit)"
           ref="editItem"
           :ctx="ctx"
           @updated="itemUpdated"
@@ -25,22 +25,31 @@
           :ctx="ctx"
           @items-uploaded="refreshList"
           @close="displayList"
+          @permissions="permissions"
           @logout="logout"
+      />
+      <PermissionList
+          class="fixed-div"
+          :style="styleForView(this.views.PermissionList)"
+          :ctx="ctx"
+          @close="displayList"
       />
     </div>
 </template>
 
 <script>
+import ItemEdit from '@/components/ItemEdit';
 import ItemList from '@/components/ItemList';
-import EditItem from '@/components/EditItem';
 import Options from '@/views/Options';
+import PermissionList from '@/components/PermissionList';
 
 export default {
   name: 'Main',
   components: {
+    ItemList,
+    ItemEdit,
     Options,
-    EditItem,
-    ItemList
+    PermissionList
   },
   props: {
     ctx: Object
@@ -51,8 +60,9 @@ export default {
   data: () => ({
     views: {
       ItemList: "ItemList",
-      EditItem: "EditItem",
-      Options: "Options"
+      ItemEdit: "ItemEdit",
+      Options: "Options",
+      PermissionList: "PermissionList",
     },
     // This component doesn't use routes. It just swaps different components.
     // We used some hacky CSS to avoid layout problems (see "fixed-div").
@@ -99,7 +109,7 @@ export default {
       this.$refs.editItem.setItem(item);
       // The setItem performs animations, so wait a little bit to change the view.
       setTimeout(() => {
-        this.currentView = this.views.EditItem;
+        this.currentView = this.views.ItemEdit;
       }, 300);
     },
     onNavigation(to, from) {
@@ -124,6 +134,9 @@ export default {
     },
     options() {
       this.currentView = this.views.Options;
+    },
+    permissions() {
+      this.currentView = this.views.PermissionList;
     },
     logout() {
       this.$emit("logout");

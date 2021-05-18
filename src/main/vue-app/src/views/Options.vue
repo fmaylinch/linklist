@@ -25,6 +25,12 @@
       <v-divider />
       <v-card flat tile>
         <v-container>
+          <v-btn @click="permissions" elevation="2">Permissions <v-icon right>mdi-lock</v-icon></v-btn>
+        </v-container>
+      </v-card>
+      <v-divider />
+      <v-card flat tile>
+        <v-container>
           <v-btn @click="logout" elevation="2">Logout <v-icon right>mdi-logout</v-icon></v-btn>
         </v-container>
       </v-card>
@@ -49,6 +55,9 @@ export default {
   methods: {
     logout() {
       this.$emit("logout");
+    },
+    permissions() {
+      this.$emit("permissions");
     },
     close() {
       this.$emit("close");

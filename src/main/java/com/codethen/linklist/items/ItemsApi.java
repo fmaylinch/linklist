@@ -216,8 +216,7 @@ public class ItemsApi {
     }
 
     private boolean isAllowed(String userId, String targetUserId, List<String> tags) {
-        // TODO look for permission allowing userId on targetUserId tags
-        return false;
+        return true; // TODO look for permission allowing userId (could be null if anonymous) on targetUserId tags
     }
 
 }

@@ -56,7 +56,7 @@
 import Util from "@/util";
 
 export default {
-  name: 'EditItem',
+  name: 'ItemEdit',
   props: {
     ctx: Object
   },

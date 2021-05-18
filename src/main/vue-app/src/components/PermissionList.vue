@@ -1,24 +1,18 @@
 <template>
   <div id="listDiv">
     <v-app-bar app dark>
-      <v-toolbar-title>Item List</v-toolbar-title>
+      <v-toolbar-title>Permissions</v-toolbar-title>
       <div>
         <span style="margin-left: 10px; font-size: 75%;">
           {{ itemCount }}
         </span>
       </div>
       <v-spacer></v-spacer>
-      <v-btn v-if="ctx.credentials" icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
-      <v-btn v-if="!ctx.viewingSharedLink" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
+      <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
+      <v-btn icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
     <v-main>
       <v-card flat tile dark>
-        <v-container v-if="ctx.viewingSharedLink">
-          <v-alert dismissible type="info">
-            Viewing items from user <strong>{{ ctx.search.username }}</strong>
-            with tags <strong>{{ ctx.search.tags.join(", ") }}</strong>.
-          </v-alert>
-        </v-container>
         <v-container>
           <v-alert
               v-model="error.visible"
@@ -32,11 +26,7 @@
             clearable
             v-model="query"
             label="Search"
-            placeholder="Search words or #tags"
           />
-          <div v-if="shareable">
-            Share link: <a :href="shareLink()" target="_blank"> {{shareLink()}}</a>
-          </div>
         </v-container>
         <v-list>
           <!-- If the v-list-item is inside ItemListItem, the @click handler doesn't work -->
@@ -62,8 +52,10 @@
 import Util from '@/util.js';
 import ItemListItem from '@/components/ItemListItem';
 
+// TODO: manage permission items and then update ItemsApi.isAllowed()
+
 export default {
-  name: 'ItemList',
+  name: 'PermissionList',
   components: {ItemListItem},
   props: {
     ctx: Object
@@ -79,12 +71,6 @@ export default {
   computed: {
     lowerSearch() {
       return this.query ? this.query.trim().toLowerCase() : "";
-    },
-    shareable() {
-      if (!this.ctx.viewingMyItems) return false;
-      if (this.lowerSearch[0] !== "#") return false;
-      if (this.searchedItems.length === 0) return false;
-      return this.lowerSearch.split(/ +/).filter(x => x[0] !== "#").length === 0; // Only searching tags
     },
     searchedItems: function() {
       if (!this.lowerSearch) {
@@ -165,16 +151,8 @@ export default {
     scrollToTop() {
       document.getElementById("listDiv").scrollTop = 0;
     },
-    options() {
-      this.$emit("options")
-    },
-    openShareLink() {
-      window.open(this.shareLink());
-    },
-    shareLink() {
-      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1)).join(",");
-      const url = new URL(location.href);
-      return url.protocol + "//" + url.host + "/?user=" + this.ctx.credentials.username + "&tags=" + tags;
+    close() {
+      this.$emit("close");
     },
     handleError(e) {
       console.error("API Error", e);
