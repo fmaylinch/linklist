@@ -9,13 +9,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
 import com.codethen.linklist.security.Roles;
+import com.codethen.linklist.users.User;
 import com.codethen.linklist.users.UserService;
 import com.codethen.linklist.util.Util;
 import org.jboss.logging.Logger;
@@ -58,25 +58,33 @@ public class PermissionsApi {
     private Permission upsertPermission(Permission permission, String userId) {
 
         if (Util.isEmpty(permission.getTags()))
-            throw new WebApplicationException("At least one tag is required", Response.Status.BAD_REQUEST);
+            throw Util.apiError("At least one tag is required", Response.Status.BAD_REQUEST);
 
         if (Util.isEmpty(permission.getId())) {
             permission.setUserId(userId); // It's a new permission. Set owner.
         } else {
             // It's an existing permission. Only the same user can modify it.
             if (!userId.equals(permission.getUserId())) {
-                throw new WebApplicationException("Access denied", Response.Status.UNAUTHORIZED);
+                throw Util.apiError("Access denied", Response.Status.UNAUTHORIZED);
             }
         }
 
-        // Transform usernames to ids
-        final List<String> userIds = permission.getUsernames().stream()
-                .map(username -> userService.findByUsername(username).getId())
-                .collect(Collectors.toList());
-
-        permission.setUserIds(userIds);
+        permission.setUserIds(getUserIds(permission.getUsernames()));
 
         return permissionService.upsert(permission);
+    }
+
+    private List<String> getUserIds(List<String> usernames) {
+        final List<String> userIds = usernames.stream()
+                .map(username -> {
+                    final User user = userService.findByUsername(username);
+                    if (user == null) {
+                        throw Util.apiError("User not found: " + username, Response.Status.NOT_FOUND);
+                    }
+                    return user.getId();
+                })
+                .collect(Collectors.toList());
+        return userIds;
     }
 
     @POST @Path("getOne")

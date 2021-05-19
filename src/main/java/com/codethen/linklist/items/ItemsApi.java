@@ -1,5 +1,25 @@
 package com.codethen.linklist.items;
 
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+
 import com.codethen.linklist.db.MongoService;
 import com.codethen.linklist.db.MongoUtil;
 import com.codethen.linklist.db.MongoUtil.CommonFields;
@@ -16,19 +36,9 @@ import org.bson.Document;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
-import java.io.File;
-import java.io.FileReader;
-import java.util.*;
-
-import static com.codethen.linklist.items.ItemAdapter.*;
+import static com.codethen.linklist.items.ItemAdapter.byIdAndUserId;
+import static com.codethen.linklist.items.ItemAdapter.byUserId;
+import static com.codethen.linklist.items.ItemAdapter.byUserIdAndTags;
 import static com.codethen.linklist.util.SecurityUtil.getUserId;
 
 @Path("items")
@@ -56,12 +66,12 @@ public class ItemsApi {
         final User searchedUser = userService.findByUsername(search.username);
 
         if (searchedUser == null) {
-            throw new WebApplicationException("User not found: " + search.username, Response.Status.NOT_FOUND);
+            throw Util.apiError("User not found: " + search.username, Response.Status.NOT_FOUND);
         }
 
         if (!searchedUser.getId().equals(userId)) {
             if (Util.isEmpty(search.tags) || !isAllowed(userId, searchedUser.getId(), search.tags)) {
-                throw new WebApplicationException("Access denied", Response.Status.UNAUTHORIZED);
+                throw Util.apiError("Access denied", Response.Status.UNAUTHORIZED);
             }
         }
 
@@ -89,14 +99,14 @@ public class ItemsApi {
     private Item upsertItem(Item item, String userId) {
 
         if (Util.isEmpty(item.getTitle()))
-            throw new WebApplicationException("At least title is required", Response.Status.BAD_REQUEST);
+            throw Util.apiError("At least title is required", Response.Status.BAD_REQUEST);
 
         if (Util.isEmpty(item.getId())) {
             item.setUserId(userId); // It's a new item. Set owner.
         } else {
             // It's an existing item. Only the same user can modify it.
             if (!userId.equals(item.getUserId())) {
-                throw new WebApplicationException("Access denied", Response.Status.UNAUTHORIZED);
+                throw Util.apiError("Access denied", Response.Status.UNAUTHORIZED);
             }
         }
 
@@ -150,6 +160,14 @@ public class ItemsApi {
                 .build();
     }
 
+    /**
+     * Imports {@link Item}s from a CSV file.
+     *
+     * @param csvFile     csv with items to create
+     * @param commonTags  tags that will be added to all items
+     * @param userId      user that creates the items
+     * @return error message, or null if ok
+     */
     private String importItemsFromCsv(File csvFile, Collection<String> commonTags, String userId) {
         try {
             final CSVReader csvReader = new CSVReader(new FileReader(csvFile));

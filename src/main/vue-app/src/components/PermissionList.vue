@@ -152,8 +152,7 @@ export default {
       this.$emit("close");
     },
     handleError(e) {
-      console.error("API Error", e);
-      this.error = { message: e, visible: true };
+      this.error = Util.messageObjectFromApiError(e);
       this.scrollToTop();
     }
   }

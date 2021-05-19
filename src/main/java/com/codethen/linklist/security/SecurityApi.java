@@ -1,19 +1,20 @@
 package com.codethen.linklist.security;
 
-import com.codethen.linklist.users.User;
-import com.codethen.linklist.users.UserService;
-import io.smallrye.jwt.build.Jwt;
-import org.eclipse.microprofile.jwt.Claims;
+import java.time.Duration;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.Duration;
-import java.util.Set;
+
+import com.codethen.linklist.users.User;
+import com.codethen.linklist.users.UserService;
+import com.codethen.linklist.util.Util;
+import io.smallrye.jwt.build.Jwt;
+import org.eclipse.microprofile.jwt.Claims;
 
 @Path("security")
 @Produces(MediaType.APPLICATION_JSON)
@@ -35,7 +36,7 @@ public class SecurityApi {
 
     private void checkLogin(Login login, User user) {
         if (user == null || !passwordEncoder.verify(login.getPassword(), user.getPassword())) {
-            throw new WebApplicationException("Wrong credentials", Response.Status.UNAUTHORIZED);
+            throw Util.apiError("Wrong credentials", Response.Status.UNAUTHORIZED);
         }
     }
 
@@ -49,10 +50,10 @@ public class SecurityApi {
 
     private void checkRegistration(Register register) {
         if (!hasInfoToRegister(register)) {
-            throw new WebApplicationException("Wrong or missing data", Response.Status.BAD_REQUEST);
+            throw Util.apiError("Wrong or missing data", Response.Status.BAD_REQUEST);
         }
         if (userService.findByUsername(register.getUsername()) != null) {
-            throw new WebApplicationException("User already exists", Response.Status.FORBIDDEN);
+            throw Util.apiError("User already exists", Response.Status.FORBIDDEN);
         }
     }
 

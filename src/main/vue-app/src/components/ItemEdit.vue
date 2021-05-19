@@ -86,6 +86,7 @@ export default {
   methods: {
     setItem(item) {
       console.log("EditItem:", item ? item.title : "(new item)");
+      this.error = { message: "", visible: false };
       this.item = item;
       this.itemForm = this.itemToForm(this.item);
       // Since we reuse this component, reset the scroll because it could be currently in another position.
@@ -123,8 +124,7 @@ export default {
           .catch(e => this.handleError(e));
     },
     handleError(e) {
-      console.error("API Error", e);
-      this.error = { message: e, visible: true };
+      this.error = Util.messageObjectFromApiError(e);
       this.scrollToTop();
     },
     openUrl() {

@@ -34,4 +34,13 @@ export default class Util {
     if (score < 90) return "teal";
     return "green";
   }
+
+  static messageFromApiError(e) {
+    console.error("API Error", e.response.data, e);
+    return e.response.data ? e.response.data : e;
+  }
+
+  static messageObjectFromApiError(e) {
+    return { message: this.messageFromApiError(e), visible: true };
+  }
 }

@@ -65,6 +65,7 @@ export default {
   },
   methods: {
     setPermission(permission) {
+      this.error = { message: "", visible: false };
       this.permission = permission;
       this.permissionForm = this.permissionToForm(this.permission);
       // Since we reuse this component, reset the scroll because it could be currently in another position.
@@ -106,8 +107,7 @@ export default {
       return Util.buildShareLink(permission.tags, this.ctx);
     },
     handleError(e) {
-      console.error("API Error", e);
-      this.error = { message: e, visible: true };
+      this.error = Util.messageObjectFromApiError(e);
       this.scrollToTop();
     },
     formToPermission(form) {
