@@ -8,10 +8,12 @@
     <v-main>
       <v-card flat tile dark>
         <v-container>
+          <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
+        </v-container>
+        <v-container>
           <v-text-field v-model="loginData.username" label="username" auto-grow rows="1" />
           <v-text-field v-model="loginData.password" type="password" label="password" auto-grow rows="1" />
           <v-text-field v-model="loginData.password2" type="password" label="repeat password to register" auto-grow rows="1" />
-          <p style="color: red">{{error}}</p>
         </v-container>
       </v-card>
     </v-main>
@@ -21,24 +23,23 @@
 <script>
 import axios from "axios";
 import constants from "@/constants";
+import Util from '@/util';
 
 export default {
   name: 'Login',
   data: () => ({
     loginData: { username: "", password: "", password2: "" },
-    error: ""
+    error: { message: "", visible: false }
   }),
   methods: {
     loginOrRegister() {
-      this.error = "";
-
       let action;
       if (!this.loginData.password2) {
         action = "login";
       } else if (this.loginData.password === this.loginData.password2) {
         action = "register";
       } else {
-        this.error = "Passwords don't match";
+        this.error = { message: "Passwords don't match", visible: true };
         return;
       }
       console.log("Login: ", action);
@@ -50,8 +51,8 @@ export default {
     handleCredentials(credentials) {
       this.$emit("login", credentials);
     },
-    handleError(error) {
-      this.error = error;
+    handleError(e) {
+      this.error = Util.messageObjectFromApiError(e);
     }
   }
 };

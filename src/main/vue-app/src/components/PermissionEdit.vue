@@ -9,12 +9,7 @@
     <v-main>
       <v-card flat tile>
         <v-container>
-          <v-alert
-              v-model="error.visible"
-              color="red"
-              dismissible
-              type="error"
-          >{{ error.message }}</v-alert>
+          <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
         </v-container>
         <v-container>
           <v-text-field v-model="permissionForm.tags" label="Tags" />

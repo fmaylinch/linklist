@@ -9,12 +9,7 @@
     <v-main>
       <v-card flat tile>
         <v-container>
-          <v-alert
-              v-model="error.visible"
-              color="red"
-              dismissible
-              type="error"
-          >{{ error.message }}</v-alert>
+          <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
         </v-container>
         <v-container>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />

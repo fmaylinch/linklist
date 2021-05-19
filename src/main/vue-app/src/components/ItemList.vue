@@ -21,12 +21,7 @@
           <a v-if="ctx.viewingMyItems" href="#" @click="goToPermissions">Edit permissions to allow access</a>
         </v-container>
         <v-container>
-          <v-alert
-              v-model="error.visible"
-              color="red"
-              dismissible
-              type="error"
-          >{{ error.message }}</v-alert>
+          <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
         </v-container>
         <v-container>
           <v-text-field
