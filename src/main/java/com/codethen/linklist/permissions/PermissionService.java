@@ -7,10 +7,13 @@ import javax.inject.Singleton;
 
 import com.codethen.linklist.db.MongoService;
 import com.codethen.linklist.db.MongoUtil;
+import com.codethen.linklist.db.MongoUtil.Ops;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.lang.Nullable;
 import org.bson.Document;
 
 import static com.codethen.linklist.db.MongoUtil.byId;
+import static com.codethen.linklist.permissions.PermissionAdapter.byAccess;
 import static com.codethen.linklist.permissions.PermissionAdapter.byIdAndUserId;
 import static com.codethen.linklist.permissions.PermissionAdapter.byUserId;
 
@@ -35,7 +38,7 @@ public class PermissionService {
         assert doc != null;
 
         if (permission.getId() != null) {
-            permissions.updateOne(byIdAndUserId(permission.getId(), permission.getUserId()), new Document(MongoUtil.Ops.set, doc));
+            permissions.updateOne(byIdAndUserId(permission.getId(), permission.getUserId()), new Document(Ops.set, doc));
         } else {
             permissions.insertOne(doc);
             permission.setId(doc.getObjectId(MongoUtil.CommonFields._id).toString());
@@ -51,5 +54,10 @@ public class PermissionService {
 
     public void deleteOne(String permissionId) {
         permissions.deleteOne(byId(permissionId));
+    }
+
+    public Permission findAllowingPermission(@Nullable String userId, String targetUserId, List<String> tags) {
+        final Document doc = permissions.find(byAccess(userId, targetUserId, tags)).first();
+        return PermissionAdapter.from(doc);
     }
 }

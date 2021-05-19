@@ -31,6 +31,7 @@ import com.codethen.linklist.users.User;
 import com.codethen.linklist.users.UserService;
 import com.codethen.linklist.util.Util;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.lang.Nullable;
 import com.opencsv.CSVReader;
 import org.bson.Document;
 import org.jboss.logging.Logger;
@@ -236,25 +237,16 @@ public class ItemsApi {
     }
 
     /**
-     * Checks that there is a {@link Permission} allowing userId (could be null if anonymous) on targetUserId tags
+     * Checks that there is a {@link Permission} allowing userId (could be null if anonymous) to targetUserId's tags.
+     *
      * @param userId        user that wants to access items
      * @param targetUserId  target user that may allow access
-     * @param tags          tags that userId wants to see -- TODO: ensure that tags are always sorted
+     * @param tags          tags that userId wants to see
      */
-    private boolean isAllowed(String userId, String targetUserId, List<String> tags) {
+    private boolean isAllowed(@Nullable String userId, String targetUserId, List<String> tags) {
 
-        final List<Permission> permissions = permissionService.findByUserId(targetUserId);
-
-        // TODO: find in DB directly
-        for (Permission permission : permissions) {
-            if (permission.getTags().equals(tags)) {
-                if (permission.allUsersAllowed() || (userId != null && permission.getUserIds().contains(userId))) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        final Permission permission = permissionService.findAllowingPermission(userId, targetUserId, tags);
+        return permission != null;
     }
 
 }

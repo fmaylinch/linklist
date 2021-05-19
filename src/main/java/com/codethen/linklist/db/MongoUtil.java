@@ -18,6 +18,7 @@ public class MongoUtil {
     public static class Ops {
         public static String set = "$set";
         public static String all = "$all";
+        public static String or = "$or";
     }
 
     public static Document doc() {
