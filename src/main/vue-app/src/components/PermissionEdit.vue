@@ -17,8 +17,12 @@
           >{{ error.message }}</v-alert>
         </v-container>
         <v-container>
-          <v-text-field v-model="permissionForm.tags" label="tags" />
-          <v-text-field v-model="permissionForm.usernames" label="usernames" />
+          <v-text-field v-model="permissionForm.tags" label="Tags" />
+          <div v-if="isDataCorrect">
+            Share link: <a :href="shareLink()" target="_blank"> {{shareLink()}}</a>
+          </div>
+          <v-text-field v-model="permissionForm.usernames" label="Allowed usernames"
+              placeholder="Leave empty to allow access to all users"/>
         </v-container>
       </v-card>
       <v-divider />
@@ -38,6 +42,8 @@
 </template>
 
 <script>
+
+import Util from '@/util';
 
 export default {
   name: 'PermissionEdit',
@@ -94,6 +100,10 @@ export default {
             }
           })
           .catch(e => this.handleError(e));
+    },
+    shareLink() {
+      const permission = this.formToPermission(this.permissionForm);
+      return Util.buildShareLink(permission.tags, this.ctx);
     },
     handleError(e) {
       console.error("API Error", e);

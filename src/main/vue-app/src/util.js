@@ -16,6 +16,12 @@ export default class Util {
     return item.tags ? item.tags.map(t => "#" + t + " ").join("") : "";
   }
 
+  static buildShareLink(tags, ctx) {
+    tags.sort();
+    const url = new URL(location.href);
+    return url.protocol + "//" + url.host + "/?user=" + ctx.credentials.username + "&tags=" + tags.join(",");
+  }
+
   static colorFromScore(score) {
     if (score < 10) return "red darken-2";
     if (score < 20) return "deep-orange darken-2";

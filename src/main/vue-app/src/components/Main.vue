@@ -8,6 +8,7 @@
           @open-item="openItem"
           @add-item="addItem"
           @options="options"
+          @permissions="displayPermissionList"
       />
       <ItemEdit
           class="fixed-div"

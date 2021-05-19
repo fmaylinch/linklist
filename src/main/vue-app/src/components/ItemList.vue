@@ -18,6 +18,7 @@
             Viewing items from user <strong>{{ ctx.search.username }}</strong>
             with tags <strong>{{ ctx.search.tags.join(", ") }}</strong>.
           </v-alert>
+          <a v-if="ctx.viewingMyItems" href="#" @click="goToPermissions">Edit permissions to allow access</a>
         </v-container>
         <v-container>
           <v-alert
@@ -168,14 +169,15 @@ export default {
     options() {
       this.$emit("options")
     },
+    goToPermissions() {
+      this.$emit("permissions")
+    },
     openShareLink() {
       window.open(this.shareLink());
     },
     shareLink() {
-      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1));
-      tags.sort();
-      const url = new URL(location.href);
-      return url.protocol + "//" + url.host + "/?user=" + this.ctx.credentials.username + "&tags=" + tags.join(",");
+      const tags = this.lowerSearch.split(/ +/).map(x => x.substr(1)); // Remove "#" from tags
+      return Util.buildShareLink(tags, this.ctx);
     },
     handleError(e) {
       console.error("API Error", e);

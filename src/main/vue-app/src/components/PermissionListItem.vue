@@ -22,6 +22,9 @@ export default {
       return this.permission.tags.join(" ");
     },
     subtitle() {
+      if (this.permission.usernames.length === 0) {
+        return "(all users)";
+      }
       return this.permission.usernames.join(" ");
     }
   }
