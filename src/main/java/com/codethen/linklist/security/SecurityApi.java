@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Set;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -17,6 +18,7 @@ import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.jwt.Claims;
 
 @Path("security")
+@Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class SecurityApi {
 

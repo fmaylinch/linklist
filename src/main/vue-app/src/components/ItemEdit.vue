@@ -14,7 +14,8 @@
         <v-container>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
           <v-text-field :readonly="readonly" v-model="itemForm.url" label="Url"
-              :append-icon="itemForm.url ? 'mdi-open-in-new' : ''" @click:append="openUrl" />
+              :append-outer-icon="itemForm.url ? 'mdi-open-in-new' : ''" @click:append-outer="openUrl"
+              :append-icon="itemForm.url ? 'mdi-cloud-download' : ''" @click:append="getMetadataFromUrl" />
           <v-text-field :readonly="readonly" v-model="itemForm.image" label="Image url"
               :append-icon="itemForm.image ? 'mdi-open-in-new' : ''" @click:append="openImage" />
           <v-textarea :readonly="readonly" v-model="itemForm.notes" label="Notes"
@@ -126,6 +127,21 @@ export default {
       const url = this.itemForm.url;
       if (url) {
         window.open(url);
+      }
+    },
+    getMetadataFromUrl() {
+      console.log("Getting metadata from url: " + this.itemForm.url);
+      const url = this.itemForm.url;
+      if (url) {
+        this.ctx.axios
+            .post("metadata/getFromUrl", {url: this.itemForm.url})
+            .then((resp) => {
+              const item = resp.data;
+              if (item) {
+                this.setItem(item);
+              }
+            })
+            .catch(e => this.handleError(e));
       }
     },
     openImage() {
