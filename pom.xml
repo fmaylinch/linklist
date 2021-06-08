@@ -112,6 +112,12 @@
       <version>2.8.7</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.spotbugs</groupId>
+      <artifactId>spotbugs</artifactId>
+      <version>4.2.3</version>
+    </dependency>
+
   </dependencies>
   <build>
     <plugins>
@@ -177,6 +183,25 @@
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <!--
+              See: https://github.com/spotbugs/spotbugs
+              I think that `clean` and `package` are needed. But the `gui` goal behaved strangely with them.
+              mvn clean package com.github.spotbugs:spotbugs-maven-plugin:check
+              mvn com.github.spotbugs:spotbugs-maven-plugin:gui
+            -->
+            <groupId>com.github.spotbugs</groupId>
+            <artifactId>spotbugs-maven-plugin</artifactId>
+            <version>4.2.0</version>
+            <dependencies>
+              <!-- overwrite dependency on spotbugs if you want to specify the version of spotbugs -->
+              <dependency>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs</artifactId>
+                <version>4.2.3</version>
+              </dependency>
+            </dependencies>
           </plugin>
         </plugins>
       </build>

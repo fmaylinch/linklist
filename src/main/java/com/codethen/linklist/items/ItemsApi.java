@@ -2,6 +2,7 @@ package com.codethen.linklist.items;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -171,7 +172,7 @@ public class ItemsApi {
      */
     private String importItemsFromCsv(File csvFile, Collection<String> commonTags, String userId) {
         try {
-            final CSVReader csvReader = new CSVReader(new FileReader(csvFile));
+            final CSVReader csvReader = new CSVReader(new FileReader(csvFile, Charset.defaultCharset()));
 
             String[] row = csvReader.readNext();
             final var expectedHeader = List.of("title", "url", "image", "notes", "tags", "score");

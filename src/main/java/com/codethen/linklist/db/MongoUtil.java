@@ -12,13 +12,13 @@ import java.util.List;
 public class MongoUtil {
 
     public static class CommonFields {
-        public static String _id = "_id";
+        public static final String _id = "_id";
     }
 
     public static class Ops {
-        public static String set = "$set";
-        public static String all = "$all";
-        public static String or = "$or";
+        public static final String set = "$set";
+        public static final String all = "$all";
+        public static final String or = "$or";
     }
 
     public static Document doc() {
