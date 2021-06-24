@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '@/views/Home.vue'
+//import Home from '@/views/Home.vue'
 import Options from '@/views/Options.vue'
 import AppStart from '@/views/AppStart';
 import SampleView from '@/views/SampleView';
@@ -8,13 +8,15 @@ import SampleView from '@/views/SampleView';
 Vue.use(VueRouter)
 
 const routes = [
+/* We go directly to AppStart
   {
     path: '/',
     name: 'Home',
     component: Home
   },
+*/
   {
-    path: '/app',
+    path: '/',
     name: 'AppStart',
     component: AppStart
   },
