@@ -35,7 +35,7 @@ const routes = [
 const router = new VueRouter({
   // Without history mode, the url path is always the root (so Quarkus won't be confused)
   // Let's wee what we do when you share a list view (e.g. linklist.es/may/movie).
-  //mode: 'history',
+  mode: 'history',
   base: process.env.BASE_URL,
   routes
 })
