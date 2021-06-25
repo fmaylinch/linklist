@@ -2,6 +2,7 @@
   <div>
     <v-app-bar app dark>
       <v-toolbar-title>Options</v-toolbar-title>
+      <v-progress-circular v-if="loading" class="load-progress" :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
       <v-btn @click="close" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
@@ -50,7 +51,8 @@ export default {
       file: null,
       tags: "",
       error: { message: "", visible: false }
-    }
+    },
+    loading: false
   }),
   methods: {
     logout() {
@@ -78,6 +80,7 @@ export default {
       formData.append('file', this.uploadForm.file);
 
       console.log("Uploading...");
+      this.loading = true;
       this.uploadForm.error = { message: "", visible: false };
 
       this.ctx.axios
@@ -89,7 +92,8 @@ export default {
             this.$emit("items-uploaded");
           }
         })
-        .catch(e => this.handleError(e));
+        .catch(e => this.handleError(e))
+        .finally(() => this.loading = false);
     },
     handleError(e) {
       console.error("API Error", e);
@@ -98,3 +102,9 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.load-progress {
+  margin-left: 10px;
+}
+</style>
