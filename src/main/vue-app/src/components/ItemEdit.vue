@@ -2,6 +2,8 @@
   <div id="editDiv">
     <v-app-bar app dark>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
+      <v-progress-circular v-if="loading" class="load-progress"
+          :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
       <v-btn v-if="isDataCorrect && !readonly" @click="saveItem" icon><v-icon>mdi-content-save</v-icon></v-btn>
       <v-btn @click="cancel" icon><v-icon>mdi-close</v-icon></v-btn>
@@ -59,7 +61,8 @@ export default {
   data: () => ({
     itemForm: {},
     item: null,
-    error: { message: "", visible: false }
+    error: { message: "", visible: false },
+    loading: false
   }),
   computed: {
     readonly() {
@@ -95,29 +98,28 @@ export default {
       this.$emit("canceled");
     },
     deleteItem() {
-      this.ctx.axios
-          .post("items/deleteOne", {id: this.item.id})
-          .then(() => {
-            // we send this.item and not resp.data, because we need this.item.index
-            this.$emit("deleted", this.item);
-          })
-          .catch(e => this.handleError(e));
+      Util.loadWithAxios("delete item", this, () =>
+        this.ctx.axios
+            .post("items/deleteOne", {id: this.item.id})
+            .then(() => {
+              // we send this.item and not resp.data, because we need this.item.index
+              this.$emit("deleted", this.item);
+            })
+      );
     },
     saveItem() {
       const itemFromForm = this.formToItem(this.itemForm);
-      this.ctx.axios
-          .post("items/upsertOne", itemFromForm)
-          .then(resp => {
-            if (this.isEditing) {
-              this.$emit("updated", {
-                newItem: resp.data,
-                oldItem: this.item
-              });
-            } else {
-              this.$emit("created", resp.data);
-            }
-          })
-          .catch(e => this.handleError(e));
+      Util.loadWithAxios("upsert item", this, () =>
+        this.ctx.axios
+            .post("items/upsertOne", itemFromForm)
+            .then(resp => {
+              if (this.isEditing) {
+                this.$emit("updated", { newItem: resp.data, oldItem: this.item });
+              } else {
+                this.$emit("created", resp.data);
+              }
+            })
+      );
     },
     handleError(e) {
       this.error = Util.messageObjectFromApiError(e);
@@ -133,15 +135,16 @@ export default {
       console.log("Getting metadata from url: " + this.itemForm.url);
       const url = this.itemForm.url;
       if (url) {
-        this.ctx.axios
-            .post("metadata/getFromUrl", {url: this.itemForm.url})
-            .then((resp) => {
-              const item = resp.data;
-              if (item) {
-                this.setItem(item);
-              }
-            })
-            .catch(e => this.handleError(e));
+        Util.loadWithAxios("metadata from url", this, () =>
+          this.ctx.axios
+              .post("metadata/getFromUrl", {url: this.itemForm.url})
+              .then((resp) => {
+                const item = resp.data;
+                if (item) {
+                  this.itemForm = this.itemToForm(item);
+                }
+              })
+        );
       }
     },
     openImage() {
@@ -190,3 +193,9 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.load-progress {
+  margin-left: 10px;
+}
+</style>
