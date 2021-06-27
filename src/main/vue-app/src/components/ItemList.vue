@@ -7,6 +7,8 @@
           {{ itemCount }}
         </span>
       </div>
+      <v-progress-circular v-if="loading" class="load-progress"
+          :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
       <v-btn v-if="ctx.credentials" icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
       <v-btn v-if="!ctx.viewingSharedLink" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
@@ -29,6 +31,8 @@
             v-model="query"
             label="Search"
             placeholder="Search words or #tags"
+            prepend-inner-icon="mdi-pound-box"
+            @click:prepend-inner="addHashChar"
           />
           <div v-if="shareable">
             Share link: <a :href="shareLink()" target="_blank"> {{shareLink()}}</a>
@@ -68,9 +72,10 @@ export default {
     this.retrieveItemsFromApi();
   },
   data: () => ({
-    query: null,
+    query: "",
     items: [],
-    error: { message: "", visible: false }
+    error: { message: "", visible: false },
+    loading: false
   }),
   computed: {
     lowerSearch() {
@@ -105,13 +110,21 @@ export default {
     }
   },
   methods: {
+    addHashChar() {
+      console.log("#");
+      if (this.query) {
+        this.query += " ";
+      }
+      this.query += "#";
+    },
     retrieveItemsFromApi() {
       console.log("Loading items from API", this.ctx.search);
       const search = this.ctx.search;
-      this.ctx.axios
-        .post("items/search", search)
-        .then(resp => this.prepareItems(resp.data))
-        .catch(e => this.handleError(e));
+      Util.loadWithAxios("get items", this, () =>
+          this.ctx.axios
+              .post("items/search", search)
+              .then(resp => this.prepareItems(resp.data))
+      );
     },
     prepareItems(searchResult) {
       console.log("Preparing items", searchResult);
@@ -181,3 +194,9 @@ export default {
   }
 }
 </script>
+
+<style scoped lang="scss">
+.load-progress {
+  margin-left: 10px;
+}
+</style>
