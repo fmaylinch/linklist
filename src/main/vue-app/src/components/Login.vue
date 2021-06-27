@@ -2,6 +2,8 @@
   <div>
     <v-app-bar app dark>
       <v-toolbar-title>Login</v-toolbar-title>
+      <v-progress-circular v-if="loading" class="load-progress"
+          :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
       <v-btn icon @click="loginOrRegister()"><v-icon>mdi-login</v-icon></v-btn>
     </v-app-bar>
@@ -29,7 +31,8 @@ export default {
   name: 'Login',
   data: () => ({
     loginData: { username: "", password: "", password2: "" },
-    error: { message: "", visible: false }
+    error: { message: "", visible: false },
+    loading: false
   }),
   methods: {
     loginOrRegister() {
@@ -43,10 +46,12 @@ export default {
         return;
       }
       console.log("Login: ", action);
-      axios
-        .post(constants.apiUrl + "/security/" + action, this.loginData)
-        .then(resp => this.handleCredentials(resp.data))
-        .catch(e => this.handleError(e));
+
+      Util.loadWithAxios("login", this, () =>
+          axios
+              .post(constants.apiUrl + "/security/" + action, this.loginData)
+              .then(resp => this.handleCredentials(resp.data))
+      );
     },
     handleCredentials(credentials) {
       this.$emit("login", credentials);
@@ -57,3 +62,9 @@ export default {
   }
 };
 </script>
+
+<style scoped lang="scss">
+.load-progress {
+  margin-left: 10px;
+}
+</style>
