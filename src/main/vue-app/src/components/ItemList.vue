@@ -61,6 +61,8 @@
 <script>
 import Util from '@/util.js';
 import ItemListItem from '@/components/ItemListItem';
+import { Observable } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 export default {
   name: 'ItemList',
@@ -69,11 +71,18 @@ export default {
     ctx: Object
   },
   created() {
+    this.setupObserverForRefreshSearchedItems();
     this.retrieveItemsFromApi();
+  },
+  watch: {
+    lowerSearch() {
+      this.sendRefreshSearchedItems();
+    }
   },
   data: () => ({
     query: "",
     items: [],
+    searchedItems: [],
     error: { message: "", visible: false },
     loading: false
   }),
@@ -87,20 +96,6 @@ export default {
       if (this.searchedItems.length === 0) return false;
       return this.lowerSearch.split(/ +/).filter(x => x[0] !== "#").length === 0; // Only searching tags
     },
-    searchedItems: function() {
-      if (!this.lowerSearch) {
-        return this.items;
-      }
-      const parts = this.lowerSearch.split(/ +/)
-        .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
-      return this.items.filter(it => {
-        for (let part of parts) {
-          // Search for all parts
-          if (it.rawContent.indexOf(part) < 0) return false;
-        }
-        return true;
-      });
-    },
     itemCount() {
       if (this.lowerSearch) {
         return this.searchedItems.length + " of " + this.items.length;
@@ -110,12 +105,23 @@ export default {
     }
   },
   methods: {
+    setupObserverForRefreshSearchedItems() {
+      const component = this;
+      new Observable(subscriber => {
+        this.subscriber = subscriber;
+      }).pipe(debounceTime(500)).subscribe({
+        next(query) { component.refreshSearchedItems(query); },
+        error(err) { console.error('something wrong occurred: ' + err); },
+        complete() { console.log('done'); }
+      });
+    },
     addHashChar() {
       console.log("#");
       if (this.query) {
-        this.query += " ";
+        this.query += " #";
+      } else {
+        this.query = "#";
       }
-      this.query += "#";
     },
     retrieveItemsFromApi() {
       console.log("Loading items from API", this.ctx.search);
@@ -142,6 +148,25 @@ export default {
         items[i].index = i;
       }
       this.items = items;
+      this.sendRefreshSearchedItems();
+    },
+    sendRefreshSearchedItems() {
+      this.subscriber.next(this.lowerSearch);
+    },
+    refreshSearchedItems(query) {
+      console.log("Searching", query);
+      if (!query) {
+        this.searchedItems = this.items;
+      }
+      const parts = query.split(/ +/)
+          .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
+      this.searchedItems = this.items.filter(it => {
+        for (let part of parts) {
+          // Search for all parts
+          if (it.rawContent.indexOf(part) < 0) return false;
+        }
+        return true;
+      });
     },
     fillRawContent(items) {
       for (let item of items) {
