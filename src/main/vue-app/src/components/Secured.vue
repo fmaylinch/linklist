@@ -28,9 +28,10 @@ export default {
   methods: {
     login(credentials) {
       console.log("Secured: storing cookies for credentials");
+      Cookies.remove("credentials"); // TODO: Necessary?
       const cookie = JSON.stringify(credentials);
       // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Set-Cookie/SameSite
-      Cookies.set("credentials", cookie, { sameSite: "strict" });
+      Cookies.set("credentials", cookie, { sameSite: "strict", expires: 30 });
       this.reloadCredentials();
     },
     logout() {
