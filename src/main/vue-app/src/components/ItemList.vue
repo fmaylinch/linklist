@@ -10,6 +10,30 @@
       <v-progress-circular v-if="loading" class="load-progress"
           :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
+      <v-menu
+          left
+          bottom
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-sort</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="() => this.sortItemsWith({ property:'title', direction: 1 })">
+            <v-list-item-title>By title A-Z</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="() => this.sortItemsWith({ property:'title', direction: -1 })">
+            <v-list-item-title>By title Z-A</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="() => this.sortItemsWith({ property:'score', direction: 1 })">
+            <v-list-item-title>By score 0-100</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="() => this.sortItemsWith({ property:'score', direction: -1 })">
+            <v-list-item-title>By score 100-0</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-btn v-if="ctx.credentials" icon @click="options"><v-icon>mdi-cog</v-icon></v-btn>
       <v-btn v-if="!ctx.viewingSharedLink" icon @click="addItem"><v-icon>mdi-plus</v-icon></v-btn>
     </v-app-bar>
@@ -84,7 +108,8 @@ export default {
     items: [],
     searchedItems: [],
     error: { message: "", visible: false },
-    loading: false
+    loading: false,
+    sort: { property: "title", direction: 1 }
   }),
   computed: {
     lowerSearch() {
@@ -137,13 +162,18 @@ export default {
       this.fillRawContent(searchResult.items);
       this.sortAndSetItems(searchResult.items);
     },
+    sortItemsWith(sort) {
+      this.sort = sort;
+      this.sortAndSetItems(this.items);
+    },
     sortAndSetItems(items) {
-      let byTitle = (x,y) => {
-        if (x.title < y.title) return -1;
-        if (x.title > y.title) return 1;
+      let property = this.sort.property;
+      let sortFunction = (x,y) => {
+        if (x[property] < y[property]) return -this.sort.direction;
+        if (x[property] > y[property]) return this.sort.direction;
         return 0;
       };
-      items.sort(byTitle);
+      items.sort(sortFunction);
       for (let i = 0; i < items.length; i++) {
         items[i].index = i;
       }
