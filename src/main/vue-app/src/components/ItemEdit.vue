@@ -22,7 +22,8 @@
               :append-icon="itemForm.image ? 'mdi-open-in-new' : ''" @click:append="openImage" />
           <v-textarea :readonly="readonly" v-model="itemForm.notes" label="Notes"
                       auto-grow rows="1" />
-          <v-text-field :readonly="readonly" v-model="itemForm.tags" label="Tags" />
+          <v-text-field :readonly="readonly" v-model="itemForm.tags" label="Tags"
+              :append-icon="itemForm.tags ? 'mdi-eye' : ''" @click:append="openTags" />
           <v-container />
           <v-slider :readonly="readonly"
                     v-model="itemForm.score"
@@ -153,6 +154,10 @@ export default {
         window.open(url);
       }
     },
+    openTags() {
+      const tags = this.parseFormTags(this.itemForm.tags);
+      this.$emit("display-tags", tags);
+    },
     formToItem(form) {
       return {
         id: form.id,
@@ -161,9 +166,12 @@ export default {
         url: form.url,
         image: form.image,
         notes: form.notes,
-        tags: form.tags.trim().split(/[, ]+/).filter(it => !!it),
+        tags: this.parseFormTags(form.tags),
         score: form.score
       };
+    },
+    parseFormTags(tags) {
+      return tags.trim().split(/[, ]+/).filter(it => !!it);
     },
     itemToForm(item) {
       if (item) {

@@ -223,6 +223,9 @@ export default {
       this.items.splice(itemIndex, 1);
       this.sortAndSetItems(this.items);
     },
+    applyQuery(query) {
+      this.query = query;
+    },
     refreshItems() {
       this.retrieveItemsFromApi();
     },

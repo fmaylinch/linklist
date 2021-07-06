@@ -19,6 +19,7 @@
           @created="itemCreated"
           @deleted="itemDeleted"
           @canceled="displayList"
+          @display-tags="displayTags"
       />
       <Options
           class="fixed-div"
@@ -125,7 +126,11 @@ export default {
     displayList() {
       this.currentView = this.views.ItemList;
     },
-
+    displayTags(tags) {
+      const query = tags.map(x => "#" + x).join(" ");
+      this.$refs.itemList.applyQuery(query);
+      this.displayList();
+    },
     addPermission() {
       this.displayPermissionEdit(null);
     },
