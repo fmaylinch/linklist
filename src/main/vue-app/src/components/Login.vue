@@ -11,6 +11,7 @@
       <v-card flat tile dark>
         <v-container>
           <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
+          <v-alert v-model="info.visible" dismissible type="info">{{ info.message }}</v-alert>
         </v-container>
         <v-container>
           <v-text-field v-model="loginData.username" label="username" auto-grow rows="1" />
@@ -31,7 +32,8 @@ export default {
   name: 'Login',
   data: () => ({
     loginData: { username: "", password: "", password2: "" },
-    error: { message: "", visible: false },
+    error: { visible: false },
+    info: { visible: false },
     loading: false
   }),
   methods: {
@@ -54,6 +56,8 @@ export default {
       );
     },
     handleCredentials(credentials) {
+      // const tokenPart = credentials.token ? credentials.token.substr(0, 10) + "..." : "(none)";
+      // this.info = { message: "Received user " + credentials.username + " and token " + tokenPart, visible: true }
       this.$emit("login", credentials);
     },
     handleError(e) {
