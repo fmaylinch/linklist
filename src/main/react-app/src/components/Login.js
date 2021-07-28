@@ -1,35 +1,17 @@
-import styled from '@emotion/styled'
 import { useContext, useState } from 'react';
 import { useHistory } from 'react-router';
 import { UserContext } from './UserContext';
 import { myAxios, setAxiosToken } from '../util/axios-util';
-
-const Input = styled.input`
-  font-size: 16px;
-  padding: 5px;
-  margin-bottom: 5px;
-  width: 200px;
-  display: block;
-`;
-
-const Button = styled.button`
-  font-size: 16px;
-  padding: 7px;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  color: white;
-  background-color: rgb(79, 124, 163);
-  &:hover {
-    background-color: rgb(89, 138, 180);
-  }
-`;
+import { Button, TextField, Container } from '@material-ui/core';
+import { Alert } from '@material-ui/lab';
+import { styled } from '@material-ui/core/styles';
 
 export default function Login() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
-  const [message, setMessage] = useState("");
+  const [alert, setAlert] = useState(null);
 
   const { setUser } = useContext(UserContext);
   const history = useHistory();
@@ -41,37 +23,51 @@ export default function Login() {
       } else if (password === password2) {
         action = "register";
       } else {
-        setMessage("Passwords don't match");
+        setAlert({severity:"error", text:"Passwords don't match"});
         return;
       }
-      setMessage("Trying " + action);
+      setAlert({severity:"info", text:"Trying " + action});
       const loginData = {username, password, password2};
       myAxios
         .post("security/" + action, loginData)
         .then(resp => handleCredentials(resp.data))
-        .catch(e => setMessage("Error: " + e));
+        .catch(e => setAlert({severity:"error", text:e}));
     }
 
   function handleCredentials(creds) {
     console.log("Received credentials", creds);
-    setMessage("");
+    setAlert(null);
     setAxiosToken(creds.token);
     setUser(creds);
     history.replace("/");
   }
 
+  const LoginButton = styled(Button)({
+    margin: '20px 0',
+  });
+
   return (
-    <div>
-      <Input placeholder="user"
-        value={username} onChange={e => setUsername(e.target.value)} />
-      <Input placeholder="password" type="password" 
-        value={password} onChange={e => setPassword(e.target.value)} />
-      <Input placeholder="repeat password to register" type="password" 
-        value={password2} onChange={e => setPassword2(e.target.value)} />
-      <Button onClick={loginOrRegister}>Login</Button>
+    <Container maxWidth="sm">
+      <h1>Linklist</h1>
       <div>
-        {message}
+        <TextField label="username" fullWidth
+          value={username} onChange={e => setUsername(e.target.value)} />
       </div>
-    </div>
+      <div>
+        <TextField label="password" type="password" fullWidth 
+          value={password} onChange={e => setPassword(e.target.value)} />
+      </div>
+      <div>
+        <TextField label="repeat password to register" type="password" fullWidth
+          value={password2} onChange={e => setPassword2(e.target.value)} />
+      </div>
+      <div>
+        <LoginButton variant="contained" color="primary"
+          onClick={loginOrRegister}>Login</LoginButton>
+      </div>
+      <div>
+        { alert ? <Alert severity={alert.severity}>{alert.text}</Alert> : "" }
+      </div>
+    </Container>
   );
 }
