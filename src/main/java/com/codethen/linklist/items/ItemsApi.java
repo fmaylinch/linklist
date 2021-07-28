@@ -2,6 +2,7 @@ package com.codethen.linklist.items;
 
 import java.io.File;
 import java.io.FileReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -171,11 +172,11 @@ public class ItemsApi {
      */
     private String importItemsFromCsv(File csvFile, Collection<String> commonTags, String userId) {
         try {
-            final CSVReader csvReader = new CSVReader(new FileReader(csvFile));
+            final CSVReader csvReader = new CSVReader(new FileReader(csvFile, StandardCharsets.UTF_8));
 
             String[] row = csvReader.readNext();
             final var expectedHeader = List.of("title", "url", "image", "notes", "tags", "score");
-            final var rowFirstColumns = Arrays.asList(row).subList(0, expectedHeader.size());
+            final var rowFirstColumns = Arrays.asList(row).subList(0, Math.min(row.length, expectedHeader.size()));
             if (!rowFirstColumns.equals(expectedHeader)) {
                 return "CSV must have a header with these columns: " + String.join(",", expectedHeader);
             }

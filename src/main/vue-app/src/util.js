@@ -43,4 +43,19 @@ export default class Util {
   static messageObjectFromApiError(e) {
     return { message: this.messageFromApiError(e), visible: true };
   }
+
+  /**
+   * To be used from a component that has typical properties used when doing an axios call.
+   */
+  static loadWithAxios(operation, component, axiosCall) {
+    console.log("Performing axios call: " + operation);
+    component.loading = true;
+    component.error = { message: "", visible: false };
+    axiosCall()
+        .catch(e => component.handleError(e))
+        .finally(() => {
+          console.log("Finished axios call: " + operation);
+          component.loading = false;
+        });
+  }
 }

@@ -78,6 +78,7 @@ export default {
     }
   },
   beforeRouteLeave(to, from, next) {
+    // If AppStart is the start view (see `router/index.js`), navigation interception might not work
     console.log("Navigation intercepted")
     // This intercepts back button in browser,
     // but it also intercepts other route navigation, so in those cases we will

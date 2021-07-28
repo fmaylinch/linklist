@@ -39,7 +39,9 @@ public class JacksonResource {
 
     @DELETE
     public Set<Quark> delete(Quark quark) {
-        quarks.removeIf(existingQuark -> existingQuark.name.contentEquals(quark.name));
+        quarks.removeIf(existingQuark ->
+                existingQuark.name.contentEquals(quark.name) ||
+                existingQuark.description.contentEquals(quark.description));
         return quarks;
     }
 
