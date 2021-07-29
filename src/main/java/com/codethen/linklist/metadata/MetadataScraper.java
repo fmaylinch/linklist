@@ -45,7 +45,7 @@ public class MetadataScraper {
     private void fillFromSpotify(Document doc, Item.ItemBuilder builder) {
 
         builder.title(getMeta(doc, "twitter:audio:artist_name") + " - " + getMeta(doc, "og:title"));
-        builder.tags(List.of("spotify", "music", "album"));
+        builder.tags(List.of("spotify", "music", "top"));
     }
 
     private void fillFromImdb(Document doc, Item.ItemBuilder builder) {
