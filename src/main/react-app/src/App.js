@@ -13,9 +13,9 @@ export default function App() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [items, setItems] = useState(null);
   const [alert, setAlert] = useState(null);
+  const [sort, setSort] = useState({ property: "title", direction: 1 });
 
   const history = useHistory();
-
   const { user } = useContext(UserContext);
 
   function openItem(item) {
@@ -24,7 +24,6 @@ export default function App() {
   }
 
   async function loadItems() {
-    setAlert({severity:"info", text:"Loading items"});
     const search = { username: user.username }; // TODO: may contain list of tags
     const resp = await myAxios
       .post("items/search", search)
@@ -32,13 +31,22 @@ export default function App() {
     return resp.data.items;
   }
 
+  function createSortFunction() {
+    return (x,y) => {
+      if (x[sort.property] < y[sort.property]) return -sort.direction;
+      if (x[sort.property] > y[sort.property]) return sort.direction;
+      return 0;
+    };
+  }
+
   useEffect(() => {
-    console.log("Checking user...");
     if (!user) {
       history.push("/login");
     } else {
+      setAlert({severity:"info", text:"Loading items"});
       loadItems().then(items => {
         setAlert(null);
+        items.sort(createSortFunction());
         setItems(items);
       });
     }
@@ -46,8 +54,7 @@ export default function App() {
 
   return (
       <div>
-        {/* A <Switch> looks through its children <Route>s and
-            renders the first one that matches the current URL. */}
+        {/* <Switch> renders the first <Route> that matches the current URL */}
         <Switch>
           <Route path="/login">
             <Login />

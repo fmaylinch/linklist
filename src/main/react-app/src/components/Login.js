@@ -35,7 +35,6 @@ export default function Login() {
     }
 
   function handleCredentials(creds) {
-    console.log("Received credentials", creds);
     setAlert(null);
     setAxiosToken(creds.token);
     setUser(creds);
