@@ -10,6 +10,7 @@ import { styled } from '@material-ui/core/styles';
 import {AccountCircle} from '@material-ui/icons';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
+import {useState} from 'react';
 
 const MyAvatar = styled(Avatar)({
   borderRadius: 0
@@ -68,58 +69,71 @@ function itemRow(item) {
   );
 }
 
-function itemList(items, openItem) {
-  return items.map(item => (
-    <ListItem button key={item.id} onClick={() => openItem(item)}>
-      <ListItemAvatar>
-        <MyAvatar src={item.image} />
-      </ListItemAvatar>
-      <MyListItemText primary={item.title} secondary={itemRow(item)} />
-    </ListItem>
-  ))
-}
-
-function appBar(classes) {
-  return (
-    <AppBar position="sticky">
-      <Toolbar>
-        <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
-          </div>
-          <InputBase
-            placeholder="Search…"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </div>
-        <div className={classes.grow} />
-        <div className={classes.sectionDesktop}>
-          {/* TODO: add icons: add item, sort items, options */}
-          <IconButton color="inherit">
-            <MailIcon />
-          </IconButton>
-          <IconButton color="inherit">
-            <NotificationsIcon />
-          </IconButton>
-          <IconButton edge="end" color="inherit">
-            <AccountCircle />
-          </IconButton>
-        </div>
-      </Toolbar>
-    </AppBar>
-  );
-}
-
 export default function ItemList({items, openItem}) {
+
+  const [query, setQuery] = useState("");
   const classes = useStyles();
+
+  function appBar() {
+    return (
+      <AppBar position="sticky">
+        <Toolbar>
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              placeholder="Search…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+              value={query} onChange={e => setQuery(e.target.value)}
+            />
+          </div>
+          <div className={classes.grow} />
+          <div className={classes.sectionDesktop}>
+            {/* TODO: add icons: add item, sort items, options */}
+            <IconButton color="inherit">
+              <MailIcon />
+            </IconButton>
+            <IconButton color="inherit">
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton edge="end" color="inherit">
+              <AccountCircle />
+            </IconButton>
+          </div>
+        </Toolbar>
+      </AppBar>
+    );
+  }
+
+  function itemList() {
+
+    const lowerQuery = query ? query.trim().toLowerCase() : "";
+    const parts = lowerQuery.split(/ +/);
+
+    const searchedItems = items.filter(item => {
+      for (let part of parts) {
+        // Search for all parts
+        if (item.rawContent.indexOf(part) < 0) return false;
+      }
+      return true;
+    });
+
+    return searchedItems.map(item => (
+      <ListItem button key={item.id} onClick={() => openItem(item)}>
+        <MyListItemText primary={item.title} secondary={itemRow(item)} />
+      </ListItem>
+    ));
+  }
+
   return (
       <div>
-        {appBar(classes)}
-        {itemList(items, openItem)}
+        {appBar()}
+        {itemList()}
       </div>
   );
 }

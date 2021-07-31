@@ -7,6 +7,7 @@ import ItemList from "./components/ItemList";
 import Options from "./components/Options";
 import Login from "./components/Login";
 import { myAxios } from "./util/axios-util";
+import Util from './util/util';
 
 export default function App() {
 
@@ -46,6 +47,7 @@ export default function App() {
       setAlert({severity:"info", text:"Loading items"});
       loadItems().then(items => {
         setAlert(null);
+        items.forEach(item => Util.fillItemRawContent(item));
         items.sort(createSortFunction());
         setItems(items);
       });
