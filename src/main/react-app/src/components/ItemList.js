@@ -1,119 +1,55 @@
-import {
-  AppBar, Avatar, IconButton, InputBase, ListItemAvatar,
-  TextField, Toolbar, Typography
-} from '@material-ui/core';
-import { alpha, makeStyles } from '@material-ui/core/styles';
-import SearchIcon from '@material-ui/icons/Search';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import { styled } from '@material-ui/core/styles';
-import {AccountCircle} from '@material-ui/icons';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import {useState} from 'react';
+import { TextField } from '@material-ui/core';
+import { useState } from 'react';
+import styled from '@emotion/styled';
 
-const MyAvatar = styled(Avatar)({
-  borderRadius: 0
-});
+const ItemRowDiv = styled.div`
+  margin: 10px 0;
+  border-bottom: 1px #d5d5d5 solid;
 
-const MyListItemText = styled(ListItemText)({
-  '& .tags': {
-    color: "#bbbbbb"
+  & > .title {
+    font-weight: 400;
   }
-});
 
-// The AppBar example and its styles were taken from:
-// https://material-ui.com/components/app-bar/#app-bar-with-a-primary-search-field
-const useStyles = makeStyles((theme) => ({
-  grow: {
-    flexGrow: 1,
-  },
-  search: {
-    position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    width: 'auto',
-  },
-  searchIcon: {
-    padding: theme.spacing(0, 2),
-    height: '100%',
-    position: 'absolute',
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  inputRoot: {
-    color: 'inherit',
-  },
-  inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`
-  },
-  sectionDesktop: {
-    display: 'flex',
-  },
-}));
+  & > .notes {
+    font-weight: 300;
+    color: #bbbbbb;
+  }
 
-function itemRow(item) {
+  & > .tags {
+    color: #aaaaaa;
+  }
+`;
+
+function ItemRow({item}) {
   return (
-    <>
-      <span className="notes">{item.notes}</span>
+    <ItemRowDiv>
+      <div className="title">{item.title}</div>
+      <div className="notes">{item.notes}</div>
       {item.tags.length
-        ? <span className="tags"><br/>#{item.tags.join(" #")}</span>
+        ? <div className="tags">#{item.tags.join(" #")}</div>
         : ""}
-    </>
+    </ItemRowDiv>
   );
 }
 
 export default function ItemList({items, openItem}) {
 
   const [query, setQuery] = useState("");
-  const classes = useStyles();
+  //const classes = useStyles();
 
   function appBar() {
     return (
-      <AppBar position="sticky">
-        <Toolbar>
-          <div className={classes.search}>
-            <div className={classes.searchIcon}>
-              <SearchIcon />
-            </div>
-            <InputBase
-              placeholder="Search…"
-              classes={{
-                root: classes.inputRoot,
-                input: classes.inputInput,
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-              value={query} onChange={e => setQuery(e.target.value)}
-            />
-          </div>
-          <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            {/* TODO: add icons: add item, sort items, options */}
-            <IconButton color="inherit">
-              <MailIcon />
-            </IconButton>
-            <IconButton color="inherit">
-              <NotificationsIcon />
-            </IconButton>
-            <IconButton edge="end" color="inherit">
-              <AccountCircle />
-            </IconButton>
-          </div>
-        </Toolbar>
-      </AppBar>
+      <div>
+        <TextField fullWidth label="search" value={query} onChange={e => setQuery(e.target.value)} />
+      </div>
     );
   }
 
   function itemList() {
 
     const lowerQuery = query ? query.trim().toLowerCase() : "";
-    const parts = lowerQuery.split(/ +/);
+    const parts = lowerQuery.split(/ +/)
+      .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
 
     const searchedItems = items.filter(item => {
       for (let part of parts) {
@@ -124,14 +60,12 @@ export default function ItemList({items, openItem}) {
     });
 
     return searchedItems.map(item => (
-      <ListItem button key={item.id} onClick={() => openItem(item)}>
-        <MyListItemText primary={item.title} secondary={itemRow(item)} />
-      </ListItem>
+      <ItemRow item={item} key={item.id} onClick={() => openItem(item)} />
     ));
   }
 
   return (
-      <div>
+      <div style={{margin: "0 10px"}}>
         {appBar()}
         {itemList()}
       </div>
