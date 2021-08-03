@@ -18,18 +18,6 @@ const ItemRowDiv = styled.div`
   }
 `;
 
-function ItemRow({item}) {
-  return (
-    <ItemRowDiv>
-      <div className="title">{item.title}</div>
-      <div className="notes">{item.notes}</div>
-      {item.tags.length
-        ? <div className="tags">#{item.tags.join(" #")}</div>
-        : ""}
-    </ItemRowDiv>
-  );
-}
-
 function getFilteredItems(query, items) {
 
   if (!query) return items;
@@ -60,7 +48,13 @@ export default function ItemList({items, openItem}) {
 
   function itemList(filteredItems) {
     return filteredItems.map(item => (
-      <ItemRow item={item} key={item.id} onClick={() => openItem(item)} />
+      <ItemRowDiv item={item} key={item.id} onClick={() => openItem(item)}>
+        <div className="title">{item.title}</div>
+        <div className="notes">{item.notes}</div>
+        {item.tags.length
+          ? <div className="tags">#{item.tags.join(" #")}</div>
+          : ""}
+      </ItemRowDiv>
     ));
   }
 
