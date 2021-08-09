@@ -69,7 +69,7 @@ export default function App() {
             <ItemDetail item={selectedItem} />
           </Route>
           <Route path="/">
-            { alert ? <Alert severity={alert.severity}>{alert.text}</Alert> : "" }
+            { alert ? <Alert style={{margin: "10px"}} severity={alert.severity}>{alert.text}</Alert> : "" }
             { items ? <ItemList items={items} openItem={openItem} /> : "" }
           </Route>
         </Switch>
