@@ -68,6 +68,9 @@
             v-for="item in searchedItems"
             :key="item.id"
             @click="openItem(item)">
+            <v-list-item-icon>
+              <v-icon v-text="item.icon" />
+            </v-list-item-icon>
             <ItemListItem :item="item" />
           </v-list-item>
         </v-list>
@@ -159,7 +162,7 @@ export default {
     },
     prepareItems(searchResult) {
       console.log("Preparing items", searchResult);
-      this.fillRawContent(searchResult.items);
+      this.fillCalculatedData(searchResult.items);
       this.sortAndSetItems(searchResult.items);
     },
     sortItemsWith(sort) {
@@ -188,19 +191,22 @@ export default {
       if (!query) {
         this.searchedItems = this.items;
       }
-      const parts = query.split(/ +/)
-          .map(x => x[0] === "#" ? x + " " : x); // Add space at the end of tag, for exact search
+      const parts = query.split(/ +/);
+      const tags = parts.filter(x => x[0] === "#").map(x => x.substr(1));
+      const words = parts.filter(x => x[0] !== "#");
       this.searchedItems = this.items.filter(it => {
-        for (let part of parts) {
-          // Search for all parts
-          if (it.rawContent.indexOf(part) < 0) return false;
+        for (let word of words) {
+          if (it.rawContent.indexOf(word) < 0) return false;
+        }
+        for (let tag of tags) {
+          if (!it.tagSet.has(tag)) return false;
         }
         return true;
       });
     },
-    fillRawContent(items) {
+    fillCalculatedData(items) {
       for (let item of items) {
-        Util.fillItemRawContent(item);
+        Util.fillItemCalculatedData(item);
       }
     },
     addItem() {
@@ -210,12 +216,12 @@ export default {
       this.$emit("open-item", item);
     },
     itemUpdated(itemUpdate) {
-      Util.fillItemRawContent(itemUpdate.newItem);
+      Util.fillItemCalculatedData(itemUpdate.newItem);
       this.items[itemUpdate.oldItem.index] = itemUpdate.newItem;
       this.sortAndSetItems(this.items);
     },
     itemAdded(item) {
-      Util.fillItemRawContent(item);
+      Util.fillItemCalculatedData(item);
       this.items.push(item);
       this.sortAndSetItems(this.items);
     },
@@ -256,5 +262,8 @@ export default {
 <style scoped lang="scss">
 .load-progress {
   margin-left: 10px;
+}
+.v-application--is-ltr .v-list-item__icon:first-child {
+  margin-right: 15px; /* default icon margin-right: 32px; */
 }
 </style>

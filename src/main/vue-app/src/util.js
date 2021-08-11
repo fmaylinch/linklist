@@ -1,8 +1,21 @@
 export default class Util {
 
-  static fillItemRawContent(item) {
-    const raw = item.title + " " + item.url + " " + item.image + " " + item.notes + " " + this.getTagsString(item) + " " + item.score;
+  static fillItemCalculatedData(item) {
+    const raw = item.title + " " + item.url + " " + item.image + " " + item.notes + " " + item.score;
     item.rawContent = raw.toLowerCase();
+
+    item.tagSet = new Set();
+    if (item.tags) {
+      item.tags.forEach(x => item.tagSet.add(x))
+    }
+
+    if (item.tagSet.has("dance")) {
+      item.icon = "mdi-music-note";
+    } else if (item.tagSet.has("music")) {
+      item.icon = "mdi-music";
+    } else if (item.tagSet.has("movie")) {
+      item.icon = "mdi-movie-open";
+    }
   }
 
   // TODO: check that usernames and tags are always stored in lowercase,

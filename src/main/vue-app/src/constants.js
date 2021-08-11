@@ -5,5 +5,5 @@ const devMode = Vue.config.devtools;
 console.log("Development mode?", devMode);
 
 export default {
-  apiUrl: devMode ? "http://localhost:8070/" : ""
+  apiUrl: devMode ? "http://linklist.es/" : ""
 };
