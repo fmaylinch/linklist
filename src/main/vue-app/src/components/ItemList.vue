@@ -10,27 +10,36 @@
       <v-progress-circular v-if="loading" class="load-progress"
           :width="3" :size="20" indeterminate color="primary" />
       <v-spacer></v-spacer>
-      <v-menu
-          left
-          bottom
-      >
+      <v-menu left bottom>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon v-bind="attrs" v-on="on">
             <v-icon>mdi-sort</v-icon>
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="() => this.sortItemsWith({ property:'title', direction: 1 })">
+          <v-list-item @click="() => sortItemsWith({ property:'title', direction: 1 })">
             <v-list-item-title>By title A-Z</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="() => this.sortItemsWith({ property:'title', direction: -1 })">
+          <v-list-item @click="() => sortItemsWith({ property:'title', direction: -1 })">
             <v-list-item-title>By title Z-A</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="() => this.sortItemsWith({ property:'score', direction: 1 })">
+          <v-list-item @click="() => sortItemsWith({ property:'score', direction: 1 })">
             <v-list-item-title>By score 0-100</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="() => this.sortItemsWith({ property:'score', direction: -1 })">
+          <v-list-item @click="() => sortItemsWith({ property:'score', direction: -1 })">
             <v-list-item-title>By score 100-0</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <v-menu left bottom v-if="favorites.length > 0">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-star</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item v-for="fav in favorites" :key="fav.query" @click="() => searchFav(fav)">
+            <v-list-item-title>{{fav.query}}</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -100,6 +109,7 @@ export default {
   created() {
     this.setupObserverForRefreshSearchedItems();
     this.retrieveItemsFromApi();
+    this.prepareFavorites();
   },
   watch: {
     lowerSearch() {
@@ -110,6 +120,7 @@ export default {
     query: "",
     items: [],
     searchedItems: [],
+    favorites: [],
     error: { message: "", visible: false },
     loading: false,
     sort: { property: "title", direction: 1 }
@@ -234,6 +245,27 @@ export default {
     },
     refreshItems() {
       this.retrieveItemsFromApi();
+    },
+    prepareFavorites() {
+      // This call is also done in PermissionsList.vue
+      // Here we will use the permissions to build the favorite list
+      console.log("Loading permissions from API, to prepare favorites", this.ctx.search);
+      this.ctx.axios
+          .post("permissions/search")
+          .then(resp => this.prepareFavoritesMenu(resp.data.permissions))
+          .catch(e => console.error("Error retrieving list of permissions", e));
+    },
+    // Create favorites from permissions
+    // Each permission has tags, so for now we create favorites to see those tags
+    prepareFavoritesMenu(permissions) {
+      for (const p of permissions) {
+        let fav = { query: p.tags.map(tag => "#"+tag).join(" ") };
+        this.favorites.push(fav);
+      }
+      console.log("favorites", this.favorites);
+    },
+    searchFav(fav) {
+      this.query = fav.query;
     },
     scrollToTop() {
       document.getElementById("listDiv").scrollTop = 0;
