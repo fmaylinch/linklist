@@ -41,7 +41,7 @@
       <v-card flat tile dark>
         <v-container v-if="ctx.viewingSharedLink">
           <v-alert dismissible type="info">
-            Viewing items from user <strong>{{ ctx.search.username }}</strong>
+            Items of <strong>{{ ctx.search.username }}</strong>
             with tags <strong>{{ ctx.search.tags.join(", ") }}</strong>.
           </v-alert>
           <a v-if="ctx.viewingMyItems" href="#" @click="goToPermissions">Edit permissions to allow access</a>
