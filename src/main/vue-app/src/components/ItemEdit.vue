@@ -171,7 +171,7 @@ export default {
       };
     },
     parseFormTags(tags) {
-      return tags.trim().split(/[, ]+/).filter(it => !!it);
+      return tags.trim().split(/[, ]+/).filter(it => !!it).map(it => it.toLowerCase());
     },
     itemToForm(item) {
       if (item) {
