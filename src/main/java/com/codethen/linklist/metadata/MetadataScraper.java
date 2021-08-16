@@ -2,6 +2,7 @@ package com.codethen.linklist.metadata;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.codethen.linklist.items.Item;
 import com.google.gson.Gson;
@@ -62,6 +63,37 @@ public class MetadataScraper {
             final Number ratingValue = (Number) ((Map<?, ?>) aggregateRating).get("ratingValue");
             builder.score((int) (ratingValue.doubleValue() * 10));
         }
+
+        try {
+            final String notes = buildImdbNotes(map);
+            builder.notes(notes);
+        } catch (Exception e) {
+            // leave standard notes
+        }
+    }
+
+    private String buildImdbNotes(Map<?, ?> map) {
+        final String directors = getImdbPeople(map, "director");
+        final String actors = getImdbPeople(map, "actor");
+        final Object genres = ((List) map.get("genre")).stream().collect(Collectors.joining(", "));
+
+        String duration = (String) map.get("duration");
+        if (duration.startsWith("PT")) {
+            duration = duration.substring(2).toLowerCase();
+        }
+
+        final String notes = directors + ". " +
+                map.get("datePublished") + ". " +
+                duration + ". " +
+                genres + ". " +
+                actors + ".";
+        return notes;
+    }
+
+    private String getImdbPeople(Map<?, ?> map, String key) {
+        return ((List<?>) map.get(key)).stream()
+                .map(x -> (String) ((Map) x).get("name"))
+                .collect(Collectors.joining(", "));
     }
 
     @Nullable
