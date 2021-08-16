@@ -146,7 +146,11 @@ export default {
               .then((resp) => {
                 const item = resp.data;
                 if (item) {
+                  const oldTags = this.itemForm.tags;
                   this.itemForm = this.itemToForm(item);
+                  if (oldTags) { // keep existing tags
+                    this.itemForm.tags = oldTags;
+                  }
                 }
               })
         );
