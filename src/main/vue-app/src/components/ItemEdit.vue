@@ -35,7 +35,11 @@
           </v-slider>
         </v-container>
       </v-card>
-      <v-divider />
+      <v-card flat tile v-if="itemForm.image">
+        <v-container>
+          <v-img :src="itemForm.image" />
+        </v-container>
+      </v-card>
       <v-card flat tile>
         <v-container>
           <v-btn
@@ -205,5 +209,8 @@ export default {
 <style scoped lang="scss">
 .load-progress {
   margin-left: 10px;
+}
+.image {
+  margin-top: 20px;
 }
 </style>
