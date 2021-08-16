@@ -197,20 +197,32 @@ export default {
     sendRefreshSearchedItems() {
       this.subscriber.next(this.lowerSearch);
     },
+    wordsAndTags(parts) {
+      const words = parts.filter(x => x[0] !== "#");
+      const tags = parts.filter(x => x[0] === "#").map(x => x.substr(1));
+      return {words, tags};
+    },
     refreshSearchedItems(query) {
       console.log("Searching", query);
       if (!query) {
         this.searchedItems = this.items;
       }
       const parts = query.split(/ +/);
-      const tags = parts.filter(x => x[0] === "#").map(x => x.substr(1));
-      const words = parts.filter(x => x[0] !== "#");
+      const positive = this.wordsAndTags(parts.filter(x => x[0] !== "-"));
+      // Negative words and tags (starting with '-'). We will NOT include items that have them.
+      const negative = this.wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
       this.searchedItems = this.items.filter(it => {
-        for (let word of words) {
+        for (let word of positive.words) {
           if (it.rawContent.indexOf(word) < 0) return false;
         }
-        for (let tag of tags) {
+        for (let word of negative.words) {
+          if (it.rawContent.indexOf(word) >= 0) return false;
+        }
+        for (let tag of positive.tags) {
           if (!it.tagSet.has(tag)) return false;
+        }
+        for (let tag of negative.tags) {
+          if (it.tagSet.has(tag)) return false;
         }
         return true;
       });
