@@ -270,11 +270,18 @@ export default {
     // Create favorites from permissions
     // Each permission has tags, so for now we create favorites to see those tags
     prepareFavoritesMenu(permissions) {
+      const favorites = [];
       for (const p of permissions) {
         let fav = { query: p.tags.map(tag => "#"+tag).join(" ") };
-        this.favorites.push(fav);
+        favorites.push(fav);
       }
-      console.log("favorites", this.favorites);
+      let byQuery = (x,y) => {
+        if (x.query < y.query) return -1;
+        if (x.query > y.query) return 1;
+        return 0;
+      };
+      favorites.sort(byQuery);
+      this.favorites = favorites;
     },
     searchFav(fav) {
       this.query = fav.query;
