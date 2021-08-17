@@ -146,11 +146,16 @@ export default {
               .then((resp) => {
                 const item = resp.data;
                 if (item) {
-                  const oldTags = this.itemForm.tags;
-                  this.itemForm = this.itemToForm(item);
-                  if (oldTags) { // keep existing tags
-                    this.itemForm.tags = oldTags;
+                  const itemForm = this.itemToForm(item);
+                  if (!this.itemForm.title) { // keep existing title
+                    this.itemForm.title = itemForm.title;
                   }
+                  if (!this.itemForm.tags) { // keep existing tags
+                    this.itemForm.tags = itemForm.tags;
+                  }
+                  this.itemForm.image = itemForm.image;
+                  this.itemForm.notes = itemForm.notes;
+                  this.itemForm.score = itemForm.score;
                 }
               })
         );
