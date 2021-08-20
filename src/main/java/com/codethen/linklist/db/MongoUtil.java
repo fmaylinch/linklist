@@ -18,7 +18,11 @@ public class MongoUtil {
     public static class Ops {
         public static final String set = "$set";
         public static final String all = "$all";
+        public static final String in = "$in";
         public static final String or = "$or";
+        public static final String addToSet = "$addToSet";
+        public static final String each = "$each";
+        public static final String pull = "$pull";
     }
 
     public static Document doc() {

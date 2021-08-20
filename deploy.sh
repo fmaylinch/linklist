@@ -32,6 +32,5 @@ docker push cr.yandex/crp81dg788qn7ff84jpi/linklist
 
 echo "--- Restart Docker in VM ---"
 echo "$ ssh fmaylinch@130.193.46.10"
-echo "$ cd linklist"
-echo "$ ./restart-docker.sh"
+echo "$ ./linklist/restart-docker.sh"
 echo "Access website at http://linklist.es"

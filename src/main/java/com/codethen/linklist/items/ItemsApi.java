@@ -38,6 +38,7 @@ import org.bson.Document;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.providers.multipart.MultipartForm;
 
+import static com.codethen.linklist.db.MongoUtil.doc;
 import static com.codethen.linklist.items.ItemAdapter.byIdAndUserId;
 import static com.codethen.linklist.items.ItemAdapter.byUserId;
 import static com.codethen.linklist.items.ItemAdapter.byUserIdAndTags;
@@ -144,6 +145,28 @@ public class ItemsApi {
             items.deleteOne(byIdAndUserId(itemId.getId(), getUserId(ctx)));
         }
         return item;
+    }
+
+    @POST @Path("updateMany")
+    @RolesAllowed({ Roles.USER })
+    public void updateMany(@Context SecurityContext ctx, UpdateMany update) {
+
+        if (update.tagsToSearch.isEmpty()) {
+            throw Util.apiError("At least search by one tag", Response.Status.BAD_REQUEST);
+        }
+        if (update.tagsToAdd.isEmpty() && update.tagsToRemove.isEmpty()) {
+            throw Util.apiError("At least add or remove one tag", Response.Status.BAD_REQUEST);
+        }
+
+        final Document query = byUserIdAndTags(getUserId(ctx), update.tagsToSearch);
+
+        if (!update.tagsToAdd.isEmpty()) {
+            this.items.updateMany(query, doc(Ops.addToSet, doc("tags", doc(Ops.each, update.tagsToAdd))));
+        }
+
+        if (!update.tagsToRemove.isEmpty()) {
+            this.items.updateMany(query, doc(Ops.pull, doc("tags", doc(Ops.in, update.tagsToRemove))));
+        }
     }
 
     @POST @Path("/import")

@@ -36,43 +36,52 @@ You can then modify the fields as you wish.
 
 ```bash
 # Register
+SERVER=http://127.0.0.1:8070
+
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"username":"may", "password":"12345", "password2":"12345"}' \
-  http://127.0.0.1:8070/security/register | jq
+  $SERVER/security/register | jq
 
 # Login
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"username":"may", "password":"12345"}' \
-  http://127.0.0.1:8070/security/login | jq
+  $SERVER/security/login | jq
 
 # Login and sets JWT variable (for the following calls)
 JWT=$(curl -X POST --silent \
   -H "Content-Type: application/json" \
-  -d '{"username":"may", "password":"12345"}' \
-  http://127.0.0.1:8070/security/login | jq -r .token)
+  -d '{"username":"may", "password":"llistzz"}' \
+  $SERVER/security/login | jq -r .token)
 
 # Create item
 curl -X POST \
   -H "Authorization: Bearer $JWT" \
   -H "Content-Type: application/json" \
   -d '{"title":"item1", "tags":["tag1", "tag2"]}' \
-  http://127.0.0.1:8070/items/upsertOne | jq
+  $SERVER/items/upsertOne | jq
 
 # Search items
 curl -X POST \
   -H "Authorization: Bearer $JWT" \
   -H "Content-Type: application/json" \
   -d '{"username":"may"}' \
-  http://127.0.0.1:8070/items/search | jq
+  $SERVER/items/search | jq
 
 # Delete item
 curl -v -X POST \
   -H "Authorization: Bearer $JWT" \
   -H "Content-Type: application/json" \
   -d '{"id":"ITEM_ID"}' \
-  http://127.0.0.1:8070/items/deleteOne | jq
+  $SERVER/items/deleteOne | jq
+
+# Update many (for now just updates tags)
+curl -X POST \
+  -H "Authorization: Bearer $JWT" \
+  -H "Content-Type: application/json" \
+  -d '{"tagsToSearch":["test"], "tagsToAdd":["added"], "tagsToRemove":[]}' \
+  $SERVER/items/updateMany
 ```
 
 
