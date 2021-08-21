@@ -67,6 +67,15 @@
             prepend-inner-icon="mdi-pound-box"
             @click:prepend-inner="addHashChar"
           />
+          <v-text-field
+            v-if="shareable"
+            clearable
+            v-model="tagsToUpdate"
+            label="Add or remove tags"
+            placeholder="+tag1 +tag2 -tag3 -tag4"
+            :append-icon="itemsMultiUpdate ? 'mdi-content-save' : ''"
+            @click:append="updateTags"
+          />
           <div v-if="shareable">
             Share link: <a :href="shareLink()" target="_blank"> {{shareLink()}}</a>
           </div>
@@ -118,6 +127,7 @@ export default {
   },
   data: () => ({
     query: "",
+    tagsToUpdate: "",
     items: [],
     searchedItems: [],
     favorites: [],
@@ -133,7 +143,17 @@ export default {
       if (!this.ctx.viewingMyItems) return false;
       if (this.lowerSearch[0] !== "#") return false;
       if (this.searchedItems.length === 0) return false;
+      // We could refactor this and use the positive/negative in refreshSearchedItems()
       return this.lowerSearch.split(/ +/).filter(x => x[0] !== "#").length === 0; // Only searching tags
+    },
+    itemsMultiUpdate() {
+      if (!this.tagsToUpdate) return null;
+      const parts = this.tagsToUpdate.split(/ +/);
+      const tagsToAdd = parts.filter(x => x[0] === "+").map(x => x.substr(1)).filter(x => x);
+      const tagsToRemove = parts.filter(x => x[0] === "-").map(x => x.substr(1)).filter(x => x);
+      return tagsToAdd.length > 0 || tagsToRemove.length > 0
+          ? {tagsToAdd, tagsToRemove}
+          : null;
     },
     itemCount() {
       if (this.lowerSearch) {
@@ -231,6 +251,18 @@ export default {
       for (let item of items) {
         Util.fillItemCalculatedData(item);
       }
+    },
+    updateTags() {
+      // We could refactor this and use the positive.tags in refreshSearchedItems()
+      const tagsToSearch = this.lowerSearch.split(/ +/).map(x => x.substr(1));
+      const updateMany = {...this.itemsMultiUpdate, tagsToSearch};
+      console.log("updateMany", updateMany);
+      this.tagsToUpdate = "";
+      Util.loadWithAxios("update many items", this, () =>
+          this.ctx.axios
+              .post("items/updateMany", updateMany)
+              .then(() => this.retrieveItemsFromApi())
+      );
     },
     addItem() {
       this.$emit("add-item");
