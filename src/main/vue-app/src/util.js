@@ -9,10 +9,17 @@ export default class Util {
       item.tags.forEach(x => item.tagSet.add(x))
     }
 
-    if (item.tagSet.has("dance")) {
+    // Known tags and their respective icons
+    if (item.tagSet.has("song")) {
       item.icon = "mdi-music-note";
     } else if (item.tagSet.has("music")) {
       item.icon = "mdi-music";
+    } else if (item.tagSet.has("book")) {
+      item.icon = "mdi-book-open-page-variant";
+    } else if (item.tagSet.has("game")) {
+      item.icon = "mdi-google-controller";
+    } else if (item.tagSet.has("tvseries")) {
+      item.icon = "mdi-movie-open-plus";
     } else if (item.tagSet.has("movie")) {
       item.icon = "mdi-movie-open";
     }
