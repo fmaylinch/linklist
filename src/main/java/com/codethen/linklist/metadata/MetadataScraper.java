@@ -1,5 +1,6 @@
 package com.codethen.linklist.metadata;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,8 +46,34 @@ public class MetadataScraper {
 
     private void fillFromSpotify(Document doc, Item.ItemBuilder builder) {
 
-        builder.title(getMeta(doc, "twitter:audio:artist_name") + " - " + getMeta(doc, "og:title"));
-        builder.tags(List.of("spotify", "music", "top"));
+        var tags = new ArrayList<>(List.of("music", "top"));
+
+        if (doc.title().endsWith(SPOTIFY_SUFFIX)) {
+            // Example: Severant - Album by Kuedo | Spotify
+            var titleAndArtist = doc.title().substring(0, doc.title().length() - SPOTIFY_SUFFIX.length());
+            if (titleAndArtist.contains(ALBUM_SEPARATOR)) {
+                // Example: Severant - Album by Kuedo
+                builder.title(getSpotifyTitle(titleAndArtist, ALBUM_SEPARATOR));
+                tags.add("album");
+            } else if (titleAndArtist.contains(SONG_SEPARATOR)) {
+                // Example: A Life So Beautiful - Extended Mix - song by Costa, Katty Heath
+                builder.title(getSpotifyTitle(titleAndArtist, SONG_SEPARATOR));
+                tags.add("song");
+            }
+        }
+
+        builder.tags(tags);
+    }
+
+    private static final String ALBUM_SEPARATOR = " - Album by ";
+    private static final String SONG_SEPARATOR = " - song by ";
+    private static final String SPOTIFY_SUFFIX = " | Spotify";
+
+    private String getSpotifyTitle(String titleAndArtist, String separator) {
+        var parts = titleAndArtist.split(separator);
+        var title = parts[0];
+        var artist = parts[1];
+        return artist + " - " + title;
     }
 
     private void fillFromImdb(Document doc, Item.ItemBuilder builder) {
@@ -56,7 +83,7 @@ public class MetadataScraper {
 
         builder.title((String) map.get("name"));
         String type = (String) map.get("@type");
-        builder.tags(List.of("imdb", type.toLowerCase()));
+        builder.tags(List.of(type.toLowerCase()));
 
         final Object aggregateRating = map.get("aggregateRating");
         if (aggregateRating instanceof Map) {

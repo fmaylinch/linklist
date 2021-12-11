@@ -19,17 +19,17 @@ public class JsoupExample {
         String url;
         url = "https://www.imdb.com/title/tt5421602/"; // Anne with an E - TVSeries
         url = "https://www.imdb.com/title/tt5421602/"; // Anne with an E - TVSeries (mobile)
-        url = "https://open.spotify.com/album/3NJLH1LhVdZBeYDrTCbdnO"; // Kuedo - Severant
-
         url = "https://www.imdb.com/title/tt0209144/"; // Movie
+        url = "https://open.spotify.com/album/3NJLH1LhVdZBeYDrTCbdnO"; // Album
+        url = "https://deezer.page.link/S9ixbKEagAUSgKHcA"; // Song
+        url = "https://open.spotify.com/track/0DYXeq2whfySFHh7lXLC2k"; // Song
 
         Document doc = Jsoup.connect(url).header("Accept-Language", "en-US").get();
         String title = doc.title();
         System.out.println(title);
 
-        // TODO: metas
         System.out.println(getMeta(doc, "og:title"));
-        System.out.println(getMeta(doc, "twitter:audio:artist_name")); // TODO: For Spotify
+        System.out.println(getMeta(doc, "twitter:audio:artist_name"));
         System.out.println(getMeta(doc, "og:image"));
         System.out.println(getMeta(doc, "og:type"));
         System.out.println(getMeta(doc, "og:description"));
