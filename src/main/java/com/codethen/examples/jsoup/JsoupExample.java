@@ -23,6 +23,12 @@ public class JsoupExample {
         url = "https://open.spotify.com/album/3NJLH1LhVdZBeYDrTCbdnO"; // Album
         url = "https://deezer.page.link/S9ixbKEagAUSgKHcA"; // Song
         url = "https://open.spotify.com/track/0DYXeq2whfySFHh7lXLC2k"; // Song
+        url = "https://open.spotify.com/album/49MNmJhZQewjt06rpwp6QR?si=LVJcDrstRyuf-i0SZCMNBw"; // Long link
+
+        if (url.contains("spotify.com/") && url.contains("?si=")) {
+            // Remove Spotify query params
+            url = url.substring(0, url.indexOf("?si="));
+        }
 
         Document doc = Jsoup.connect(url).header("Accept-Language", "en-US").get();
         String title = doc.title();

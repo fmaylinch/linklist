@@ -20,6 +20,11 @@ public class MetadataScraper {
     @Nullable
     public Item itemDataFromUrl(String url) {
         try {
+            if (url.contains("spotify.com/") && url.contains("?si=")) {
+                // Remove Spotify query params
+                url = url.substring(0, url.indexOf("?si="));
+            }
+
             final Document doc = Jsoup.connect(url).header("Accept-Language", "en-US").get();
 
             final String title = getMeta(doc, "og:title");
@@ -49,15 +54,18 @@ public class MetadataScraper {
         var tags = new ArrayList<>(List.of("music", "top"));
 
         if (doc.title().endsWith(SPOTIFY_SUFFIX)) {
-            // Example: Severant - Album by Kuedo | Spotify
+            // Example: Mezzanine - Album by Massive Attack | Spotify
             var titleAndArtist = doc.title().substring(0, doc.title().length() - SPOTIFY_SUFFIX.length());
+            var notes = getMeta(doc, "og:description");
             if (titleAndArtist.contains(ALBUM_SEPARATOR)) {
-                // Example: Severant - Album by Kuedo
-                builder.title(getSpotifyTitle(titleAndArtist, ALBUM_SEPARATOR));
+                // Example: Mezzanine - Album by Massive Attack
+                builder.title(buildSpotifyTitle(titleAndArtist, ALBUM_SEPARATOR));
+                builder.notes(processSpotifyNotes(notes, " · Album · ")); // Massive Attack · Album · 1998 · 11 songs.
                 tags.add("album");
             } else if (titleAndArtist.contains(SONG_SEPARATOR)) {
                 // Example: A Life So Beautiful - Extended Mix - song by Costa, Katty Heath
-                builder.title(getSpotifyTitle(titleAndArtist, SONG_SEPARATOR));
+                builder.title(buildSpotifyTitle(titleAndArtist, SONG_SEPARATOR));
+                builder.notes(processSpotifyNotes(notes, " · Song · ")); // Costa · Song · 2021
                 tags.add("song");
             }
         }
@@ -65,11 +73,16 @@ public class MetadataScraper {
         builder.tags(tags);
     }
 
+    private String processSpotifyNotes(String notes, String separator) {
+        if (notes == null || !notes.contains(separator)) return notes;
+        return notes.substring(notes.indexOf(separator) + separator.length());
+    }
+
     private static final String ALBUM_SEPARATOR = " - Album by ";
     private static final String SONG_SEPARATOR = " - song by ";
     private static final String SPOTIFY_SUFFIX = " | Spotify";
 
-    private String getSpotifyTitle(String titleAndArtist, String separator) {
+    private String buildSpotifyTitle(String titleAndArtist, String separator) {
         var parts = titleAndArtist.split(separator);
         var title = parts[0];
         var artist = parts[1];
