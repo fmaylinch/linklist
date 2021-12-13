@@ -156,6 +156,7 @@ export default {
                   this.itemForm.image = itemForm.image;
                   this.itemForm.notes = itemForm.notes;
                   this.itemForm.score = itemForm.score;
+                  this.itemForm.url = itemForm.url; // we may decide to change it, like in Spotify
                 }
               })
         );
