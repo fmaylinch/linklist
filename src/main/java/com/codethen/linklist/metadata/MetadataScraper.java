@@ -1,8 +1,11 @@
 package com.codethen.linklist.metadata;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.codethen.linklist.items.Item;
@@ -27,17 +30,19 @@ public class MetadataScraper {
 
             final Document doc = Jsoup.connect(url).header("Accept-Language", "en-US").get();
 
-            final String title = getMeta(doc, "og:title");
+            final String title = getMeta(doc, "property", "og:title");
 
             final Item.ItemBuilder builder = Item.builder()
                     .title(title != null ? title : doc.title())
                     .url(url)
-                    .image(getMeta(doc, "og:image"))
-                    .notes(getMeta(doc, "og:description"))
+                    .image(getMeta(doc, "property", "og:image"))
+                    .notes(getMeta(doc, "property", "og:description"))
                     .score(Item.DEFAULT_SCORE);
 
             if (url.contains(".imdb.com/")) {
                 fillFromImdb(doc, builder);
+            } else if (url.contains("deezer.page.link/") || url.contains("deezer.com/")) {
+                fillFromDeezer(doc, builder);
             } else if (url.contains("spotify.com/")) {
                 fillFromSpotify(doc, builder);
             }
@@ -49,6 +54,34 @@ public class MetadataScraper {
         }
     }
 
+    private void fillFromDeezer(Document doc, Item.ItemBuilder builder) {
+
+        var tags = new ArrayList<>(List.of("top"));
+        var type = getMeta(doc, "property", "og:type");
+        var extraTags = Arrays.asList(type.split("\\."));
+        tags.addAll(extraTags);
+        builder.tags(tags);
+
+        var artist = getMeta(doc, "name", "twitter:creator");
+        var title = getMeta(doc, "name", "twitter:title");
+        builder.title(artist + " - " + title);
+
+        builder.url(getMeta(doc, "property", "og:url"));
+
+        var notes = getMeta(doc, "property", "og:description");
+        builder.notes(processDeezerNotes(notes));
+    }
+
+    private String processDeezerNotes(String notes) {
+        var pattern = Pattern.compile("^.+ - (song|album) - (.+)$");
+        var matcher = pattern.matcher(notes);
+        if (matcher.matches()) {
+            return matcher.group(2);
+        } else {
+            return notes;
+        }
+    }
+
     private void fillFromSpotify(Document doc, Item.ItemBuilder builder) {
 
         var tags = new ArrayList<>(List.of("music", "top"));
@@ -56,7 +89,7 @@ public class MetadataScraper {
         if (doc.title().endsWith(SPOTIFY_SUFFIX)) {
             // Example: Mezzanine - Album by Massive Attack | Spotify
             var titleAndArtist = doc.title().substring(0, doc.title().length() - SPOTIFY_SUFFIX.length());
-            var notes = getMeta(doc, "og:description");
+            var notes = getMeta(doc, "property", "og:description");
             if (titleAndArtist.contains(ALBUM_SEPARATOR)) {
                 // Example: Mezzanine - Album by Massive Attack
                 builder.title(buildSpotifyTitle(titleAndArtist, ALBUM_SEPARATOR));
@@ -137,9 +170,9 @@ public class MetadataScraper {
     }
 
     @Nullable
-    private static String getMeta(Document doc, String name) {
+    private static String getMeta(Document doc, String metaType, String name) {
         final Element element = doc
-                .select("meta[property='" + name + "']")
+                .select("meta[" + metaType + "='" + name + "']")
                 .first();
         return element == null ? null : element.attr("content");
     }
