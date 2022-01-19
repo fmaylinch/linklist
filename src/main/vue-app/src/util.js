@@ -22,6 +22,10 @@ export default class Util {
       item.icon = "mdi-movie-open-plus";
     } else if (item.tagSet.has("movie")) {
       item.icon = "mdi-movie-open";
+    } else if (item.tagSet.has("learn")) {
+      item.icon = "mdi-school";
+    } else if (item.tagSet.has("dev")) {
+      item.icon = "mdi-laptop";
     }
   }
 
