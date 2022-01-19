@@ -66,7 +66,7 @@ public class MetadataScraper {
         var title = getMeta(doc, "name", "twitter:title");
         builder.title(artist + " - " + title);
 
-        builder.url(getMeta(doc, "property", "og:url"));
+        // builder.url(getMeta(doc, "property", "og:url"));
 
         var notes = getMeta(doc, "property", "og:description");
         builder.notes(processDeezerNotes(notes));
