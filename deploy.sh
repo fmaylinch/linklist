@@ -7,16 +7,17 @@ echo "--- Building Vue app ---"
 cd src/main/vue-app
 npm run build
 
-AWS_OPTIONS="--endpoint-url=https://storage.yandexcloud.net"
-BUCKET="s3://www.linklist.es"
+# Now the S3 website is not used. I removed it.
+# We use a L7 balancer that points to the VM. The L7 has a DNS certificate for HTTPS.
+# If I want to use the S3 website, https://linklist.es should go to the S3 website, but apiUrl should go to the L7.
+#AWS_OPTIONS="--endpoint-url=https://storage.yandexcloud.net"
+#BUCKET="s3://www.linklist.es"
+#echo "--- Removing old resources from cloud bucket ---"
+#aws $AWS_OPTIONS s3 rm  --recursive $BUCKET/js
+#aws $AWS_OPTIONS s3 rm  --recursive $BUCKET/css
+#echo "--- Uploading new resources to cloud bucket ---"
+#aws $AWS_OPTIONS s3 cp --recursive dist $BUCKET
 
-echo "--- Removing old resources from cloud bucket ---"
-aws $AWS_OPTIONS s3 rm  --recursive $BUCKET/js
-aws $AWS_OPTIONS s3 rm  --recursive $BUCKET/css
-echo "--- Uploading new resources to cloud bucket ---"
-aws $AWS_OPTIONS s3 cp --recursive dist $BUCKET
-
-echo "Note: now the static website is hosted in a cloud bucket, so the next step could be removed"
 echo "--- Copying Vue app to resources ---"
 TARGET="$PROJECT_FOLDER/src/main/resources/META-INF/resources"
 rm -f -R $TARGET/css
