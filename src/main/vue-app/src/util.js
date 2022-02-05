@@ -60,8 +60,8 @@ export default class Util {
   }
 
   static messageFromApiError(e) {
-    console.error("API Error", e.response.data, e);
-    return e.response.data ? e.response.data : e;
+    console.error("API Error", e);
+    return e.response && e.response.data ? e.response.data : e;
   }
 
   static messageObjectFromApiError(e) {

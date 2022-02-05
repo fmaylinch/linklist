@@ -47,11 +47,12 @@ export default {
         this.error = { message: "Passwords don't match", visible: true };
         return;
       }
-      console.log("Login: ", action);
+      let url = constants.apiUrl + "/security/" + action;
+      console.log("Login with url: ", url);
 
       Util.loadWithAxios("login", this, () =>
           axios
-              .post(constants.apiUrl + "/security/" + action, this.loginData)
+              .post(url, this.loginData)
               .then(resp => this.handleCredentials(resp.data))
       );
     },
