@@ -18,6 +18,9 @@ export type RootStackParamList = {
   Modal: undefined;
   NoModal: undefined;
   NotFound: undefined;
+  ItemList: {date: Date};
+  ItemEdit: {item?: Item};
+  Login: undefined;
 };
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> = NativeStackScreenProps<
@@ -34,3 +37,14 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
   BottomTabScreenProps<RootTabParamList, Screen>,
   NativeStackScreenProps<RootStackParamList>
 >;
+
+export type Item = {
+  id: string;
+  userId: string;
+  title: string;
+  url: string;
+  image: string;
+  notes: string;
+  tags: Array<string>;
+  score: number;
+};

@@ -1,15 +1,36 @@
-import EditScreenInfo from '../components/EditScreenInfo';
 import { Text, View } from '../components/Themed';
 import { RootTabScreenProps } from '../types';
 import styles from './styles';
+import {Button} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {useState} from "react";
 
 export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'TabOne'>) {
   console.log(route);
+
+  const [message, setMessage] = useState<string>('');
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="/screens/TabOneScreen.tsx" />
-    </View>
+  <View style={styles.container}>
+    <Button
+        title={"Open Item List"}
+        onPress={() => {
+            setMessage('');
+            navigation.navigate("ItemList", {date: new Date()});
+        }}
+    />
+    <Button
+        title={"Logout"}
+        onPress={async () => {
+            try {
+                await AsyncStorage.removeItem('credentials');
+                setMessage('Logged out');
+            } catch (e) {
+                setMessage('Error on logout: ' + e);
+            }
+        }}
+    />
+    <Text>{message}</Text>
+  </View>
   );
 }

@@ -16,8 +16,11 @@ import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
-import { RootStackParamList, RootTabParamList, RootTabScreenProps } from '../types';
+import {RootStackParamList, RootStackScreenProps, RootTabParamList, RootTabScreenProps} from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
+import ItemList from "../screens/ItemList";
+import Login from "../screens/Login";
+import ItemEdit from "../screens/ItemEdit";
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -44,6 +47,30 @@ function RootNavigator() {
         <Stack.Screen name="Modal" component={ModalScreen} />
       </Stack.Group>
       <Stack.Screen name="NoModal" component={ModalScreen} />
+      <Stack.Screen name="ItemList" component={ItemList}
+          options={({ navigation }: RootStackScreenProps<'ItemList'>) => ({
+              title: 'Item List',
+              headerRight: () => (
+                  <Pressable
+                      onPress={() => navigation.navigate('ItemEdit', {})}
+                      style={({ pressed }) => ({
+                          opacity: pressed ? 0.5 : 1,
+                      })}>
+                      <FontAwesome
+                          name="info-circle"
+                          size={25}
+                          style={{ marginRight: 15 }}
+                      />
+                  </Pressable>
+              ),
+          })}
+      />
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="Login" component={Login} />
+      </Stack.Group>
+      <Stack.Group screenOptions={{ presentation: 'modal' }}>
+          <Stack.Screen name="ItemEdit" component={ItemEdit} />
+      </Stack.Group>
     </Stack.Navigator>
   );
 }
