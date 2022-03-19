@@ -3,6 +3,7 @@ import {Button, StyleSheet, TextInput} from 'react-native';
 import {View} from '../components/Themed';
 import {RootStackScreenProps} from "../types";
 import React, {useState} from "react";
+import { Slider } from "@miblanchard/react-native-slider";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
   console.log(route);
@@ -14,7 +15,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     const [image, setImage] = useState<string>(item?.image || "");
     const [notes, setNotes] = useState<string>(item?.notes || "");
     const [noteLines, setNoteLines] = useState<number>(calcNoteLines(item?.notes || ''));
-    const [score, setScore] = useState<number>(item?.score || 50);
+    const [score, setScore] = useState<number|number[]>(item?.score || 50);
     const [tags, setTags] = useState<string>(item?.tags.join(" ") || "");
 
     function calcNoteLines(notes: string) {
@@ -28,6 +29,11 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         <TextInput style={styles.input} placeholder={"url"} value={url} onChangeText={setUrl} />
         <TextInput style={styles.input} placeholder={"image"} value={image} onChangeText={setImage} />
         <TextInput style={styles.input} placeholder={"tags"} value={tags} onChangeText={setTags} />
+        <View style={styles.slider}>
+            <Slider
+                step={1} minimumValue={0} maximumValue={100}
+                value={score} onValueChange={setScore} />
+        </View>
         <TextInput style={styles.input} placeholder={"notes"} value={notes}
             onChangeText={notes => {
                 setNotes(notes);
@@ -52,6 +58,11 @@ const styles = StyleSheet.create({
     input: {
         color: "#fff",
         backgroundColor: '#343434',
+        margin: '5px',
+        padding: '5px',
+        width: '100%',
+    },
+    slider: {
         margin: '5px',
         padding: '5px',
         width: '100%',
