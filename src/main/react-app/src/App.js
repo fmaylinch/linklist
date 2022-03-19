@@ -11,7 +11,7 @@ import Util from './util/util';
 
 export default function App() {
 
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItem, setSelectedItem] = useState({dummy: true});
   const [items, setItems] = useState(null);
   const [alert, setAlert] = useState(null);
   const [sort, setSort] = useState({ property: "title", direction: 1 });
