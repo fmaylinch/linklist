@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
-  console.log(route);
+  console.log("route", route);
 
   const [data, setData] = useState<Array<Item>>([]);
 
@@ -19,7 +19,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
               if (credentials == null) {
                   navigation.navigate('Login');
               } else {
-                  console.log("Loading data");
+                  console.log("Loading items");
                   const config = {
                       baseURL: credentials.baseUrl,
                       headers: { Authorization: "Bearer " + credentials.token },
@@ -27,6 +27,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   const resp = await axios.create(config).post("items/search",
                       {username: credentials.username, tags: null});
                   const items : Array<Item> = resp.data.items;
+                  console.log("Loaded items", items.length)
                   items.sort((a,b) => {
                       return a.title.localeCompare(b.title);
                   });
@@ -49,7 +50,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         <FlatList
             data={data}
             renderItem={p => renderItem(p.item)}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.id!}
         />
     </View>
   );

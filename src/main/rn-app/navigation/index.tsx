@@ -16,7 +16,7 @@ import ModalScreen from '../screens/ModalScreen';
 import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
-import {RootStackParamList, RootStackScreenProps, RootTabParamList, RootTabScreenProps} from '../types';
+import {Item, RootStackParamList, RootStackScreenProps, RootTabParamList, RootTabScreenProps} from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import ItemList from "../screens/ItemList";
 import Login from "../screens/Login";
@@ -52,14 +52,14 @@ function RootNavigator() {
               title: 'Item List',
               headerRight: () => (
                   <Pressable
-                      onPress={() => navigation.navigate('ItemEdit', {})}
+                      onPress={() => navigation.navigate('ItemEdit', {item: buildNewItem()})}
                       style={({ pressed }) => ({
                           opacity: pressed ? 0.5 : 1,
                       })}>
                       <FontAwesome
-                          name="info-circle"
+                          name="plus"
                           size={25}
-                          style={{ marginRight: 15 }}
+                          style={{ marginRight: 15, color: "white" }}
                       />
                   </Pressable>
               ),
@@ -73,6 +73,17 @@ function RootNavigator() {
       </Stack.Group>
     </Stack.Navigator>
   );
+}
+
+function buildNewItem() : Item {
+    return {
+        image: "",
+        notes: "",
+        score: 50,
+        tags: [],
+        title: "",
+        url: ""
+    }
 }
 
 /**

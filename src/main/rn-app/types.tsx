@@ -19,7 +19,7 @@ export type RootStackParamList = {
   NoModal: undefined;
   NotFound: undefined;
   ItemList: {date: Date};
-  ItemEdit: {item?: Item};
+  ItemEdit: {item: Item};
   Login: undefined;
 };
 
@@ -39,8 +39,8 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 >;
 
 export type Item = {
-  id: string;
-  userId: string;
+  id?: string;
+  userId?: string;
   title: string;
   url: string;
   image: string;

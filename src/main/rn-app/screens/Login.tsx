@@ -7,7 +7,7 @@ import React, {useState} from "react";
 import axios from "axios";
 
 export default function Login({ navigation, route }: RootStackScreenProps<'Login'>) {
-  console.log(route);
+  console.log("route", route);
 
   const [baseUrl, setBaseUrl] = useState<string>('http://localhost:8070');
   const [username, setUsername] = useState<string>('');
