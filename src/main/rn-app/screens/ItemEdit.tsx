@@ -27,7 +27,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
   async function deleteButtonAction() {
       const deletedItem = await deleteItem(item.id!);
       console.log("Deleted item", deletedItem.id, deletedItem.title);
-      navigation.navigate('ItemList', {date: new Date()});
+      navigation.navigate('ItemList', {date: new Date().getDate()});
   }
 
   async function saveButtonAction() {
@@ -48,7 +48,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           const savedItem = await saveItem(itemToSave);
           console.log("Saved item", savedItem.id, savedItem.title);
           // TODO: we want to go back and refresh, how could we improve this?
-          navigation.navigate('ItemList', {date: new Date()});
+          navigation.navigate('ItemList', {date: new Date().getDate()});
       } catch(e) {
           console.log("Error: " + e);
       }

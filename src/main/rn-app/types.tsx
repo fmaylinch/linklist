@@ -18,7 +18,7 @@ export type RootStackParamList = {
   Modal: undefined;
   NoModal: undefined;
   NotFound: undefined;
-  ItemList: {date: Date};
+  ItemList: {date: number}; // TODO: this is used to refresh the component
   ItemEdit: {item: Item};
   Login: undefined;
 };
