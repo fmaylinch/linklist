@@ -8,29 +8,29 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
-  console.log("route", route);
+    console.log("route", route);
 
-  let item = route.params.item;
-  let editingItem = item.id !== null;
+    let item = route.params.item;
+    let editingItem = item.id !== null;
 
-  const [title, setTitle] = useState<string>(item.title);
-  const [url, setUrl] = useState<string>(item.url);
-  const [image, setImage] = useState<string>(item.image);
-  const [notes, setNotes] = useState<string>(item.notes);
-  const [score, setScore] = useState<number[]>([item.score]);
-  const [tags, setTags] = useState<string>(item.tags.join(" "));
+    const [title, setTitle] = useState<string>(item.title);
+    const [url, setUrl] = useState<string>(item.url);
+    const [image, setImage] = useState<string>(item.image);
+    const [notes, setNotes] = useState<string>(item.notes);
+    const [score, setScore] = useState<number[]>([item.score]);
+    const [tags, setTags] = useState<string>(item.tags.join(" "));
 
-  function saveButtonTitle() {
+    function saveButtonTitle() {
       return editingItem ? "Save" : "Create";
-  }
+    }
 
-  async function deleteButtonAction() {
+    async function deleteButtonAction() {
       const deletedItem = await deleteItem(item.id!);
       console.log("Deleted item", deletedItem.id, deletedItem.title);
       navigation.navigate('ItemList', {date: new Date().getDate()});
-  }
+    }
 
-  async function saveButtonAction() {
+    async function saveButtonAction() {
       const cleanTags = tags.trim().toLowerCase();
       const itemToSave = {
           id: item.id,
@@ -38,7 +38,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           title: title,
           url: url,
           image: image,
-          tags: cleanTags === "" ? [] : cleanTags.split(/[ ,]+/),
+          tags: cleanTags ? cleanTags.split(/[ ,]+/) : [],
           notes: notes,
           score: score[0]
       };
@@ -52,9 +52,39 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
       } catch(e) {
           console.log("Error: " + e);
       }
-  }
+    }
 
-  return (
+    async function getMetadataButtonAction() {
+      const cleanUrl = url.trim();
+      if (!cleanUrl) {
+          return;
+      }
+      const axiosInstance = await prepareAxios();
+      const resp = await axiosInstance.post("metadata/getFromUrl", {url: cleanUrl});
+      const scrappedItem : Item = resp.data;
+      if (scrappedItem) {
+          if (!title && scrappedItem.title) { // keep existing title
+              setTitle(scrappedItem.title);
+          }
+          if (tags.length == 0 && scrappedItem.tags) { // keep existing tags
+              setTags(scrappedItem.tags.join(" "));
+          }
+          if (scrappedItem.image) {
+              setImage(scrappedItem.image)
+          }
+          if (scrappedItem.notes) {
+              setNotes(scrappedItem.notes)
+          }
+          if (scrappedItem.score) {
+              setScore([scrappedItem.score])
+          }
+          if (scrappedItem.url) {
+              setUrl(scrappedItem.url)
+          }
+      }
+    }
+
+    return (
     <View style={styles.container}>
       <TextInput style={styles.input} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
       <TextInput style={styles.input} placeholder={"url"} value={url} onChangeText={setUrl} />
@@ -74,6 +104,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
       />
       <Button title={saveButtonTitle()} onPress={saveButtonAction} />
+      <Button title={"Get metadata from url"} onPress={getMetadataButtonAction} />
       {editingItem
           ? <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
           : ""
