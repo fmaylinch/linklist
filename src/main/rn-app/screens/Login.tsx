@@ -49,8 +49,8 @@ const styles = StyleSheet.create({
     input: {
         color: "#fff",
         backgroundColor: '#343434',
-        margin: '5px',
-        padding: '5px',
-        width: '200px',
+        margin: 5,
+        padding: 5,
+        width: '100%',
     }
 });

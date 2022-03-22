@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 20,
-        marginBottom: '5px',
+        marginBottom: 6,
     },
     text: {
         fontSize: 16,
-        marginBottom: '5px',
+        marginBottom: 7,
     },
 });
 
