@@ -48,3 +48,8 @@ export type Item = {
   tags: Array<string>;
   score: number;
 };
+
+export type ItemData = {
+  item: Item;
+  searchableText: string;
+}

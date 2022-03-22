@@ -1,7 +1,7 @@
-import {FlatList, StatusBar, StyleSheet, TouchableOpacity} from 'react-native';
+import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 
 import { Text, View } from '../components/Themed';
-import {Item, RootStackScreenProps} from "../types";
+import {Item, ItemData, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -9,9 +9,24 @@ import axios from "axios";
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
   console.log("route", route);
 
-  const [data, setData] = useState<Array<Item>>([]);
+  const [data, setData] = useState<Array<ItemData>>([]);
+  const [search, setSearch] = useState("");
 
-  useEffect(() => {
+    function toItemDataArray(items: Array<Item>) : Array<ItemData> {
+
+        // TODO: temporal quick way to search #tags, but better use a Set like I did in Vue
+        function searchableTags(tags: Array<string>) {
+            return tags.length == 0 ? "" :
+                " #" + tags.join(" #");
+        }
+
+        return items.map(item => ({
+            item: item,
+            searchableText: item.title.toLowerCase() + searchableTags(item.tags)
+        }));
+    }
+
+    useEffect(() => {
       (async () => {
           try {
               const jsonValue = await AsyncStorage.getItem('credentials')
@@ -31,7 +46,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   items.sort((a,b) => {
                       return a.title.localeCompare(b.title);
                   });
-                  setData(items);
+                  setData(toItemDataArray(items));
               }
           } catch(e) {
               console.log("Error: " + e);
@@ -45,15 +60,22 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
       </TouchableOpacity>
   );
 
-  return (
+    return (
     <View style={styles.container}>
+        <TextInput style={styles.search} placeholder={"search"}
+            value={search} onChangeText={search => setSearch(search)} />
         <FlatList
-            data={data}
-            renderItem={p => renderItem(p.item)}
-            keyExtractor={item => item.id!}
+            data={filteredData(data, search)}
+            renderItem={itemInfo => renderItem(itemInfo.item.item)} // first item is from a RN type
+            keyExtractor={itemData => itemData.item.id!}
         />
     </View>
   );
+}
+
+function filteredData(data: Array<ItemData>, search: string) : Array<ItemData> {
+    const cleanSearch = search.trim().toLowerCase();
+    return data.filter(itemData => itemData.searchableText.indexOf(cleanSearch) >= 0);
 }
 
 const ItemRow : React.FC<Item> = (item: Item) => (
@@ -69,6 +91,12 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         marginTop: StatusBar.currentHeight || 0,
+    },
+    search: {
+        color: 'white',
+        fontSize: 20,
+        marginVertical: 10,
+        marginHorizontal: 16,
     },
     item: {
         backgroundColor: '#505050',
