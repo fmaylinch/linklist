@@ -11,6 +11,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
   console.log("route", route);
 
   let item = route.params.item;
+  let editingItem = item.id !== null;
 
   const [title, setTitle] = useState<string>(item.title);
   const [url, setUrl] = useState<string>(item.url);
@@ -20,7 +21,37 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
   const [tags, setTags] = useState<string>(item.tags.join(" "));
 
   function saveButtonTitle() {
-      return item.id === null ? "Create" : "Save";
+      return editingItem ? "Save" : "Create";
+  }
+
+  async function deleteButtonAction() {
+      const deletedItem = await deleteItem(item.id!);
+      console.log("Deleted item", deletedItem.id, deletedItem.title);
+      navigation.navigate('ItemList', {date: new Date()});
+  }
+
+  async function saveButtonAction() {
+      const cleanTags = tags.trim().toLowerCase();
+      const itemToSave = {
+          id: item.id,
+          userId: item.userId,
+          title: title,
+          url: url,
+          image: image,
+          tags: cleanTags === "" ? [] : cleanTags.split(/[ ,]+/),
+          notes: notes,
+          score: score[0]
+      };
+
+      try {
+          console.log("Saving item", itemToSave);
+          const savedItem = await saveItem(itemToSave);
+          console.log("Saved item", savedItem.id, savedItem.title);
+          // TODO: we want to go back and refresh, how could we improve this?
+          navigation.navigate('ItemList', {date: new Date()});
+      } catch(e) {
+          console.log("Error: " + e);
+      }
   }
 
   return (
@@ -42,44 +73,38 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           // https://medium.com/@manojsinghnegi/react-native-auto-growing-text-input-8638ac0931c8
           numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
       />
-      <Button title={saveButtonTitle()} onPress={async () => {
-          const cleanTags = tags.trim().toLowerCase();
-          const itemToSave = {
-              id: item.id,
-              userId: item.userId,
-              title: title,
-              url: url,
-              image: image,
-              tags: cleanTags === "" ? [] : cleanTags.split(/[ ,]+/),
-              notes: notes,
-              score: score[0]
-          };
-
-          try {
-              console.log("Saving item", itemToSave);
-              const savedItem = await saveItem(itemToSave);
-              console.log("Saved item", savedItem.id, savedItem.title);
-              // TODO: we want to go back and refresh, how could we improve this?
-              navigation.navigate('ItemList', {date: new Date()});
-          } catch(e) {
-              console.log("Error: " + e);
-          }
-      }} />
+      <Button title={saveButtonTitle()} onPress={saveButtonAction} />
+      {editingItem
+          ? <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
+          : ""
+      }
     </View>
   );
 }
 
 async function saveItem(item: Item) : Promise<Item> {
+    const axiosInstance = await prepareAxios();
+    const resp = await axiosInstance.post("items/upsertOne", item);
+    return resp.data;
+}
+
+async function deleteItem(itemId : string) : Promise<Item> {
+    const axiosInstance = await prepareAxios();
+    const resp = await axiosInstance.post("items/deleteOne", {id: itemId});
+    return resp.data;
+}
+
+async function prepareAxios() {
     // TODO: We do something similar in ItemList.tsx
     //  Here we suppose that credentials always exist.
     const jsonValue = await AsyncStorage.getItem('credentials')
     const credentials = JSON.parse(jsonValue!);
     const config = {
         baseURL: credentials.baseUrl,
-        headers: { Authorization: "Bearer " + credentials.token },
+        headers: {Authorization: "Bearer " + credentials.token},
     };
-    const resp = await axios.create(config).post("items/upsertOne", item);
-    return resp.data;
+    let axiosInstance = axios.create(config);
+    return axiosInstance;
 }
 
 function calcNoteLines(notes: string) {
