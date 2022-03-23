@@ -49,7 +49,6 @@ export type Item = {
   score: number;
 };
 
-export type ItemData = {
-  item: Item;
+export type ItemExt = Item & {
   searchableText: string;
 }

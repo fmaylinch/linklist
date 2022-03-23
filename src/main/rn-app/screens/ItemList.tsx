@@ -1,7 +1,7 @@
 import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 
 import { Text, View } from '../components/Themed';
-import {Item, ItemData, RootStackScreenProps} from "../types";
+import {Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -9,10 +9,10 @@ import axios from "axios";
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
   console.log("route", route);
 
-  const [data, setData] = useState<Array<ItemData>>([]);
+  const [items, setItems] = useState<Array<ItemExt>>([]);
   const [search, setSearch] = useState("");
 
-    function toItemDataArray(items: Array<Item>) : Array<ItemData> {
+    function toItemDataArray(items: Array<Item>) : Array<ItemExt> {
 
         // TODO: temporal quick way to search #tags, but better use a Set like I did in Vue
         function searchableTags(tags: Array<string>) {
@@ -21,7 +21,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         }
 
         return items.map(item => ({
-            item: item,
+            ...item,
             searchableText: item.title.toLowerCase() + searchableTags(item.tags)
         }));
     }
@@ -46,7 +46,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   items.sort((a,b) => {
                       return a.title.localeCompare(b.title);
                   });
-                  setData(toItemDataArray(items));
+                  setItems(toItemDataArray(items));
               }
           } catch(e) {
               console.log("Error: " + e);
@@ -65,17 +65,17 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         <TextInput style={styles.search} placeholder={"search"}
             value={search} onChangeText={search => setSearch(search)} />
         <FlatList
-            data={filteredData(data, search)}
-            renderItem={itemInfo => renderItem(itemInfo.item.item)} // first item is from a RN type
-            keyExtractor={itemData => itemData.item.id!}
+            data={filteredData(items, search)}
+            renderItem={listItem => renderItem(listItem.item)}
+            keyExtractor={item => item.id!}
         />
     </View>
   );
 }
 
-function filteredData(data: Array<ItemData>, search: string) : Array<ItemData> {
+function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     const cleanSearch = search.trim().toLowerCase();
-    return data.filter(itemData => itemData.searchableText.indexOf(cleanSearch) >= 0);
+    return items.filter(item => item.searchableText.indexOf(cleanSearch) >= 0);
 }
 
 const ItemRow : React.FC<Item> = (item: Item) => (
