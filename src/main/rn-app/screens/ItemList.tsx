@@ -52,7 +52,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
               console.log("Error: " + e);
           }
       })();
-  }, [route.params?.date]); // date can be used to force refresh
+  }, [route.params?.lastUpdateDate]); // used to force refresh
 
   const renderItem = (item : Item) => (
       <TouchableOpacity onPress={() => navigation.navigate("ItemEdit", {item})}>

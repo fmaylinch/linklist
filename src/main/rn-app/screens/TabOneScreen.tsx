@@ -16,7 +16,7 @@ export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'
         title={"Open Item List"}
         onPress={() => {
             setMessage('');
-            navigation.navigate("ItemList", {date: new Date().getDate()});
+            navigation.navigate("ItemList", {lastUpdateDate: new Date().getDate()});
         }}
     />
     <Button

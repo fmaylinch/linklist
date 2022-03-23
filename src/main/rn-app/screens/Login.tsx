@@ -23,7 +23,7 @@ export default function Login({ navigation, route }: RootStackScreenProps<'Login
           credentials.baseUrl = baseUrl;
           // TODO: Use https://docs.expo.dev/versions/latest/sdk/securestore/
           await AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-          navigation.navigate('ItemList', {date: new Date().getDate()});
+          navigation.navigate('ItemList', {lastUpdateDate: new Date().getDate()});
       } catch (e) {
           setMessage('Error on login: ' + e);
       }
