@@ -54,7 +54,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     }
 
     function goBackToList() {
-        navigation.navigate('ItemList', {lastUpdateDate: new Date().getDate()});
+        navigation.navigate('ItemList', {lastUpdateTime: new Date().getTime()});
     }
 
     async function getMetadataButtonAction() {

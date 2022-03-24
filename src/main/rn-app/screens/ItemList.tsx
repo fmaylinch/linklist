@@ -7,10 +7,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
-  console.log("route", route);
+    console.log("route", route);
 
-  const [items, setItems] = useState<Array<ItemExt>>([]);
-  const [search, setSearch] = useState("");
+    const [items, setItems] = useState<Array<ItemExt>>([]);
+    const [search, setSearch] = useState("");
 
     function toItemDataArray(items: Array<Item>) : Array<ItemExt> {
 
@@ -52,13 +52,13 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
               console.log("Error: " + e);
           }
       })();
-  }, [route.params?.lastUpdateDate]); // used to force refresh
+    }, [route.params?.lastUpdateTime]); // used to force refresh
 
-  const renderItem = (item : Item) => (
-      <TouchableOpacity onPress={() => navigation.navigate("ItemEdit", {item})}>
-          <ItemRow {...item} />
-      </TouchableOpacity>
-  );
+    const renderItem = (item : Item) => (
+        <TouchableOpacity onPress={() => navigation.navigate("ItemEdit", {item})}>
+            <ItemRow {...item} />
+        </TouchableOpacity>
+    );
 
     return (
     <View style={styles.container}>
