@@ -11,7 +11,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     console.log("route", route);
 
     let item = route.params.item;
-    let editingItem = item.id !== null;
+    let editingItem = !!item.id;
 
     const [title, setTitle] = useState<string>(item.title);
     const [url, setUrl] = useState<string>(item.url);
@@ -108,9 +108,8 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
       />
       <Button title={saveButtonTitle()} onPress={saveButtonAction} />
       <Button title={"Get metadata from url"} onPress={getMetadataButtonAction} />
-      {editingItem
-          ? <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
-          : ""
+      {editingItem &&
+          <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
       }
     </View>
   );
