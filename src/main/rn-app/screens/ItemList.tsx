@@ -10,9 +10,10 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     console.log("route", route);
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
+    const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
     const [search, setSearch] = useState("");
 
-    function toItemDataArray(items: Array<Item>) : Array<ItemExt> {
+    function extendItems(items: Array<Item>) : Array<ItemExt> {
         return items.map(item => ({
             ...item,
             searchableText: item.title.toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
@@ -39,7 +40,9 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   items.sort((a,b) => {
                       return a.title.localeCompare(b.title);
                   });
-                  setItems(toItemDataArray(items));
+                  let itemsExt = extendItems(items);
+                  setItems(itemsExt);
+                  setFilteredItems(itemsExt);
               }
           } catch(e) {
               console.log("Error: " + e);
@@ -53,12 +56,18 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         </TouchableOpacity>
     );
 
+    function onSearchUpdated(search: string) {
+        setSearch(search);
+        setFilteredItems(filteredData(items, search));
+    }
+
     return (
     <View style={styles.container}>
-        <TextInput style={styles.search} placeholder={"search"}
-            value={search} onChangeText={search => setSearch(search)} />
+            <TextInput style={styles.search} placeholder={"search"}
+                value={search} onChangeText={onSearchUpdated} />
+            <Text style={styles.count}>{filteredItems.length} of {items.length}</Text>
         <FlatList
-            data={filteredData(items, search)}
+            data={filteredItems}
             renderItem={listItem => renderItem(listItem.item)}
             keyExtractor={item => item.id!}
         />
@@ -118,11 +127,19 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: StatusBar.currentHeight || 0,
     },
+    searchContainer: {
+        flex: 1,
+    },
     search: {
         color: 'white',
         fontSize: 20,
         marginVertical: 10,
         marginHorizontal: 16,
+    },
+    count: {
+        color: 'gray',
+        marginHorizontal: 16,
+        textAlign: "right",
     },
     item: {
         backgroundColor: '#505050',
