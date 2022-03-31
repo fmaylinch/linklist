@@ -13,16 +13,9 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     const [search, setSearch] = useState("");
 
     function toItemDataArray(items: Array<Item>) : Array<ItemExt> {
-
-        // TODO: temporal quick way to search #tags, but better use a Set like I did in Vue
-        function searchableTags(tags: Array<string>) {
-            return tags.length == 0 ? "" :
-                " #" + tags.join(" #");
-        }
-
         return items.map(item => ({
             ...item,
-            searchableText: item.title.toLowerCase() + searchableTags(item.tags)
+            searchableText: item.title.toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
         }));
     }
 
@@ -74,8 +67,41 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
 }
 
 function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
-    const cleanSearch = search.trim().toLowerCase();
-    return items.filter(item => item.searchableText.indexOf(cleanSearch) >= 0);
+    const query = search.trim().toLowerCase();
+    console.log("query", query);
+    if (!query) {
+        return items;
+    }
+    const parts = query.split(/ +/);
+    const positive = wordsAndTags(parts.filter(x => x[0] !== "-"));
+    // Negative words and tags (starting with '-'). We will NOT include items that have them.
+    const negative = wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
+    return items.filter(it => {
+        for (const word of positive.words) {
+            if (it.searchableText.indexOf(word) < 0) return false;
+        }
+        for (const word of negative.words) {
+            if (it.searchableText.indexOf(word) >= 0) return false;
+        }
+        for (const tag of positive.tags) {
+            if (it.tags.indexOf(tag) < 0) return false;
+        }
+        for (const tag of negative.tags) {
+            if (it.tags.indexOf(tag) >= 0) return false;
+        }
+        return true;
+    });
+}
+
+function wordsAndTags(parts: Array<string>) : QueryParts {
+    const words = parts.filter(x => x[0] !== "#");
+    const tags = parts.filter(x => x[0] === "#").map(x => x.substr(1));
+    return {words, tags};
+}
+
+type QueryParts = {
+    words: Array<string>;
+    tags: Array<string>;
 }
 
 const ItemRow : React.FC<Item> = (item: Item) => (
