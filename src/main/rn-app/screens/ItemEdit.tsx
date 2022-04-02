@@ -3,12 +3,12 @@ import {Button, StyleSheet, TextInput} from 'react-native';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
 import React, {useState} from "react";
-import { Slider } from "@miblanchard/react-native-slider";
+import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
-    console.log("route", route);
+    console.log("route", route.name);
 
     let item = route.params.item;
     let editingItem = !!item.id;
@@ -30,31 +30,53 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
       goBackToList();
     }
 
-    async function saveButtonAction() {
-      const cleanTags = tags.trim().toLowerCase();
-      const itemToSave = {
-          id: item.id,
-          userId: item.userId,
-          title: title,
-          url: url,
-          image: image,
-          tags: cleanTags ? cleanTags.split(/[ ,]+/) : [],
-          notes: notes,
-          score: score[0]
-      };
+    function prepareItemToSave(): Item {
+        return {
+            id: item.id,
+            localId: item.localId,
+            userId: item.userId,
+            title: title,
+            url: url,
+            image: image,
+            tags: tags.trim() ? tags.trim().toLowerCase().split(/[ ,]+/) : [],
+            notes: notes,
+            score: score[0]
+        };
+    }
 
-      try {
+    async function saveButtonAction() {
+        const itemToSave = prepareItemToSave();
+        removeLocalTag(itemToSave);
+        try {
           console.log("Saving item", itemToSave);
           const savedItem = await saveItem(itemToSave);
           console.log("Saved item", savedItem.id, savedItem.title);
+          if (itemToSave.localId) {
+              deleteItemLocally(itemToSave.localId!);
+          }
           goBackToList();
       } catch(e) {
           console.log("Error: " + e);
       }
     }
 
-    function goBackToList() {
-        navigation.navigate('ItemList', {lastUpdateTime: new Date().getTime()});
+    async function saveLocalButtonAction() {
+        const itemToSave = prepareItemToSave();
+        addLocalTag(itemToSave);
+        try {
+            console.log("Saving item locally", itemToSave);
+            await saveItemLocally(itemToSave);
+            goBackToList(true);
+      } catch(e) {
+          console.log("Error: " + e);
+      }
+    }
+
+    function goBackToList(itemSavedLocally: boolean = false) {
+        navigation.navigate('ItemList', {
+            lastUpdateTime: new Date().getTime(),
+            loadItemsFromLocalStorage: itemSavedLocally
+        });
     }
 
     async function getMetadataButtonAction() {
@@ -107,6 +129,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
       />
       <Button title={saveButtonTitle()} onPress={saveButtonAction} />
+      <Button title={"Save locally"} onPress={saveLocalButtonAction} />
       <Button title={"Get metadata from url"} onPress={getMetadataButtonAction} />
       {editingItem &&
           <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
@@ -125,6 +148,58 @@ async function deleteItem(itemId : string) : Promise<Item> {
     const axiosInstance = await prepareAxios();
     const resp = await axiosInstance.post("items/deleteOne", {id: itemId});
     return resp.data;
+}
+
+// TODO this is also used in ItemList.tsx
+const pendingItemsKey = "pendingItems";
+
+async function saveItemLocally(itemToSave: Item) {
+    const json = await AsyncStorage.getItem(pendingItemsKey);
+    const pendingItems: Array<Item> = json != null ? JSON.parse(json) : [];
+    if (itemToSave.localId) {
+        // Replace item if already present
+        const foundIndex = pendingItems.findIndex(item => item.localId === itemToSave.localId);
+        if (foundIndex >= 0) {
+            console.log("Updating item with localId: " + itemToSave.localId)
+            pendingItems[foundIndex] = itemToSave;
+        } else {
+            console.log("Adding item because, unexpectedly, we didn't find the localId: " + itemToSave.localId)
+            pendingItems.push(itemToSave);
+        }
+    } else {
+        itemToSave.localId = new Date().getTime().toString();
+        console.log("Adding item with localId: " + itemToSave.localId)
+        pendingItems.push(itemToSave);
+    }
+    await AsyncStorage.setItem(pendingItemsKey, JSON.stringify(pendingItems));
+}
+
+async function deleteItemLocally(itemLocalId: string) {
+    const json = await AsyncStorage.getItem(pendingItemsKey);
+    const pendingItems: Array<Item> = json != null ? JSON.parse(json) : [];
+    const foundIndex = pendingItems.findIndex(item => item.localId === itemLocalId);
+    if (foundIndex >= 0) {
+        console.log("Deleting item with localId: " + itemLocalId)
+        pendingItems.splice(foundIndex, 1);
+        await AsyncStorage.setItem(pendingItemsKey, JSON.stringify(pendingItems));
+    } else {
+        console.log("Unexpectedly, we didn't find the item with localId: " + itemLocalId)
+    }
+}
+
+const localTag = "local";
+
+function addLocalTag(item: Item) {
+    if (item.tags.indexOf(localTag) < 0) {
+        item.tags.push(localTag); // add this tag just to mark the item as saved locally
+    }
+}
+
+function removeLocalTag(item: Item) {
+    let index = item.tags.indexOf(localTag);
+    if (index >= 0) {
+        item.tags.splice(index, 1);
+    }
 }
 
 async function prepareAxios() {

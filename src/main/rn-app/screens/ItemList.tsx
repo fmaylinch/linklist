@@ -1,13 +1,13 @@
 import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
 
 import { Text, View } from '../components/Themed';
-import {Item, ItemExt, RootStackScreenProps} from "../types";
+import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
-    console.log("route", route);
+    console.log("route", route.key);
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
@@ -16,6 +16,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     function extendItems(items: Array<Item>) : Array<ItemExt> {
         return items.map(item => ({
             ...item,
+            listKey: (item.id || "") + (item.localId || ""), // local items might not have item.id
             searchableText: item.title.toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
         }));
     }
@@ -23,29 +24,26 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     useEffect(() => {
       (async () => {
           try {
-              const jsonValue = await AsyncStorage.getItem('credentials')
-              const credentials = jsonValue != null ? JSON.parse(jsonValue) : null;
+              // TODO: move credentials reading and axios creation to a common place
+              const json = await AsyncStorage.getItem('credentials')
+              const credentials = json != null ? JSON.parse(json) : null;
               if (credentials == null) {
                   navigation.navigate('Login');
               } else {
-                  console.log("Loading items");
-                  const config = {
-                      baseURL: credentials.baseUrl,
-                      headers: { Authorization: "Bearer " + credentials.token },
-                  };
-                  const resp = await axios.create(config).post("items/search",
-                      {username: credentials.username, tags: null});
-                  const items : Array<Item> = resp.data.items;
-                  console.log("Loaded items", items.length)
-                  items.sort((a,b) => {
-                      return a.title.localeCompare(b.title);
-                  });
+                  let items : Array<Item>;
+                  if (route.params?.loadItemsFromLocalStorage) {
+                      items = await loadItemsFromStorage();
+                  } else {
+                      items = await loadItemsFromApi(credentials);
+                      await saveItemsToStorage(items);
+                  }
+                  await addPendingLocalItems(items);
                   let itemsExt = extendItems(items);
                   setItems(itemsExt);
                   setFilteredItems(itemsExt);
               }
           } catch(e) {
-              console.log("Error: " + e);
+              console.log("Failure: " + e);
           }
       })();
     }, [route.params?.lastUpdateTime]); // used to force refresh
@@ -69,10 +67,53 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         <FlatList
             data={filteredItems}
             renderItem={listItem => renderItem(listItem.item)}
-            keyExtractor={item => item.id!}
+            keyExtractor={item => item.listKey}
         />
     </View>
   );
+}
+
+async function loadItemsFromApi(credentials: Credentials) {
+    console.log("Loading items from api");
+    const config = {
+        baseURL: credentials.baseUrl,
+        headers: {Authorization: "Bearer " + credentials.token},
+    };
+    const resp = await axios.create(config).post("items/search",
+        {username: credentials.username, tags: null});
+    let items = resp.data.items;
+    console.log(`Loaded ${items.length} items from api`)
+    prepareItems(items);
+    return items;
+}
+
+function prepareItems(items: Array<Item>) {
+    items.sort((a, b) => {
+        return a.title.localeCompare(b.title);
+    });
+}
+
+async function loadItemsFromStorage() {
+    console.log("Loading items from storage");
+    const json = await AsyncStorage.getItem('items')
+    const items: Array<Item> = json != null ? JSON.parse(json) : [];
+    return items;
+}
+
+async function saveItemsToStorage(items: Array<Item>) {
+    console.log(`Saving ${items.length} items to storage`);
+    await AsyncStorage.setItem("items", JSON.stringify(items));
+}
+
+// TODO this is also used in ItemEdit.tsx
+const pendingItemsKey = 'pendingItems';
+
+async function addPendingLocalItems(items: Array<Item>) {
+    console.log("Loading pending items from storage");
+    const json = await AsyncStorage.getItem(pendingItemsKey)
+    const pendingItems = json != null ? JSON.parse(json) : [];
+    console.log("Pending items:", pendingItems.length);
+    items.unshift(...pendingItems);
 }
 
 function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {

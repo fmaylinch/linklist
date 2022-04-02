@@ -6,17 +6,24 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, {useState} from "react";
 
 export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'TabOne'>) {
-  console.log(route);
+  console.log("route", route.name);
 
   const [message, setMessage] = useState<string>('');
 
   return (
   <View style={styles.container}>
     <Button
-        title={"Open Item List"}
+        title={"Open items from API"}
         onPress={() => {
             setMessage('');
             navigation.navigate("ItemList", {lastUpdateTime: new Date().getTime()});
+        }}
+    />
+    <Button
+        title={"Open items from local storage"}
+        onPress={() => {
+            setMessage('');
+            navigation.navigate("ItemList", {lastUpdateTime: new Date().getTime(), loadItemsFromLocalStorage: true});
         }}
     />
     <Button

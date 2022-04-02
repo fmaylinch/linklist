@@ -2,12 +2,12 @@ import {Button, StyleSheet, TextInput} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {Text, View} from '../components/Themed';
-import {RootStackScreenProps} from "../types";
+import {Credentials, RootStackScreenProps} from "../types";
 import React, {useState} from "react";
 import axios from "axios";
 
 export default function Login({ navigation, route }: RootStackScreenProps<'Login'>) {
-  console.log("route", route);
+  console.log("route", route.name);
 
   const [baseUrl, setBaseUrl] = useState<string>('http://localhost:8070');
   const [username, setUsername] = useState<string>('');
@@ -19,8 +19,7 @@ export default function Login({ navigation, route }: RootStackScreenProps<'Login
           const url = baseUrl + "/security/login";
           const loginData = { username: username, password: password, password2: "" };
           const resp = await axios.post(url, loginData);
-          let credentials = resp.data;
-          credentials.baseUrl = baseUrl;
+          let credentials: Credentials = {...resp.data, baseUrl};
           // TODO: Use https://docs.expo.dev/versions/latest/sdk/securestore/
           await AsyncStorage.setItem('credentials', JSON.stringify(credentials));
           navigation.navigate('ItemList', {lastUpdateTime: new Date().getTime()});

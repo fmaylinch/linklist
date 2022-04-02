@@ -18,7 +18,10 @@ export type RootStackParamList = {
   Modal: undefined;
   NoModal: undefined;
   NotFound: undefined;
-  ItemList: {lastUpdateTime: number}; // TODO: this is used to refresh the component
+  ItemList: {
+    lastUpdateTime: number, // used to refresh the component
+    loadItemsFromLocalStorage?: boolean
+  };
   ItemEdit: {item: Item};
   Login: undefined;
 };
@@ -40,6 +43,7 @@ export type RootTabScreenProps<Screen extends keyof RootTabParamList> = Composit
 
 export type Item = {
   id?: string;
+  localId?: string; // for pending items saved locally
   userId?: string;
   title: string;
   url: string;
@@ -50,5 +54,12 @@ export type Item = {
 };
 
 export type ItemExt = Item & {
+  listKey: string;
   searchableText: string;
+}
+
+export type Credentials = {
+  username: string;
+  token: string;
+  baseUrl: string;
 }
