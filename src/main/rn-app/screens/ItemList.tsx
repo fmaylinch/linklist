@@ -159,7 +159,7 @@ type QueryParts = {
 const ItemRow : React.FC<Item> = (item: Item) => (
     <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
         <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
-            <View style={{flex: 1, padding: 10, backgroundColor: "rgba(21,21,21,0.90)"}}>
+            <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
                 <Text style={styles.title}>{item.title}</Text>
                 <Text style={styles.tags}>{item.tags.join(" ")}</Text>
                 <Text style={styles.text}>{item.notes}</Text>
@@ -192,19 +192,25 @@ const styles = StyleSheet.create({
         marginVertical: 8,
     },
     title: {
-        color: '#8f8f3f',
+        color: '#b9b940',
         fontSize: 20,
         marginBottom: 6,
+        paddingHorizontal: 5,
+        backgroundColor: "rgba(0,0,0,0.55)",
     },
     text: {
         fontSize: 16,
         marginBottom: 7,
-        color: '#777777',
+        color: '#a2a2a2',
+        paddingHorizontal: 5,
+        backgroundColor: "rgba(0,0,0,0.55)",
     },
     tags: {
         fontSize: 16,
         marginBottom: 7,
         color: '#b28ed3',
+        paddingHorizontal: 5,
+        backgroundColor: "rgba(0,0,0,0.55)",
     },
 });
 
