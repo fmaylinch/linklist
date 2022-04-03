@@ -1,4 +1,4 @@
-import {Button, StyleSheet, TextInput} from 'react-native';
+import {Button, StyleSheet, TextInput, Text, ColorValue} from 'react-native';
 
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
@@ -21,13 +21,11 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     const [tags, setTags] = useState<string>(item.tags.join(" "));
 
     function saveButtonTitle() {
-      return editingItem ? "Save" : "Create";
+        return editingItem ? "Save" : "Create";
     }
 
-    async function deleteButtonAction() {
-      const deletedItem = await deleteItem(item.id!);
-      console.log("Deleted item", deletedItem.id, deletedItem.title);
-      goBackToList();
+    function saveLocalButtonTitle() {
+        return item.localId ? "Save" : "Create";
     }
 
     function prepareItemToSave(): Item {
@@ -47,66 +45,65 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     async function saveButtonAction() {
         const itemToSave = prepareItemToSave();
         removeLocalTag(itemToSave);
-        try {
-          console.log("Saving item", itemToSave);
-          const savedItem = await saveItem(itemToSave);
-          console.log("Saved item", savedItem.id, savedItem.title);
-          if (itemToSave.localId) {
-              deleteItemLocally(itemToSave.localId!);
-          }
-          goBackToList();
-      } catch(e) {
-          console.log("Error: " + e);
-      }
+        await saveItem(itemToSave);
+        if (itemToSave.localId) {
+            await deleteItemLocally(itemToSave.localId!);
+        }
+        goBackToList();
     }
 
     async function saveLocalButtonAction() {
         const itemToSave = prepareItemToSave();
         addLocalTag(itemToSave);
-        try {
-            console.log("Saving item locally", itemToSave);
-            await saveItemLocally(itemToSave);
-            goBackToList(true);
-      } catch(e) {
-          console.log("Error: " + e);
-      }
+        await saveItemLocally(itemToSave);
+        goBackToList(true);
     }
 
-    function goBackToList(itemSavedLocally: boolean = false) {
+    async function deleteButtonAction() {
+        await deleteItem(item.id!);
+        goBackToList();
+    }
+
+    async function deleteLocallyButtonAction() {
+        await deleteItemLocally(item.localId!);
+        goBackToList(true);
+    }
+
+    function goBackToList(itemModifiedLocally: boolean = false) {
         navigation.navigate('ItemList', {
             lastUpdateTime: new Date().getTime(),
-            loadItemsFromLocalStorage: itemSavedLocally
+            loadItemsFromLocalStorage: itemModifiedLocally
         });
     }
 
     async function getMetadataButtonAction() {
-      const cleanUrl = url.trim();
-      if (!cleanUrl) {
-          return;
-      }
-      const axiosInstance = await prepareAxios();
-      const resp = await axiosInstance.post("metadata/getFromUrl", {url: cleanUrl});
-      const scrappedItem : Item = resp.data;
-      if (scrappedItem) {
-          if (!title && scrappedItem.title) { // keep existing title
-              setTitle(scrappedItem.title);
-          }
-          if (tags.length == 0 && scrappedItem.tags) { // keep existing tags
-              setTags(scrappedItem.tags.join(" "));
-          }
-          if (scrappedItem.image) {
-              setImage(scrappedItem.image)
-          }
-          if (scrappedItem.notes) {
-              setNotes(scrappedItem.notes)
-          }
-          if (scrappedItem.score) {
-              setScore([scrappedItem.score])
-          }
-          if (scrappedItem.url) {
-              setUrl(scrappedItem.url)
-          }
-      }
+        const cleanUrl = url.trim();
+        if (!cleanUrl) {
+            return;
+        }
+        const axiosInstance = await prepareAxios();
+        const resp = await axiosInstance.post("metadata/getFromUrl", {url: cleanUrl});
+        const scrappedItem : Item = resp.data;
+        if (scrappedItem) {
+            if (!title && scrappedItem.title) { // keep existing title
+                setTitle(scrappedItem.title);
+            }
+            if (tags.length == 0 && scrappedItem.tags) { // keep existing tags
+                setTags(scrappedItem.tags.join(" "));
+            }
+            if (scrappedItem.image) {
+                setImage(scrappedItem.image)
+            }
+            if (scrappedItem.notes) {
+                setNotes(scrappedItem.notes)
+            }
+            if (scrappedItem.score) {
+                setScore([scrappedItem.score])
+            }
+            if (scrappedItem.url) {
+                setUrl(scrappedItem.url)
+            }
+        }
     }
 
     return (
@@ -128,32 +125,45 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
           // https://medium.com/@manojsinghnegi/react-native-auto-growing-text-input-8638ac0931c8
           numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
       />
-      <Button title={saveButtonTitle()} onPress={saveButtonAction} />
-      <Button title={"Save locally"} onPress={saveLocalButtonAction} />
-      <Button title={"Get metadata from url"} onPress={getMetadataButtonAction} />
+      <Button title={saveButtonTitle()} color={"#a079c2"} onPress={saveButtonAction} />
+      <Text style={styles.text}>ID: {item.id}</Text>
+      <Button title={saveLocalButtonTitle() + " locally"} color={"#aac01f"} onPress={saveLocalButtonAction} />
+      <Text style={styles.text}>local ID: {item.localId}</Text>
+      <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
+      <View style={{backgroundColor: "#622626", height: 2, width: "100%", margin: 10}} />
       {editingItem &&
           <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
+      }
+      {item.localId &&
+          <Button color={"#d94112"} title={"Delete locally"} onPress={deleteLocallyButtonAction} />
       }
     </View>
   );
 }
 
 async function saveItem(item: Item) : Promise<Item> {
+    console.log("Saving item", item);
     const axiosInstance = await prepareAxios();
     const resp = await axiosInstance.post("items/upsertOne", item);
-    return resp.data;
+    let savedItem = resp.data;
+    console.log("Saved item", savedItem.id, savedItem.title);
+    return savedItem;
 }
 
 async function deleteItem(itemId : string) : Promise<Item> {
+    console.log("Deleting item with id", itemId);
     const axiosInstance = await prepareAxios();
     const resp = await axiosInstance.post("items/deleteOne", {id: itemId});
-    return resp.data;
+    let deletedItem = resp.data;
+    console.log("Deleted item", deletedItem.id, deletedItem.title);
+    return deletedItem;
 }
 
 // TODO this is also used in ItemList.tsx
 const pendingItemsKey = "pendingItems";
 
 async function saveItemLocally(itemToSave: Item) {
+    console.log("Saving item locally", itemToSave);
     const json = await AsyncStorage.getItem(pendingItemsKey);
     const pendingItems: Array<Item> = json != null ? JSON.parse(json) : [];
     if (itemToSave.localId) {
@@ -231,6 +241,11 @@ const styles = StyleSheet.create({
         margin: 5,
         padding: 5,
         width: '100%',
+    },
+    text: {
+        color: "#666",
+        marginBottom: 5,
+        padding: 5,
     },
     slider: {
         margin: 5,

@@ -205,6 +205,6 @@ const styles = StyleSheet.create({
 
 function dynamicStyleForItem(item: Item) : ViewStyle {
     return {
-        backgroundColor: item.localId ? '#363636' : '#2c2334'
+        backgroundColor: item.localId ? '#3d3b2a' : '#2c2334'
     };
 }
