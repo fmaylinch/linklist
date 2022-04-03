@@ -112,6 +112,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             <View style={styles.container}>
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
+                <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"image"} value={image} onChangeText={setImage} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
                 <View style={styles.slider}>
@@ -137,7 +138,6 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                 <Text style={styles.text}>ID: {item.id}</Text>
                 <Button title={saveLocalButtonTitle() + " locally"} color={"#aac01f"} onPress={saveLocalButtonAction} />
                 <Text style={styles.text}>local ID: {item.localId}</Text>
-                <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
                 <View style={styles.dangerZone}>
                     {editingItem &&
                         <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     text: {
-        color: "#666",
+        color: "#444",
         marginBottom: 5,
         padding: 5,
     },
