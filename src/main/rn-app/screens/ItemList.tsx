@@ -1,5 +1,7 @@
-import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity, ViewStyle} from 'react-native';
-
+import {
+    FlatList, ImageBackground, StatusBar, StyleSheet,
+    TextInput, TouchableOpacity, ViewStyle
+} from 'react-native';
 import { Text, View } from '../components/Themed';
 import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
@@ -154,9 +156,13 @@ type QueryParts = {
 
 const ItemRow : React.FC<Item> = (item: Item) => (
     <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
-        <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.tags}>{item.tags.join(" ")}</Text>
-        <Text style={styles.text}>{item.notes}</Text>
+        <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
+            <View style={{flex: 1, padding: 10, backgroundColor: "rgba(21,21,21,0.90)"}}>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.tags}>{item.tags.join(" ")}</Text>
+                <Text style={styles.text}>{item.notes}</Text>
+            </View>
+        </ImageBackground>
     </View>
 );
 
@@ -180,9 +186,7 @@ const styles = StyleSheet.create({
         textAlign: "right",
     },
     item: {
-        padding: 10,
         marginVertical: 8,
-        marginHorizontal: 16,
     },
     title: {
         color: '#8f8f3f',
@@ -192,17 +196,26 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 16,
         marginBottom: 7,
-        color: '#70617e',
+        color: '#777777',
     },
     tags: {
         fontSize: 16,
         marginBottom: 7,
-        color: '#9b87af',
+        color: '#b28ed3',
     },
 });
 
 function dynamicStyleForItem(item: Item) : ViewStyle {
+    let color = item.localId ? '#7a7c0f' : 'rgba(255,255,255,0)';
+    let width = 1;
     return {
-        backgroundColor: item.localId ? '#3d3b2a' : '#2c2334'
+        borderStartWidth: width,
+        borderEndWidth: width,
+        borderTopWidth: width,
+        borderBottomWidth: width,
+        borderStartColor: color,
+        borderEndColor: color,
+        borderTopColor: color,
+        borderBottomColor: color,
     };
 }
