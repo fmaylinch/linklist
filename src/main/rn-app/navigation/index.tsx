@@ -69,7 +69,11 @@ function RootNavigator() {
           <Stack.Screen name="Login" component={Login} />
       </Stack.Group>
       <Stack.Group screenOptions={{ presentation: 'modal' }}>
-          <Stack.Screen name="ItemEdit" component={ItemEdit} />
+          <Stack.Screen name="ItemEdit" component={ItemEdit}
+              options={({ navigation }: RootStackScreenProps<'ItemEdit'>) => ({
+                  title: 'Item Edit'
+              })}
+          />
       </Stack.Group>
     </Stack.Navigator>
   );

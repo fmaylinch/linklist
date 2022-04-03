@@ -1,4 +1,4 @@
-import {Button, StyleSheet, TextInput, Text, Dimensions, ScrollView} from 'react-native';
+import {Button, StyleSheet, TextInput, Text, Dimensions, ScrollView, Linking} from 'react-native';
 import Image from 'react-native-scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
@@ -74,12 +74,17 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         });
     }
 
-    async function getMetadataButtonAction() {
-        const cleanUrl = url.trim();
-        if (!cleanUrl) {
+    function openUrl() {
+        if (url) {
+            Linking.openURL(url);
+        }
+    }
+
+    async function retrieveMetadataFromUrl() {
+        if (!url) {
             return;
         }
-        const resp = await apiService.axios().post("metadata/getFromUrl", {url: cleanUrl});
+        const resp = await apiService.axios().post("metadata/getFromUrl", {url});
         const scrappedItem : Item = resp.data;
         if (scrappedItem) {
             if (!title && scrappedItem.title) { // keep existing title
@@ -103,14 +108,21 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         }
     }
 
+    const urlButtonColor = url ? "#099" : "#003333";
     const placeHolderColor = '#444';
 
     return (
         <ScrollView>
             <View style={styles.container}>
+                {image ? <Image source={{uri: image}} width={Dimensions.get('window').width - 10} /> : <View/>}
+                <View style={{height: 20}} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
-                <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
+                <View style={{flex:1, flexDirection:"row"}}>
+                    <Button title={"Open url"} color={urlButtonColor} onPress={openUrl} />
+                    <View style={{width: 20}}/>
+                    <Button title={"Get metadata"} color={urlButtonColor} onPress={retrieveMetadataFromUrl} />
+                </View>
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"image"} value={image} onChangeText={setImage} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
                 <View style={styles.slider}>
@@ -129,21 +141,20 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                     // https://medium.com/@manojsinghnegi/react-native-auto-growing-text-input-8638ac0931c8
                     numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
                 />
-                <View style={{height: 20}} />
-                {image ? <Image source={{uri: image}} width={Dimensions.get('window').width - 10} /> : <View/>}
-                <View style={{height: 20}} />
                 <Button title={saveButtonTitle()} color={"#a079c2"} onPress={saveButtonAction} />
                 <Text style={styles.text}>ID: {item.id}</Text>
                 <Button title={saveLocalButtonTitle() + " locally"} color={"#aac01f"} onPress={saveLocalButtonAction} />
                 <Text style={styles.text}>local ID: {item.localId}</Text>
-                <View style={styles.dangerZone}>
-                    {editingItem &&
-                        <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
-                    }
-                    {item.localId &&
-                        <Button color={"#d94112"} title={"Delete locally"} onPress={deleteLocallyButtonAction} />
-                    }
-                </View>
+                {(editingItem || item.localId) &&
+                    <View style={styles.dangerZone}>
+                        {editingItem &&
+                            <Button color={"#d70202"} title={"Delete"} onPress={deleteButtonAction} />
+                        }
+                        {item.localId &&
+                            <Button color={"#d94112"} title={"Delete locally"} onPress={deleteLocallyButtonAction} />
+                        }
+                    </View>
+                }
             </View>
         </ScrollView>
   );
