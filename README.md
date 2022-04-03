@@ -4,7 +4,7 @@ Stores a list of links.
 Actually, it stores a list of items that may optionally contain a link.
 Every item contains a title, and optionally: link, notes, image, tags.
 
-The frontend was in Vue, but now I am changing to React Native.
+The frontend is being developed now in React Native (previously it was in Vue).
 
 ## Technologies used
 
@@ -16,6 +16,8 @@ The frontend was in Vue, but now I am changing to React Native.
 
 - App
   - [React Native](https://reactnative.dev)
+  - [React Navigation](https://reactnavigation.org)
+  - [Expo](https://expo.dev)
 
 - Webapp (development abandoned)
   - [Vue.js](https://vuejs.org)
@@ -26,9 +28,9 @@ The frontend was in Vue, but now I am changing to React Native.
 ## Sample calls
 
 ```bash
-# Register
 SERVER=http://127.0.0.1:8070
 
+# Register
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"username":"may", "password":"12345", "password2":"12345"}' \
@@ -40,37 +42,37 @@ curl -X POST \
   -d '{"username":"may", "password":"12345"}' \
   $SERVER/security/login | jq
 
-# Login and sets JWT variable (for the following calls)
+# Login and sets JWT variable
 JWT=$(curl -X POST --silent \
   -H "Content-Type: application/json" \
   -d '{"username":"may", "password":"llistzz"}' \
   $SERVER/security/login | jq -r .token)
 
-# Create item
-curl -X POST \
-  -H "Authorization: Bearer $JWT" \
-  -H "Content-Type: application/json" \
+# Prepare params for the following calls
+AUTH="Authorization: Bearer $JWT"
+CONTENT_TYPE="Content-Type: application/json"
+HEADERS="-H '$AUTH' -H '$CONTENT_TYPE'"
+# Note that we always use POST (that's a personal choice)
+COMMON_PARAMS = "-X POST $HEADERS"
+
+# Upsert item
+# TODO: Check that missing fields are initialized in server
+curl $COMMON_PARAMS \
   -d '{"title":"item1", "tags":["tag1", "tag2"]}' \
   $SERVER/items/upsertOne | jq
 
 # Search items
-curl -X POST \
-  -H "Authorization: Bearer $JWT" \
-  -H "Content-Type: application/json" \
+curl $COMMON_PARAMS \
   -d '{"username":"may"}' \
   $SERVER/items/search | jq
 
 # Delete item
-curl -v -X POST \
-  -H "Authorization: Bearer $JWT" \
-  -H "Content-Type: application/json" \
+curl $COMMON_PARAMS \
   -d '{"id":"ITEM_ID"}' \
   $SERVER/items/deleteOne | jq
 
 # Update many (for now just updates tags)
-curl -X POST \
-  -H "Authorization: Bearer $JWT" \
-  -H "Content-Type: application/json" \
+curl $COMMON_PARAMS \
   -d '{"tagsToSearch":["test"], "tagsToAdd":["added"], "tagsToRemove":[]}' \
   $SERVER/items/updateMany
 ```

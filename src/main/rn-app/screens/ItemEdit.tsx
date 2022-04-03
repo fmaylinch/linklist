@@ -1,11 +1,10 @@
-import {Button, StyleSheet, TextInput, Text, ColorValue} from 'react-native';
-
+import {Button, StyleSheet, TextInput, Text, Dimensions, ScrollView} from 'react-native';
+import Image from 'react-native-scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
 import React, {useState} from "react";
 import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import {apiService} from "../service/ApiService";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
@@ -106,38 +105,49 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         }
     }
 
+    const placeHolderColor = '#444';
+
     return (
-    <View style={styles.container}>
-      <TextInput style={styles.input} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
-      <TextInput style={styles.input} placeholder={"url"} value={url} onChangeText={setUrl} />
-      <TextInput style={styles.input} placeholder={"image"} value={image} onChangeText={setImage} />
-      <TextInput style={styles.input} placeholder={"tags"} value={tags} onChangeText={setTags} />
-      <View style={styles.slider}>
-          <Slider
-              step={1} minimumValue={0} maximumValue={100}
-              value={score} onValueChange={s => setScore(s as number[])} />
-      </View>
-      <TextInput style={styles.input} placeholder={"notes"} value={notes}
-          onChangeText={setNotes}
-          multiline={true}
-          // Check this solution, because calcNoteLines doesn't always equal
-          // to the lines actually displayed (there may be line wraps).
-          // https://medium.com/@manojsinghnegi/react-native-auto-growing-text-input-8638ac0931c8
-          numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
-      />
-      <Button title={saveButtonTitle()} color={"#a079c2"} onPress={saveButtonAction} />
-      <Text style={styles.text}>ID: {item.id}</Text>
-      <Button title={saveLocalButtonTitle() + " locally"} color={"#aac01f"} onPress={saveLocalButtonAction} />
-      <Text style={styles.text}>local ID: {item.localId}</Text>
-      <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
-      <View style={{backgroundColor: "#622626", height: 2, width: "100%", margin: 10}} />
-      {editingItem &&
-          <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
-      }
-      {item.localId &&
-          <Button color={"#d94112"} title={"Delete locally"} onPress={deleteLocallyButtonAction} />
-      }
-    </View>
+        <ScrollView>
+            <View style={styles.container}>
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"image"} value={image} onChangeText={setImage} />
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
+                <View style={styles.slider}>
+                  <Slider
+                      step={1} minimumValue={0} maximumValue={100}
+                      value={score} onValueChange={s => setScore(s as number[])} />
+                </View>
+                <TextInput
+                    style={styles.input}
+                    placeholderTextColor={placeHolderColor}
+                    placeholder={"notes"} value={notes}
+                    onChangeText={setNotes}
+                    multiline={true}
+                    // Check this solution, because calcNoteLines doesn't always equal
+                    // to the lines actually displayed (there may be line wraps).
+                    // https://medium.com/@manojsinghnegi/react-native-auto-growing-text-input-8638ac0931c8
+                    numberOfLines={calcNoteLines(notes) + 1} // Add extra lines as margin and workaround
+                />
+                <View style={{height: 20}} />
+                {image ? <Image source={{uri: image}} width={Dimensions.get('window').width - 10} /> : <View/>}
+                <View style={{height: 20}} />
+                <Button title={saveButtonTitle()} color={"#a079c2"} onPress={saveButtonAction} />
+                <Text style={styles.text}>ID: {item.id}</Text>
+                <Button title={saveLocalButtonTitle() + " locally"} color={"#aac01f"} onPress={saveLocalButtonAction} />
+                <Text style={styles.text}>local ID: {item.localId}</Text>
+                <Button title={"Get metadata from url"} color={"#099"} onPress={getMetadataButtonAction} />
+                <View style={styles.dangerZone}>
+                    {editingItem &&
+                        <Button color={"red"} title={"Delete"} onPress={deleteButtonAction} />
+                    }
+                    {item.localId &&
+                        <Button color={"#d94112"} title={"Delete locally"} onPress={deleteLocallyButtonAction} />
+                    }
+                </View>
+            </View>
+        </ScrollView>
   );
 }
 
@@ -219,12 +229,25 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
+        paddingHorizontal: 5,
+    },
+    dangerZone: {
+        width: "100%",
+        flex: 1,
+        alignItems: "center",
+        backgroundColor: '#380000',
+        borderTopWidth: 2,
+        borderTopColor: "#6e0000",
+        borderBottomWidth: 2,
+        borderBottomColor: "#6e0000",
+        marginTop: 20,
+        marginBottom: 40,
     },
     input: {
-        color: "#fff",
-        backgroundColor: '#343434',
-        margin: 5,
-        padding: 5,
+        color: "#aaa",
+        backgroundColor: '#171717',
+        marginTop: 10,
+        padding: 10,
         width: '100%',
     },
     text: {
@@ -236,5 +259,5 @@ const styles = StyleSheet.create({
         margin: 5,
         padding: 5,
         width: '100%',
-    }
+    },
 });
