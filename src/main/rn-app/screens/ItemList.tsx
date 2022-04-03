@@ -64,9 +64,11 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
 
     return (
     <View style={styles.container}>
+        <View style={styles.searchContainer}>
             <TextInput style={styles.search} placeholder={"search"}
                 value={search} onChangeText={onSearchUpdated} />
             <Text style={styles.count}>{filteredItems.length} of {items.length}</Text>
+        </View>
         <FlatList
             data={filteredItems}
             renderItem={listItem => renderItem(listItem.item)}
@@ -168,22 +170,23 @@ const ItemRow : React.FC<Item> = (item: Item) => (
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         marginTop: StatusBar.currentHeight || 0,
     },
     searchContainer: {
-        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 10,
     },
     search: {
+        flex: 1,
         color: 'white',
         fontSize: 20,
-        marginVertical: 10,
-        marginHorizontal: 16,
+        paddingVertical: 10,
     },
     count: {
         color: 'gray',
-        marginHorizontal: 16,
         textAlign: "right",
+        marginStart: 5,
     },
     item: {
         marginVertical: 8,
