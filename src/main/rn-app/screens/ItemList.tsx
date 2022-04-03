@@ -5,6 +5,7 @@ import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import {apiService} from "../service/ApiService";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
     console.log("route", route.key);
@@ -75,11 +76,8 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
 
 async function loadItemsFromApi(credentials: Credentials) {
     console.log("Loading items from api");
-    const config = {
-        baseURL: credentials.baseUrl,
-        headers: {Authorization: "Bearer " + credentials.token},
-    };
-    const resp = await axios.create(config).post("items/search",
+    apiService.setCredentials(credentials);
+    const resp = await apiService.axios().post("items/search",
         {username: credentials.username, tags: null});
     let items = resp.data.items;
     console.log(`Loaded ${items.length} items from api`)

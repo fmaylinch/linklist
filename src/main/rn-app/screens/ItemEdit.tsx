@@ -6,6 +6,7 @@ import React, {useState} from "react";
 import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import {apiService} from "../service/ApiService";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
     console.log("route", route.name);
@@ -81,8 +82,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         if (!cleanUrl) {
             return;
         }
-        const axiosInstance = await prepareAxios();
-        const resp = await axiosInstance.post("metadata/getFromUrl", {url: cleanUrl});
+        const resp = await apiService.axios().post("metadata/getFromUrl", {url: cleanUrl});
         const scrappedItem : Item = resp.data;
         if (scrappedItem) {
             if (!title && scrappedItem.title) { // keep existing title
@@ -143,8 +143,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
 
 async function saveItem(item: Item) : Promise<Item> {
     console.log("Saving item", item);
-    const axiosInstance = await prepareAxios();
-    const resp = await axiosInstance.post("items/upsertOne", item);
+    const resp = await apiService.axios().post("items/upsertOne", item);
     let savedItem = resp.data;
     console.log("Saved item", savedItem.id, savedItem.title);
     return savedItem;
@@ -152,8 +151,7 @@ async function saveItem(item: Item) : Promise<Item> {
 
 async function deleteItem(itemId : string) : Promise<Item> {
     console.log("Deleting item with id", itemId);
-    const axiosInstance = await prepareAxios();
-    const resp = await axiosInstance.post("items/deleteOne", {id: itemId});
+    const resp = await apiService.axios().post("items/deleteOne", {id: itemId});
     let deletedItem = resp.data;
     console.log("Deleted item", deletedItem.id, deletedItem.title);
     return deletedItem;
@@ -210,19 +208,6 @@ function removeLocalTag(item: Item) {
     if (index >= 0) {
         item.tags.splice(index, 1);
     }
-}
-
-async function prepareAxios() {
-    // TODO: We do something similar in ItemList.tsx
-    //  Here we suppose that credentials always exist.
-    const jsonValue = await AsyncStorage.getItem('credentials')
-    const credentials = JSON.parse(jsonValue!);
-    const config = {
-        baseURL: credentials.baseUrl,
-        headers: {Authorization: "Bearer " + credentials.token},
-    };
-    let axiosInstance = axios.create(config);
-    return axiosInstance;
 }
 
 function calcNoteLines(notes: string) {
