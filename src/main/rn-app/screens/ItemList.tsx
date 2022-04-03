@@ -1,4 +1,4 @@
-import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity} from 'react-native';
+import {FlatList, StatusBar, StyleSheet, TextInput, TouchableOpacity, ViewStyle} from 'react-native';
 
 import { Text, View } from '../components/Themed';
 import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
@@ -155,10 +155,9 @@ type QueryParts = {
 }
 
 const ItemRow : React.FC<Item> = (item: Item) => (
-    <View style={styles.item}>
+    <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
         <Text style={styles.title}>{item.title}</Text>
-        <Text style={styles.text}>{item.url}</Text>
-        <Text style={styles.text}>{item.tags.join(" ")}</Text>
+        <Text style={styles.tags}>{item.tags.join(" ")}</Text>
         <Text style={styles.text}>{item.notes}</Text>
     </View>
 );
@@ -183,18 +182,29 @@ const styles = StyleSheet.create({
         textAlign: "right",
     },
     item: {
-        backgroundColor: '#505050',
         padding: 10,
         marginVertical: 8,
         marginHorizontal: 16,
     },
     title: {
+        color: '#8f8f3f',
         fontSize: 20,
         marginBottom: 6,
     },
     text: {
         fontSize: 16,
         marginBottom: 7,
+        color: '#70617e',
+    },
+    tags: {
+        fontSize: 16,
+        marginBottom: 7,
+        color: '#9b87af',
     },
 });
 
+function dynamicStyleForItem(item: Item) : ViewStyle {
+    return {
+        backgroundColor: item.localId ? '#363636' : '#2c2334'
+    };
+}
