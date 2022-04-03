@@ -44,7 +44,6 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
 
     async function saveButtonAction() {
         const itemToSave = prepareItemToSave();
-        removeLocalTag(itemToSave);
         await saveItem(itemToSave);
         if (itemToSave.localId) {
             await deleteItemLocally(itemToSave.localId!);
@@ -54,7 +53,6 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
 
     async function saveLocalButtonAction() {
         const itemToSave = prepareItemToSave();
-        addLocalTag(itemToSave);
         await saveItemLocally(itemToSave);
         goBackToList(true);
     }
@@ -202,21 +200,6 @@ async function deleteItemLocally(itemLocalId: string) {
         await AsyncStorage.setItem(pendingItemsKey, JSON.stringify(pendingItems));
     } else {
         console.log("Unexpectedly, we didn't find the item with localId: " + itemLocalId)
-    }
-}
-
-const localTag = "local";
-
-function addLocalTag(item: Item) {
-    if (item.tags.indexOf(localTag) < 0) {
-        item.tags.push(localTag); // add this tag just to mark the item as saved locally
-    }
-}
-
-function removeLocalTag(item: Item) {
-    let index = item.tags.indexOf(localTag);
-    if (index >= 0) {
-        item.tags.splice(index, 1);
     }
 }
 
