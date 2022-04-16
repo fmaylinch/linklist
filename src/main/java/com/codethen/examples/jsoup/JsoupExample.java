@@ -12,10 +12,11 @@ public class JsoupExample {
     public static void main(String[] args) throws Exception {
 
         String url;
-        //url = "https://www.deezer.com/en/album/136268022"; // Album
-        url = "https://deezer.page.link/s1MmF4f8Db8ta8nC6"; // Album
-        //url = "https://www.deezer.com/en/track/1553999772"; // Song
-        //url = "https://deezer.page.link/34s9JjZrdrwqGNnE8"; // Song
+        url = "https://youtu.be/X1chQvB1tfw"; // YouTube song
+        url = "https://www.youtube.com/watch?v=X1chQvB1tfw"; // YouTube song
+        //url = "https://music.youtube.com/watch?v=fP6ax3q_Wkk&feature=share"; // listen in YouTube Music
+        //url = "https://music.youtube.com/watch?v=X1chQvB1tfw"; // made up link that works (using YouTube ID)
+
 
         if (url.contains("spotify.com/") && url.contains("?si=")) {
             // Remove Spotify query params

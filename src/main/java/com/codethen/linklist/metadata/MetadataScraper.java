@@ -26,6 +26,16 @@ public class MetadataScraper {
             if (url.contains("spotify.com/") && url.contains("?si=")) {
                 // Remove Spotify query params
                 url = url.substring(0, url.indexOf("?si="));
+
+            } if (url.startsWith(musicYoutubeLink)) {
+                // Get metadata from YouTube, because from YouTube Music we don't have the correct metadata
+                // TODO: we have to make sure that the videoId is from YouTube, because the one from Music has bad metadata
+                String videoId = url.substring(musicYoutubeLink.length());
+                int indexOtherParams = videoId.indexOf("&");
+                if (indexOtherParams >= 0) {
+                    videoId = videoId.substring(0, indexOtherParams); // strip other params
+                }
+                url = "https://" + youtubeShortPrefix + videoId;
             }
 
             final Document doc = Jsoup.connect(url).header("Accept-Language", "en-US").get();
@@ -46,12 +56,42 @@ public class MetadataScraper {
                 fillFromDeezer(doc, builder);
             } else if (url.contains("spotify.com/")) {
                 fillFromSpotify(doc, builder);
+            } else if (url.contains("youtube.com/") || url.contains("youtu.be/")) {
+                fillFromYoutube(doc, builder);
             }
 
             return builder.build();
 
         } catch (Exception e) {
             return null;
+        }
+    }
+
+    private static final String musicYoutubeLink = "https://music.youtube.com/watch?v=";
+    private static final String youtubeLongPrefix = "youtube.com/watch?v=";
+    private static final String youtubeShortPrefix = "youtu.be/";
+    private static final List<String> typicalYoutubeTags = List.of("music", "top", "dance", "song");
+
+    private void fillFromYoutube(Document doc, Item.ItemBuilder builder) {
+        var url = builder.build().getUrl();
+
+        // Try to build link to YouTube Music instead of YouTube
+        int shortIndex = url.indexOf(youtubeShortPrefix);
+        if (shortIndex >= 0) {
+            var videoId = url.substring(shortIndex + youtubeShortPrefix.length());
+            builder
+                    .url(musicYoutubeLink + videoId)
+                    .notes("") // useless notes
+                    .tags(typicalYoutubeTags);
+        } else {
+            int longIndex = url.indexOf(youtubeLongPrefix);
+            if (longIndex >= 0) {
+                var videoId = url.substring(longIndex + youtubeLongPrefix.length());
+                builder
+                        .url(musicYoutubeLink + videoId)
+                        .notes("") // useless notes
+                        .tags(typicalYoutubeTags);
+            }
         }
     }
 
