@@ -43,7 +43,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   await addPendingLocalItems(items);
                   let itemsExt = extendItems(items);
                   setItems(itemsExt);
-                  setFilteredItems(itemsExt);
+                  setFilteredItems(filteredData(itemsExt, search))
               }
           } catch(e) {
               console.log("Failure: " + e);
