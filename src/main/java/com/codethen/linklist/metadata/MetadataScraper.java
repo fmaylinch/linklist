@@ -27,9 +27,8 @@ public class MetadataScraper {
                 // Remove Spotify query params
                 url = url.substring(0, url.indexOf("?si="));
 
-            } if (url.startsWith(musicYoutubeLink)) {
+            } else if (url.startsWith(musicYoutubeLink)) {
                 // Get metadata from YouTube, because from YouTube Music we don't have the correct metadata
-                // TODO: we have to make sure that the videoId is from YouTube, because the one from Music has bad metadata
                 String videoId = url.substring(musicYoutubeLink.length());
                 int indexOtherParams = videoId.indexOf("&");
                 if (indexOtherParams >= 0) {
