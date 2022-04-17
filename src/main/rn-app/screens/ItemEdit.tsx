@@ -1,4 +1,4 @@
-import {Button, StyleSheet, TextInput, Text, Dimensions, ScrollView, Linking} from 'react-native';
+import {Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput} from 'react-native';
 import Image from 'react-native-scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
@@ -6,6 +6,9 @@ import React, {useState} from "react";
 import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "../service/ApiService";
+import * as cheerio from 'cheerio';
+import {CheerioAPI} from 'cheerio';
+import axios from "axios";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
     console.log("route", route.name);
@@ -84,8 +87,10 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         if (!url) {
             return;
         }
-        const resp = await apiService.axios().post("metadata/getFromUrl", {url});
-        const scrappedItem : Item = resp.data;
+        // Scrap locally, so we don't need server connection
+        const resp = await scrapUrl(url)
+        //const resp = await apiService.axios().post("metadata/getFromUrl", {url});
+        const scrappedItem : Item | undefined = resp.data;
         if (scrappedItem) {
             if (!title && scrappedItem.title) { // keep existing title
                 setTitle(scrappedItem.title);
@@ -160,6 +165,95 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             </View>
         </ScrollView>
   );
+}
+
+async function scrapUrl(url: string) : Promise<{data?: Item}> {
+    try {
+        url = fixUrlForMetadata(url);
+        console.log("Trying to load url: " + url);
+        const resp = await axios.get(url);
+        const html = resp.data;
+        //console.log(html);
+        const $ = cheerio.load(html);
+
+        const titleMeta = getMeta($, "property", "og:title");
+        const titleHtml = $('head > title').text();
+
+        const item : Item = {
+            title: titleMeta || titleHtml,
+            url: url,
+            tags: [],
+            image: getMeta($, "property", "og:image"),
+            notes: getMeta($, "property", "og:description"),
+            score: 50
+        };
+
+        if (url.indexOf("youtube.com/") >= 0) {
+            fillFromYoutube(item);
+        } else if (url.indexOf(".imdb.com/") >= 0) {
+            fillFromImdb($, item);
+        }
+
+        console.log("item: ", item);
+
+        return {data: item};
+
+    } catch (e) {
+        console.log("Error loading url '" + url + "'", e)
+    }
+
+    return {data: undefined};
+}
+
+const musicYoutubeLink = "https://music.youtube.com/watch?v=";
+const youtubeSuffix = " - YouTube Music";
+
+function fillFromYoutube(item: Item) {
+    if (item.title.endsWith(youtubeSuffix)) {
+        item.title = item.title.substring(0, item.title.length - youtubeSuffix.length)
+    }
+    item.tags = ["music", "top", "dance", "song"];
+    item.notes = ""; // useless
+}
+
+function fillFromImdb($: CheerioAPI, item: Item) {
+    const json = $('script[type="application/ld+json"]').first().html();
+    if (!json) {
+        return;
+    }
+    const obj = JSON.parse(json);
+
+    item.title = obj["name"];
+
+    const type = obj["@type"].toLowerCase();
+    item.tags = [type, "watch"];
+    if (type != "movie") {
+        item.tags.unshift("movie");
+    }
+
+    const aggregateRating = obj["aggregateRating"];
+    if (typeof aggregateRating === "object") {
+        const ratingValue = aggregateRating["ratingValue"] as number;
+        item.score = ratingValue * 10;
+    }
+}
+
+function fixUrlForMetadata(url: string) {
+    if (url.startsWith(musicYoutubeLink)) {
+        // Get metadata from YouTube, because from YouTube Music we don't have the correct metadata
+        let videoId = url.substring(musicYoutubeLink.length);
+        const indexOtherParams = videoId.indexOf("&");
+        if (indexOtherParams >= 0) {
+            videoId = videoId.substring(0, indexOtherParams); // strip other params
+        }
+        url = musicYoutubeLink + videoId; // Use long url for now
+    }
+    return url;
+}
+
+function getMeta($: CheerioAPI, metaType: string, name: string) : string {
+    let selector = "meta[" + metaType + "='" + name + "']";
+    return $(selector).first().attr("content") || "";
 }
 
 async function saveItem(item: Item) : Promise<Item> {
