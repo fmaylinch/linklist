@@ -1,4 +1,5 @@
 import {
+    Button,
     FlatList, ImageBackground, StatusBar, StyleSheet,
     TextInput, TouchableOpacity, ViewStyle
 } from 'react-native';
@@ -62,11 +63,16 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         setFilteredItems(filteredData(items, search));
     }
 
+    function clearSearch() {
+        onSearchUpdated("");
+    }
+
     return (
     <View style={styles.container}>
         <View style={styles.searchContainer}>
             <TextInput style={styles.search} placeholder={"search word .tag -negate"}
                 value={search} onChangeText={onSearchUpdated} />
+            {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
             <Text style={styles.count}>{filteredItems.length} of {items.length}</Text>
         </View>
         <FlatList
