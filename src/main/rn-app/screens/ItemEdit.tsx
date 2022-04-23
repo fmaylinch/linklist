@@ -116,6 +116,13 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     const urlButtonColor = url ? "#099" : "#003333";
     const placeHolderColor = '#444';
 
+    // Higher score is more green, lower score is more red.
+    // When the score is in the middle, it will be a bit blue.
+    const greenWeight = Math.max(0, Math.round((score[0]-10)/10));
+    const redWeight = Math.max(0, 7 - greenWeight);
+    const blueWeight = Math.max(0, 6 - Math.abs(6 - greenWeight));
+    const sliderColor = "#" + redWeight + greenWeight + blueWeight;
+
     return (
         <ScrollView>
             <View style={styles.container}>
@@ -132,9 +139,13 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
                 <View style={styles.slider}>
                   <Slider
+                      thumbTintColor={sliderColor}
+                      minimumTrackTintColor={sliderColor}
+                      maximumTrackTintColor={sliderColor}
                       step={1} minimumValue={0} maximumValue={100}
                       value={score} onValueChange={s => setScore(s as number[])} />
                 </View>
+                <Text style={styles.sliderText}>{score}</Text>
                 <TextInput
                     style={styles.input}
                     placeholderTextColor={placeHolderColor}
@@ -344,6 +355,10 @@ const styles = StyleSheet.create({
         color: "#444",
         marginBottom: 5,
         padding: 5,
+    },
+    sliderText: {
+        color: "#444",
+        marginTop: -15,
     },
     slider: {
         margin: 5,
