@@ -49,7 +49,7 @@ function RootNavigator() {
       <Stack.Screen name="NoModal" component={ModalScreen} />
       <Stack.Screen name="ItemList" component={ItemList}
           options={({ navigation }: RootStackScreenProps<'ItemList'>) => ({
-              title: 'Item List',
+              title: 'LinkList',
               headerRight: () => (
                   <Pressable
                       onPress={() => navigation.navigate('ItemEdit', {item: buildNewItem()})}

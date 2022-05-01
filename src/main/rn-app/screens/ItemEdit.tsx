@@ -201,6 +201,8 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
 
         if (url.indexOf("youtube.com/") >= 0) {
             fillFromYoutube(item);
+        } else if (url.indexOf("music.yandex.com/") >= 0) {
+            fillFromYandexMusic(item);
         } else if (url.indexOf(".imdb.com/") >= 0) {
             fillFromImdb($, item);
         }
@@ -224,6 +226,27 @@ function fillFromYoutube(item: Item) {
         item.title = item.title.substring(0, item.title.length - youtubeSuffix.length)
     }
     item.tags = ["music", "top", "dance", "song"];
+    item.notes = ""; // useless
+}
+
+function fillFromYandexMusic(item: Item) {
+    const queryParamsIndex = item.url.indexOf("?");
+    if (queryParamsIndex >= 0) {
+        item.url = item.url.substring(0, queryParamsIndex);
+    }
+
+    const albumWord = " альбом ";
+    const albumWordIndex = item.title.indexOf(albumWord);
+    if (albumWordIndex > 0) {
+        item.title = item.title.replace(albumWord, " - ");
+    }
+
+    let listenOnlineWordIndex = item.title.indexOf(" слушать онлайн");
+    if (listenOnlineWordIndex > 0) {
+        item.title = item.title.substring(0, listenOnlineWordIndex);
+    }
+
+    item.tags = ["music", "top", "album"];
     item.notes = ""; // useless
 }
 
