@@ -1,12 +1,13 @@
 import {
     Button, FlatList, ImageBackground, Linking, StatusBar, StyleSheet,
-    TextInput, TouchableOpacity, ViewStyle
+    TextInput, TouchableOpacity, ViewStyle, Alert
 } from 'react-native';
 import { Text, View } from '../components/Themed';
 import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "../service/ApiService";
+import * as Clipboard from 'expo-clipboard';
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
     console.log("route", route.key);
@@ -68,13 +69,20 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         onSearchUpdated("");
     }
 
+    function copyItemsToClipboard() {
+        const info = filteredItems.map(item => item.title + "\n" + item.url).join("\n\n");
+        console.log(info);
+        Clipboard.setString(info);
+        Alert.alert("Items copied to clipboard");
+    }
+
     return (
     <View style={styles.container}>
         <View style={styles.searchContainer}>
             <TextInput style={styles.search} placeholder={"search: word tag. -negate"}
                 value={search} onChangeText={onSearchUpdated} />
             {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
-            <Text style={styles.count}>{filteredItems.length} of {items.length}</Text>
+            <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
         </View>
         <FlatList
             data={filteredItems}

@@ -25,6 +25,7 @@
     "cheerio": "^1.0.0-rc.10",
     "expo": "~44.0.0",
     "expo-asset": "~8.4.4",
+    "expo-clipboard": "~2.1.0",
     "expo-constants": "~13.0.0",
     "expo-font": "~10.0.4",
     "expo-linking": "~3.0.0",
