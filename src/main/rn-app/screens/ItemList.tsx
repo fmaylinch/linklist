@@ -79,7 +79,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     return (
     <View style={styles.container}>
         <View style={styles.searchContainer}>
-            <TextInput style={styles.search} placeholder={"search: word tag. -negate"}
+            <TextInput style={styles.search} placeholder={"e.g. word tag. -negate, other"}
                 value={search} onChangeText={onSearchUpdated} />
             {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
             <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
@@ -145,24 +145,24 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     if (!query) {
         return items;
     }
-    const parts = query.split(/ +/);
-    const positive = wordsAndTags(parts.filter(x => x[0] !== "-"));
-    // Negative words and tags (starting with '-'). We will NOT include items that have them.
-    const negative = wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
-    return items.filter(it => {
-        for (const word of positive.words) {
-            if (it.searchableText.indexOf(word) < 0) return false;
+
+    const orConditions : Array<QueryCondition> = query.split(/ *, */) // comma is the OR operator
+        .filter(part => part.length > 0)
+        .map(queryPart => {
+            const parts = queryPart.split(/ +/);
+            const positive = wordsAndTags(parts.filter(x => x[0] !== "-"));
+            // Negative words and tags (starting with '-'). We will NOT include items that have them.
+            const negative = wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
+            return {positive, negative};
+        });
+
+    return items.filter(item => {
+        for (const condition of orConditions) {
+            if (matches(item, condition)) {
+                return true;
+            }
         }
-        for (const word of negative.words) {
-            if (it.searchableText.indexOf(word) >= 0) return false;
-        }
-        for (const tag of positive.tags) {
-            if (it.tags.indexOf(tag) < 0) return false;
-        }
-        for (const tag of negative.tags) {
-            if (it.tags.indexOf(tag) >= 0) return false;
-        }
-        return true;
+        return false;
     });
 }
 
@@ -174,9 +174,31 @@ function wordsAndTags(parts: Array<string>) : QueryParts {
     return {words, tags};
 }
 
+function matches(item: ItemExt, condition: QueryCondition) {
+    for (const word of condition.positive.words) {
+        if (item.searchableText.indexOf(word) < 0) return false;
+    }
+    for (const word of condition.negative.words) {
+        if (item.searchableText.indexOf(word) >= 0) return false;
+    }
+    for (const tag of condition.positive.tags) {
+        if (item.tags.indexOf(tag) < 0) return false;
+    }
+    for (const tag of condition.negative.tags) {
+        if (item.tags.indexOf(tag) >= 0) return false;
+    }
+    return true;
+
+}
+
 type QueryParts = {
     words: Array<string>;
     tags: Array<string>;
+}
+
+type QueryCondition = {
+    positive: QueryParts;
+    negative: QueryParts;
 }
 
 const ItemRow : React.FC<Item> = (item: Item) => (
