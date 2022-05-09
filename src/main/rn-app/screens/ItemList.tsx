@@ -1,13 +1,11 @@
 import {
-    Button,
-    FlatList, ImageBackground, StatusBar, StyleSheet,
+    Button, FlatList, ImageBackground, Linking, StatusBar, StyleSheet,
     TextInput, TouchableOpacity, ViewStyle
 } from 'react-native';
 import { Text, View } from '../components/Themed';
 import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
 import {apiService} from "../service/ApiService";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
@@ -53,7 +51,10 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     }, [route.params?.lastUpdateTime]); // used to force refresh
 
     const renderItem = (item : Item) => (
-        <TouchableOpacity onPress={() => navigation.navigate("ItemEdit", {item})}>
+        <TouchableOpacity
+            onPress={() => navigation.navigate("ItemEdit", {item})}
+            onLongPress={() => openUrl(item)}
+        >
             <ItemRow {...item} />
         </TouchableOpacity>
     );
@@ -82,6 +83,12 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         />
     </View>
   );
+}
+
+function openUrl(item: Item) {
+    if (item.url) {
+        Linking.openURL(item.url);
+    }
 }
 
 async function loadItemsFromApi(credentials: Credentials) {
