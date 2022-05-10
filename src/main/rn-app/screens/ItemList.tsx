@@ -79,7 +79,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     return (
     <View style={styles.container}>
         <View style={styles.searchContainer}>
-            <TextInput style={styles.search} placeholder={"e.g. word tag. -negate, other"}
+            <TextInput style={styles.search} placeholder={"word tag. -not, other : func"}
                 value={search} onChangeText={onSearchUpdated} />
             {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
             <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
@@ -114,6 +114,7 @@ function prepareItems(items: Array<Item>) {
     items.sort((a, b) => {
         return a.title.localeCompare(b.title);
     });
+    return items;
 }
 
 async function loadItemsFromStorage() {
@@ -139,31 +140,84 @@ async function addPendingLocalItems(items: Array<Item>) {
     items.unshift(...pendingItems);
 }
 
+// TODO: transformer names could be more than just a name and also carry some parameters.
+//  For example "random seed", "sort score", etc.
+function getTransformers(names: string[]) {
+    const result : Array<ItemsTransformer> = [];
+    for (const name of names) {
+        const f = transformersMap.get(name);
+        if (f) {
+            result.push(f);
+        }
+    }
+    return result;
+}
+
+type ItemsTransformer = (items: Array<ItemExt>) => Array<ItemExt>;
+const transformersMap = new Map<string, ItemsTransformer>();
+transformersMap.set("random", randomizeItems);
+transformersMap.set("score", sortByScore);
+
+function randomizeItems(items: Array<ItemExt>) {
+    for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+}
+
+
+function sortByScore(items: Array<ItemExt>) {
+    items.sort((a, b) => {
+        return b.score - a.score;
+    });
+    return items;
+}
+
 function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     const query = search.trim().toLowerCase();
     console.log("query", query);
-    if (!query) {
+
+    const splitQuery = query.split(/ *: */);
+
+    const queryWords = splitQuery[0].trim();
+    const transformerNames = splitQuery.slice(1);
+
+    if (!queryWords && transformerNames.length == 0) {
         return items;
     }
 
-    const orConditions : Array<QueryCondition> = query.split(/ *, */) // comma is the OR operator
-        .filter(part => part.length > 0)
-        .map(queryPart => {
-            const parts = queryPart.split(/ +/);
-            const positive = wordsAndTags(parts.filter(x => x[0] !== "-"));
-            // Negative words and tags (starting with '-'). We will NOT include items that have them.
-            const negative = wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
-            return {positive, negative};
-        });
+    const transformers = getTransformers(transformerNames);
+    if (transformers.length < transformerNames.length) {
+        return []; // some function is wrong, return no items to signal the error -- TODO: display status message
+    }
 
-    return items.filter(item => {
-        for (const condition of orConditions) {
-            if (matches(item, condition)) {
-                return true;
+    if (queryWords) {
+        const orConditions: Array<QueryCondition> = queryWords.split(/ *, */) // comma is the OR operator
+            .filter(part => part.length > 0)
+            .map(queryPart => {
+                const parts = queryPart.split(/ +/);
+                const positive = wordsAndTags(parts.filter(x => x[0] !== "-"));
+                // Negative words and tags (starting with '-'). We will NOT include items that have them.
+                const negative = wordsAndTags(parts.filter(x => x[0] === "-").map(x => x.substr(1)));
+                return {positive, negative};
+            });
+
+        items = items.filter(item => {
+            for (const condition of orConditions) {
+                if (matches(item, condition)) {
+                    return true;
+                }
             }
-        }
-        return false;
-    });
+            return false;
+        });
+    }
+
+    for (const transformer of transformers) {
+        items = transformer(items.slice()); // copy array with slice, to avoid modifying the original array
+    }
+
+    return items;
 }
 
 const tagChar = ".";
