@@ -156,7 +156,10 @@ function getTransformers(names: string[]) {
 type ItemsTransformer = (items: Array<ItemExt>) => Array<ItemExt>;
 const transformersMap = new Map<string, ItemsTransformer>();
 transformersMap.set("random", randomizeItems);
+transformersMap.set("rnd", randomizeItems);
 transformersMap.set("score", sortByScore);
+transformersMap.set("reverse", reverseItems);
+transformersMap.set("rev", reverseItems);
 
 function randomizeItems(items: Array<ItemExt>) {
     for (let i = items.length - 1; i > 0; i--) {
@@ -166,6 +169,9 @@ function randomizeItems(items: Array<ItemExt>) {
     return items;
 }
 
+function reverseItems(items: Array<ItemExt>) {
+    return items.reverse();
+}
 
 function sortByScore(items: Array<ItemExt>) {
     items.sort((a, b) => {
