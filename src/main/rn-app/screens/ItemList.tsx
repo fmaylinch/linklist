@@ -180,6 +180,14 @@ function sortByScore(items: Array<ItemExt>) {
     return items;
 }
 
+function dummyInfoItem(title: string, info: string) : ItemExt {
+    return {
+        title: title,
+        notes: info,
+        image: "", listKey: "",  score: 50, searchableText: "", tags: [], url: ""
+    };
+}
+
 function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     const query = search.trim().toLowerCase();
     console.log("query", query);
@@ -195,7 +203,9 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
 
     const transformers = getTransformers(transformerNames);
     if (transformers.length < transformerNames.length) {
-        return []; // some function is wrong, return no items to signal the error -- TODO: display status message
+        return [dummyInfoItem(
+            "Enter correct functions",
+            "Available: " + Array.from(transformersMap.keys()).join(", "))];
     }
 
     if (queryWords) {
