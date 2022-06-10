@@ -233,6 +233,12 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
         items = transformer(items.slice()); // copy array with slice, to avoid modifying the original array
     }
 
+    if (items.length == 0) {
+        return [dummyInfoItem(
+            "Nothing found",
+            "Examples:\ntop. album.\nmovie. -watched. : random")];
+    }
+
     return items;
 }
 
