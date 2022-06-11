@@ -70,7 +70,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     }
 
     function copyItemsToClipboard() {
-        const info = filteredItems.map(item => item.title + "\n" + item.url).join("\n\n");
+        const info = filteredItems.map(item => (item.author ? item.author + " - " : "") + item.title + "\n" + item.url).join("\n\n");
         console.log(info);
         Clipboard.setString(info);
         Alert.alert("Items copied to clipboard");
