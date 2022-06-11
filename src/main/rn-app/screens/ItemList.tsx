@@ -187,7 +187,7 @@ function dummyInfoItem(title: string, info: string) : ItemExt {
         title: title,
         author: "",
         notes: info,
-        image: "", listKey: "",  score: 50, searchableText: "", tags: [], url: ""
+        image: "", listKey: "",  score: 50, searchableText: "", tags: ["info"], url: ""
     };
 }
 
@@ -285,13 +285,22 @@ const ItemRow : React.FC<Item> = (item: Item) => (
         <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
             <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
                 <Text style={styles.title}>{item.title}</Text>
-                <Text style={styles.author}>{item.author}</Text>
+                <Text style={prepareStyle(styles.author, item.author)}>{item.author}</Text>
                 <Text style={styles.tags}>{item.tags.join(" ")}</Text>
-                <Text style={styles.text}>{item.notes}</Text>
+                <Text style={prepareStyle(styles.text, item.notes)}>{item.notes}</Text>
             </View>
         </ImageBackground>
     </View>
 );
+
+
+function prepareStyle(style: any, value?: string) {
+    if (value) {
+        return {...style, backgroundColor: "rgba(0,0,0,0.55)"}; // add dark background when there is content
+    } else {
+        return style;
+    }
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -328,7 +337,6 @@ const styles = StyleSheet.create({
         marginBottom: 7,
         color: '#a2a2a2',
         paddingHorizontal: 5,
-        backgroundColor: "rgba(0,0,0,0.55)",
     },
     tags: {
         fontSize: 16,
@@ -342,7 +350,6 @@ const styles = StyleSheet.create({
         marginBottom: 7,
         color: '#5dd0cd',
         paddingHorizontal: 5,
-        backgroundColor: "rgba(0,0,0,0.55)",
     },
 });
 
