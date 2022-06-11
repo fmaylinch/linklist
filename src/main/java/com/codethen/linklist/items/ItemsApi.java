@@ -117,6 +117,10 @@ public class ItemsApi {
             item.setScore(Item.DEFAULT_SCORE);
         }
 
+        if (Util.isEmpty(item.getTags())) {
+            item.setTags(Item.DEFAULT_TAGS);
+        }
+
         final Document doc = ItemAdapter.from(item);
         assert doc != null;
 
