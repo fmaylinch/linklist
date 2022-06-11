@@ -106,13 +106,15 @@ async function loadItemsFromApi(credentials: Credentials) {
         {username: credentials.username, tags: null});
     let items = resp.data.items;
     console.log(`Loaded ${items.length} items from api`)
-    prepareItems(items);
+    sortItems(items);
     return items;
 }
 
-function prepareItems(items: Array<Item>) {
+function sortItems(items: Array<Item>) {
     items.sort((a, b) => {
-        return a.title.localeCompare(b.title);
+        let textA = a.author ?  a.author + a.title : a.title;
+        let textB = b.author ?  b.author + b.title : b.title;
+        return textA.localeCompare(textB);
     });
     return items;
 }
