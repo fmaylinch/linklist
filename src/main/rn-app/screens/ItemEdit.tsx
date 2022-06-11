@@ -17,6 +17,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     let editingItem = !!item.id;
 
     const [title, setTitle] = useState<string>(item.title);
+    const [author, setAuthor] = useState<string>(item.author || "");
     const [url, setUrl] = useState<string>(item.url);
     const [image, setImage] = useState<string>(item.image);
     const [notes, setNotes] = useState<string>(item.notes);
@@ -37,6 +38,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             localId: item.localId,
             userId: item.userId,
             title: title,
+            author: author,
             url: url,
             image: image,
             tags: tags.trim() ? tags.trim().toLowerCase().split(/[ ,]+/) : [],
@@ -95,6 +97,9 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             if (!title && scrappedItem.title) { // keep existing title
                 setTitle(scrappedItem.title);
             }
+            if (!author && scrappedItem.author) { // keep existing author
+                setAuthor(scrappedItem.author);
+            }
             if (tags.length == 0 && scrappedItem.tags) { // keep existing tags
                 setTags(scrappedItem.tags.join(" "));
             }
@@ -129,6 +134,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                 {image ? <Image source={{uri: image}} width={Dimensions.get('window').width - 10} /> : <View/>}
                 <View style={{height: 20}} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"author"} value={author} onChangeText={author => setAuthor(author)} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
                 <View style={{flex:1, flexDirection:"row"}}>
                     <Button title={"Open url"} color={urlButtonColor} onPress={openUrl} />
@@ -192,6 +198,7 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
 
         const item : Item = {
             title: titleMeta || titleHtml,
+            author: "",
             url: url,
             tags: [],
             image: getMeta($, "property", "og:image"),
@@ -238,7 +245,8 @@ function fillFromYandexMusic(item: Item) {
     const albumWord = " альбом ";
     const albumWordIndex = item.title.indexOf(albumWord);
     if (albumWordIndex > 0) {
-        item.title = item.title.replace(albumWord, " - ");
+        item.author = item.title.substring(0, albumWordIndex);
+        item.title = item.title.substring(albumWordIndex + albumWord.length);
     }
 
     let listenOnlineWordIndex = item.title.indexOf(" слушать онлайн");

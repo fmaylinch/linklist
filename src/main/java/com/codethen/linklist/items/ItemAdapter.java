@@ -15,6 +15,7 @@ public class ItemAdapter {
     private static class Fields {
         public static String userId = "userId";
         public static String title = "title";
+        public static String author = "author";
         public static String url = "url";
         public static String notes = "notes";
         public static String image = "image";
@@ -41,6 +42,7 @@ public class ItemAdapter {
                 .id(doc.getObjectId(CommonFields._id).toString())
                 .userId(doc.getObjectId(Fields.userId).toString())
                 .title(doc.getString(Fields.title))
+                .author(doc.getString(Fields.author))
                 .url(doc.getString(Fields.url))
                 .image(doc.getString(Fields.image))
                 .notes(doc.getString(Fields.notes))
@@ -55,6 +57,7 @@ public class ItemAdapter {
         return item == null ? null : doc()
                 .append(Fields.userId, new ObjectId(item.getUserId()))
                 .append(Fields.title, item.getTitle())
+                .append(Fields.author, item.getAuthor())
                 .append(Fields.url, item.getUrl())
                 .append(Fields.image, item.getImage())
                 .append(Fields.notes, item.getNotes())

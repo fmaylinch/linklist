@@ -46,6 +46,7 @@ export type Item = {
   localId?: string; // for pending items saved locally
   userId?: string;
   title: string;
+  author?: string;
   url: string;
   image: string;
   notes: string;

@@ -20,7 +20,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         return items.map(item => ({
             ...item,
             listKey: (item.id || "") + (item.localId || ""), // local items might not have item.id
-            searchableText: item.title.toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
+            searchableText: item.title.toLowerCase() + " " + (item.author || "").toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
         }));
     }
 
@@ -183,6 +183,7 @@ function sortByScore(items: Array<ItemExt>) {
 function dummyInfoItem(title: string, info: string) : ItemExt {
     return {
         title: title,
+        author: "",
         notes: info,
         image: "", listKey: "",  score: 50, searchableText: "", tags: [], url: ""
     };
@@ -282,6 +283,7 @@ const ItemRow : React.FC<Item> = (item: Item) => (
         <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
             <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
                 <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.author}>{item.author}</Text>
                 <Text style={styles.tags}>{item.tags.join(" ")}</Text>
                 <Text style={styles.text}>{item.notes}</Text>
             </View>
@@ -330,6 +332,13 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginBottom: 7,
         color: '#b28ed3',
+        paddingHorizontal: 5,
+        backgroundColor: "rgba(0,0,0,0.55)",
+    },
+    author: {
+        fontSize: 16,
+        marginBottom: 7,
+        color: '#5dd0cd',
         paddingHorizontal: 5,
         backgroundColor: "rgba(0,0,0,0.55)",
     },

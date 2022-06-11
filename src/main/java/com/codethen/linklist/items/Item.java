@@ -15,6 +15,7 @@ public class Item {
     String id;
     String userId;
     String title;
+    String author;
     String url;
     String image;
     String notes;

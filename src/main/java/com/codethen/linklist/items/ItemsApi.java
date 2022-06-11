@@ -202,7 +202,7 @@ public class ItemsApi {
             final CSVReader csvReader = new CSVReader(new FileReader(csvFile, StandardCharsets.UTF_8));
 
             String[] row = csvReader.readNext();
-            final var expectedHeader = List.of("title", "url", "image", "notes", "tags", "score");
+            final var expectedHeader = List.of("title", "author", "url", "image", "notes", "tags", "score");
             final var rowFirstColumns = Arrays.asList(row).subList(0, Math.min(row.length, expectedHeader.size()));
             if (!rowFirstColumns.equals(expectedHeader)) {
                 return "CSV must have a header with these columns: " + String.join(",", expectedHeader);
@@ -217,11 +217,12 @@ public class ItemsApi {
 
                 final Item item = Item.builder()
                         .title(title)
-                        .url(cleanString(row[1]))
-                        .image(cleanString(row[2]))
-                        .notes(cleanString(row[3]))
-                        .tags(joinLists(commonTags, parseTags(row[4])))
-                        .score(parseScore(row[5]))
+                        .author(cleanString(row[1]))
+                        .url(cleanString(row[2]))
+                        .image(cleanString(row[3]))
+                        .notes(cleanString(row[4]))
+                        .tags(joinLists(commonTags, parseTags(row[5])))
+                        .score(parseScore(row[6]))
                         .build();
 
                 upsertItem(item, userId);
