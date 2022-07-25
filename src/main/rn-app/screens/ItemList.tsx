@@ -195,7 +195,7 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     const query = search.trim().toLowerCase();
     console.log("query", query);
 
-    const splitQuery = query.split(/ *: */);
+    const splitQuery = query.split(/ +: +/);
 
     const queryWords = splitQuery[0].trim();
     const transformerNames = splitQuery.slice(1);
