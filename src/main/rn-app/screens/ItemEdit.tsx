@@ -329,12 +329,12 @@ async function saveItemLocally(itemToSave: Item) {
             pendingItems[foundIndex] = itemToSave;
         } else {
             console.log("Adding item because, unexpectedly, we didn't find the localId: " + itemToSave.localId)
-            pendingItems.push(itemToSave);
+            pendingItems.unshift(itemToSave);
         }
     } else {
         itemToSave.localId = new Date().getTime().toString();
         console.log("Adding item with localId: " + itemToSave.localId)
-        pendingItems.push(itemToSave);
+        pendingItems.unshift(itemToSave);
     }
     await AsyncStorage.setItem(pendingItemsKey, JSON.stringify(pendingItems));
 }
