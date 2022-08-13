@@ -1,14 +1,25 @@
 import { Text, View } from '../components/Themed';
-import { RootTabScreenProps } from '../types';
+import {Credentials, RootTabScreenProps} from '../types';
 import styles from './styles';
 import {Button} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'TabOne'>) {
   console.log("route", route.name);
 
   const [message, setMessage] = useState<string>('');
+
+  useEffect(() => {
+      (async () => {
+          const json = await AsyncStorage.getItem('credentials')
+          const credentials: Credentials|null = json != null ? JSON.parse(json) : null;
+          if (credentials != null) {
+              // TODO: Update this when we login
+              setMessage("API: " + credentials.baseUrl);
+          }
+      })();
+  }, []);
 
   return (
   <View style={styles.container}>
@@ -37,7 +48,7 @@ export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'
             }
         }}
     />
-    <Text>{message}</Text>
+    <Text style={{marginTop: 10}}>{message}</Text>
   </View>
   );
 }
