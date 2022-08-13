@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
         marginStart: 5,
     },
     item: {
-        marginVertical: 8,
+        marginVertical: 7,
     },
     title: {
         color: '#b9b940',
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
 
 function dynamicStyleForItem(item: Item) : ViewStyle {
     let color = item.localId ? '#7a7c0f' : 'rgba(255,255,255,0)';
-    let width = 1;
+    let width = 2;
     return {
         borderStartWidth: width,
         borderEndWidth: width,
