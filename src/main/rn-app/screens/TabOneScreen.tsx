@@ -27,14 +27,20 @@ export default function TabOneScreen({ navigation, route }: RootTabScreenProps<'
         title={"Open items from API"}
         onPress={() => {
             setMessage('');
-            navigation.navigate("ItemList", {lastUpdateTime: new Date().getTime()});
+            navigation.navigate("ItemList", {
+                lastUpdateTime: new Date().getTime(),
+                loadItemsFromLocalStorage: false
+            });
         }}
     />
     <Button
         title={"Open items from local storage"}
         onPress={() => {
             setMessage('');
-            navigation.navigate("ItemList", {lastUpdateTime: new Date().getTime(), loadItemsFromLocalStorage: true});
+            navigation.navigate("ItemList", {
+                lastUpdateTime: new Date().getTime(),
+                loadItemsFromLocalStorage: true
+            });
         }}
     />
     <Button

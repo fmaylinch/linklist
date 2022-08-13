@@ -34,10 +34,10 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   navigation.navigate('Login');
               } else {
                   let items : Array<Item>;
-                  if (credentials == null) {
+                  if (route.params?.loadItemsFromLocalStorage) {
                       items = await loadItemsFromStorage();
                   } else {
-                      items = await loadItemsFromApi(credentials);
+                      items = await loadItemsFromApi(credentials!);
                       await saveItemsToStorage(items);
                   }
                   await addPendingLocalItems(items);
