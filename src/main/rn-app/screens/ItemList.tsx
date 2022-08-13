@@ -29,12 +29,12 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
           try {
               // TODO: move credentials reading and axios creation to a common place
               const json = await AsyncStorage.getItem('credentials')
-              const credentials = json != null ? JSON.parse(json) : null;
-              if (credentials == null) {
+              const credentials: Credentials|null = json != null ? JSON.parse(json) : null;
+              if (credentials == null && !route.params?.loadItemsFromLocalStorage) {
                   navigation.navigate('Login');
               } else {
                   let items : Array<Item>;
-                  if (route.params?.loadItemsFromLocalStorage) {
+                  if (credentials == null) {
                       items = await loadItemsFromStorage();
                   } else {
                       items = await loadItemsFromApi(credentials);
