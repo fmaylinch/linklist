@@ -26,7 +26,7 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-        return new Message("Last change: you can use /test/files?path=SOME_PATH");
+        return new Message("Last change: private key read manually");
     }
 
     @GET @Path("files")

@@ -13,6 +13,7 @@ import javax.ws.rs.core.Response;
 
 import com.codethen.linklist.users.User;
 import com.codethen.linklist.users.UserService;
+import com.codethen.linklist.util.SecurityUtil;
 import com.codethen.linklist.util.Util;
 import io.smallrye.jwt.build.Jwt;
 import org.eclipse.microprofile.jwt.Claims;
@@ -73,7 +74,7 @@ public class SecurityApi {
                 .groups(Set.of(Roles.USER))
                 .claim(Claims.nickname.name(), user.getUsername())
                 .expiresIn(Duration.ofDays(30))
-                .sign();
+                .sign(SecurityUtil.getPrivateKey());
     }
 
     private User createUser(Register register) {
