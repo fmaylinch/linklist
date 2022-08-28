@@ -9,7 +9,7 @@ import axios from "axios";
 export default function Login({ navigation, route }: RootStackScreenProps<'Login'>) {
   console.log("route", route.name);
 
-  const [baseUrl, setBaseUrl] = useState<string>('http://localhost:8070');
+  const [baseUrl, setBaseUrl] = useState<string>('https://linklist.onrender.com/8080');
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');

@@ -5,5 +5,5 @@ const devMode = Vue.config.devtools;
 console.log("Development mode?", devMode);
 
 export default {
-  apiUrl: "http://localhost:8070" // Don't forget http:// or https://
+  apiUrl: "http://localhost:8080" // Don't forget http:// or https://
 };
