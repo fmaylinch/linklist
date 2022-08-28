@@ -62,7 +62,7 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-        return new Message("This is test message #2 from LinkList app");
+        return new Message("This is test message #3 from LinkList app");
     }
 
     @lombok.Value
