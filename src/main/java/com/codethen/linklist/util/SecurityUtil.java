@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.security.GeneralSecurityException;
 import java.security.Key;
 import java.security.Principal;
 import java.security.PrivateKey;
@@ -29,7 +30,15 @@ public class SecurityUtil {
     }
 
     public static PrivateKey getPrivateKey() {
-        return getSigningKeyFromKeyLocation(getKeyLocationFromConfig());
+        return getSigningKeyFromKeyContent(getPrivateKeyFromConfig());
+    }
+
+    private static PrivateKey getSigningKeyFromKeyContent(String privateKey) {
+        try {
+            return KeyUtils.decodePrivateKey(privateKey);
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException("Can't decode private key (length: " + privateKey.length() + ")", e);
+        }
     }
 
     private static PrivateKey getSigningKeyFromKeyLocation(String keyLocation) {
@@ -56,6 +65,29 @@ public class SecurityUtil {
         } else {
             throw new RuntimeException("Config property not set: " + name);
         }
+    }
+
+    private static String getPrivateKeyFromConfig() {
+        var name = "smallrye.jwt.sign.key";
+        var key = ConfigProvider.getConfig().getValue(name, String.class);
+        if (key != null) {
+            return splitNewLines(key);
+        } else {
+            throw new RuntimeException("Config property not set: " + name);
+        }
+    }
+
+    /**
+     * Key will may come as one line with spaces, so we split the newlines to fix the PEM
+     */
+    private static String splitNewLines(String key) {
+        var begin = "-----BEGIN PRIVATE KEY-----";
+        var end = "-----END PRIVATE KEY-----";
+        if (!key.startsWith(begin + " ")) {
+            return key; // seems a correct key with newlines
+        }
+        var middle = key.substring(begin.length(), key.length() - end.length());
+        return begin + middle.replaceAll(" ", "\n") + end;
     }
 
     private static Key readSigningKey(String location, String kid, SignatureAlgorithm alg) throws Exception {
