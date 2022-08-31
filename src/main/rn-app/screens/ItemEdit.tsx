@@ -94,19 +94,19 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         //const resp = await apiService.axios().post("metadata/getFromUrl", {url});
         const scrappedItem : Item | undefined = resp.data;
         if (scrappedItem) {
-            if (!title && scrappedItem.title) { // keep existing title
+            if (!title && scrappedItem.title) {
                 setTitle(scrappedItem.title);
             }
-            if (!author && scrappedItem.author) { // keep existing author
+            if (!author && scrappedItem.author) {
                 setAuthor(scrappedItem.author);
             }
-            if (tags.length == 0 && scrappedItem.tags) { // keep existing tags
+            if (tags.length == 0 && scrappedItem.tags) {
                 setTags(scrappedItem.tags.join(" "));
             }
-            if (scrappedItem.image) {
+            if (!image && scrappedItem.image) {
                 setImage(scrappedItem.image)
             }
-            if (scrappedItem.notes) {
+            if (!notes && scrappedItem.notes) {
                 setNotes(scrappedItem.notes)
             }
             if (scrappedItem.score) {
@@ -264,6 +264,18 @@ function fillFromImdb($: CheerioAPI, item: Item) {
         return;
     }
     const obj = JSON.parse(json);
+
+    if (typeof obj["director"]) {
+        item.author = obj["director"].map((x:any) => x.name).join(", ");
+    }
+    if (obj["actor"]) {
+        const actors = obj["actor"].map((x:any) => x.name).join(", ");
+        let duration = obj["duration"];
+        if (duration.startsWith("PT")) {
+            duration = duration.substring(2).toLowerCase();
+        }
+        item.notes = obj["datePublished"] + ". " + duration + ". With " + actors + ".";
+    }
 
     item.title = obj["name"];
 
