@@ -15,6 +15,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
     const [search, setSearch] = useState("");
+    const [loading, setLoading] = useState(false);
 
     function extendItems(items: Array<Item>) : Array<ItemExt> {
         return items.map(item => ({
@@ -33,6 +34,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
               if (credentials == null && !route.params?.loadItemsFromLocalStorage) {
                   navigation.navigate('Login');
               } else {
+                  setLoading(true);
                   let items : Array<Item>;
                   if (route.params?.loadItemsFromLocalStorage) {
                       items = await loadItemsFromStorage();
@@ -43,6 +45,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   await addPendingLocalItems(items);
                   let itemsExt = extendItems(items);
                   setItems(itemsExt);
+                  setLoading(false);
                   setFilteredItems(filteredData(itemsExt, search))
               }
           } catch(e) {
@@ -78,12 +81,18 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
 
     return (
     <View style={styles.container}>
-        <View style={styles.searchContainer}>
-            <TextInput style={styles.search} placeholder={"word tag. -not, other : func"}
-                value={search} onChangeText={onSearchUpdated} />
-            {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
-            <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
-        </View>
+        {loading ? (
+            <View style={styles.searchContainer}>
+                <Text style={styles.loading}>Loading items...</Text>
+            </View>
+        ) : (
+            <View style={styles.searchContainer}>
+                <TextInput style={styles.search} placeholder={"word tag. -not, other : func"}
+                    value={search} onChangeText={onSearchUpdated} />
+                {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
+                <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
+            </View>
+        )}
         <FlatList
             data={filteredItems}
             renderItem={listItem => renderItem(listItem.item)}
@@ -314,6 +323,12 @@ const styles = StyleSheet.create({
     search: {
         flex: 1,
         color: 'white',
+        fontSize: 20,
+        paddingVertical: 10,
+    },
+    loading: {
+        flex: 1,
+        color: 'gray',
         fontSize: 20,
         paddingVertical: 10,
     },
