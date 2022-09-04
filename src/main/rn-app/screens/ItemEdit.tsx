@@ -1,4 +1,6 @@
-import {Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput} from 'react-native';
+import {
+    Button, Dimensions, Linking, ScrollView, StyleSheet,
+    Text, TextInput, Alert} from 'react-native';
 import Image from 'react-native-scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
@@ -219,7 +221,7 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
         return {data: item};
 
     } catch (e) {
-        console.log("Error loading url '" + url + "'", e)
+        Alert.alert("Error scrapping url", `Url: ${url}\nError: ${e}`);
     }
 
     return {data: undefined};
@@ -264,17 +266,22 @@ function fillFromImdb($: CheerioAPI, item: Item) {
         return;
     }
     const obj = JSON.parse(json);
+    console.log(obj);
 
-    if (typeof obj["director"]) {
+    if (obj["director"]) {
         item.author = obj["director"].map((x:any) => x.name).join(", ");
+    } else if (obj["creator"]) {
+        item.author = obj["creator"].filter((x:any) => x["@type"] === "Person").map((x:any) => x.name).join(", ");
     }
     if (obj["actor"]) {
         const actors = obj["actor"].map((x:any) => x.name).join(", ");
         let duration = obj["duration"];
-        if (duration.startsWith("PT")) {
-            duration = duration.substring(2).toLowerCase();
+        if (duration && duration.startsWith("PT")) {
+            duration = duration.substring(2).toLowerCase() + ". ";
+        } else {
+            duration = "";
         }
-        item.notes = obj["datePublished"] + ". " + duration + ". With " + actors + ".";
+        item.notes = obj["datePublished"] + ". " + duration + "With " + actors + ".";
     }
 
     item.title = obj["name"];
