@@ -46,7 +46,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   setFilteredItems(filteredData(itemsExt, search))
               }
           } catch(e) {
-              console.log("Failure: " + e);
+              Alert.alert("Error loading items", `${e}`);
           }
       })();
     }, [route.params?.lastUpdateTime]); // used to force refresh

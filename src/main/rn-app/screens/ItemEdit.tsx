@@ -50,12 +50,16 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
     }
 
     async function saveButtonAction() {
-        const itemToSave = prepareItemToSave();
-        await saveItem(itemToSave);
-        if (itemToSave.localId) {
-            await deleteItemLocally(itemToSave.localId!);
+        try {
+            const itemToSave = prepareItemToSave();
+            await saveItem(itemToSave);
+            if (itemToSave.localId) {
+                await deleteItemLocally(itemToSave.localId!);
+            }
+            goBackToList();
+        } catch (e) {
+            Alert.alert("Error saving item", `${e}`);
         }
-        goBackToList();
     }
 
     async function saveLocalButtonAction() {
@@ -221,7 +225,7 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
         return {data: item};
 
     } catch (e) {
-        Alert.alert("Error scrapping url", `Url: ${url}\nError: ${e}`);
+        Alert.alert("Error scrapping url", `Url: ${url}\n\n${e}`);
     }
 
     return {data: undefined};
@@ -266,7 +270,7 @@ function fillFromImdb($: CheerioAPI, item: Item) {
         return;
     }
     const obj = JSON.parse(json);
-    console.log(obj);
+    // console.log(obj);
 
     if (obj["director"]) {
         item.author = obj["director"].map((x:any) => x.name).join(", ");
