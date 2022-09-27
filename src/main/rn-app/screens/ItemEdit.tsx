@@ -214,6 +214,8 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
 
         if (url.indexOf("youtube.com/") >= 0) {
             fillFromYoutube(item);
+        } else if (url.indexOf("spotify.com/") >= 0) {
+            fillFromSpotify($, item);
         } else if (url.indexOf("music.yandex.com/") >= 0) {
             fillFromYandexMusic(item);
         } else if (url.indexOf(".imdb.com/") >= 0) {
@@ -236,7 +238,22 @@ const youtubeSuffix = " - YouTube Music";
 
 function fillFromYoutube(item: Item) {
     if (item.title.endsWith(youtubeSuffix)) {
-        item.title = item.title.substring(0, item.title.length - youtubeSuffix.length)
+        item.title = item.title.substr(0, item.title.length - youtubeSuffix.length)
+    }
+    item.tags = ["music", "top", "dance", "song"];
+    item.notes = ""; // useless
+}
+
+function fillFromSpotify($: CheerioAPI, item: Item) {
+    const authorPrefix = "song and lyrics by ";
+    const spotifySuffix = " | Spotify";
+    item.author = $('head > title').text();
+    const authorIndex = item.author.indexOf(authorPrefix);
+    if (authorIndex >= 0) {
+        item.author = item.author.substr(authorIndex + authorPrefix.length);
+    }
+    if (item.author.endsWith(spotifySuffix)) {
+        item.author = item.author.substr(0, item.author.length - spotifySuffix.length)
     }
     item.tags = ["music", "top", "dance", "song"];
     item.notes = ""; // useless
