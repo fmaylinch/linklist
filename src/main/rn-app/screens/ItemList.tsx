@@ -87,7 +87,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
             </View>
         ) : (
             <View style={styles.searchContainer}>
-                <TextInput style={styles.search} placeholder={"word tag. -not, other : func"}
+                <TextInput style={styles.search} placeholder={"word tag. -not, other :: func"}
                     value={search} onChangeText={onSearchUpdated} />
                 {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
                 <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
@@ -204,7 +204,8 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     const query = search.trim().toLowerCase();
     console.log("query", query);
 
-    const splitQuery = query.split(/ +: +/);
+    // The regex starts with " *" to allow using transformers without queryWords.
+    const splitQuery = query.split(/ *:: +/);
 
     const queryWords = splitQuery[0].trim();
     const transformerNames = splitQuery.slice(1);
