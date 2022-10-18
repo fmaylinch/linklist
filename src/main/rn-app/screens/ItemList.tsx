@@ -16,6 +16,8 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
+    const [randomized, setRandomized] = useState(false);
+    const [sorted, setSorted] = useState(false);
 
     function extendItems(items: Array<Item>) : Array<ItemExt> {
         return items.map(item => ({
@@ -44,6 +46,12 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   }
                   await addPendingLocalItems(items);
                   let itemsExt = extendItems(items);
+                  // Randomize once in the beginning, to see random items
+                  // when opening the app.
+                  if (!randomized) {
+                      randomizeItems(itemsExt);
+                      setRandomized(true);
+                  }
                   setItems(itemsExt);
                   setLoading(false);
                   setFilteredItems(filteredData(itemsExt, search))
@@ -64,6 +72,13 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     );
 
     function onSearchUpdated(search: string) {
+        // Sort items once we search, since items
+        // are randomized in the beginning.
+        if (!sorted) {
+            sortItems(items);
+            setItems(items);
+            setSorted(true);
+        }
         setSearch(search);
         setFilteredItems(filteredData(items, search));
     }
@@ -115,7 +130,7 @@ async function loadItemsFromApi(credentials: Credentials) {
         {username: credentials.username, tags: null});
     let items = resp.data.items;
     console.log(`Loaded ${items.length} items from api`)
-    sortItems(items);
+    //sortItems(items);
     return items;
 }
 
