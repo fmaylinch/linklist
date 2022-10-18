@@ -112,7 +112,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             if (!image && scrappedItem.image) {
                 setImage(scrappedItem.image)
             }
-            if (!notes && scrappedItem.notes) {
+            if (scrappedItem.notes) {
                 setNotes(scrappedItem.notes)
             }
             if (scrappedItem.score) {
@@ -298,11 +298,11 @@ function fillFromImdb($: CheerioAPI, item: Item) {
         const actors = obj["actor"].map((x:any) => x.name).join(", ");
         let duration = obj["duration"];
         if (duration && duration.startsWith("PT")) {
-            duration = duration.substring(2).toLowerCase() + ". ";
+            duration = duration.substring(2).toLowerCase() + " / ";
         } else {
             duration = "";
         }
-        item.notes = obj["datePublished"] + ". " + duration + "With " + actors + ".";
+        item.notes = obj["datePublished"] + " / " + duration + actors;
     }
 
     item.title = obj["name"];
