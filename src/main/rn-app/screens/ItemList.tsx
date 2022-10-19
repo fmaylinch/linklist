@@ -19,14 +19,6 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     const [randomized, setRandomized] = useState(false);
     const [sorted, setSorted] = useState(false);
 
-    function extendItems(items: Array<Item>) : Array<ItemExt> {
-        return items.map(item => ({
-            ...item,
-            listKey: (item.id || "") + (item.localId || ""), // local items might not have item.id
-            searchableText: item.title.toLowerCase() + " " + (item.author || "").toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
-        }));
-    }
-
     useEffect(() => {
       (async () => {
           try {
@@ -44,14 +36,16 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                       items = await loadItemsFromApi(credentials!);
                       await saveItemsToStorage(items);
                   }
-                  await addPendingLocalItems(items);
                   let itemsExt = extendItems(items);
                   // Randomize once in the beginning, to see random items
                   // when opening the app.
                   if (!randomized) {
                       randomizeItems(itemsExt);
                       setRandomized(true);
+                  } else {
+                      sortItems(itemsExt);
                   }
+                  await addPendingLocalItems(itemsExt);
                   setItems(itemsExt);
                   setLoading(false);
                   setFilteredItems(filteredData(itemsExt, search))
@@ -130,7 +124,6 @@ async function loadItemsFromApi(credentials: Credentials) {
         {username: credentials.username, tags: null});
     let items = resp.data.items;
     console.log(`Loaded ${items.length} items from api`)
-    //sortItems(items);
     return items;
 }
 
@@ -158,12 +151,20 @@ async function saveItemsToStorage(items: Array<Item>) {
 // TODO this is also used in ItemEdit.tsx
 const pendingItemsKey = 'pendingItems';
 
-async function addPendingLocalItems(items: Array<Item>) {
+async function addPendingLocalItems(items: Array<ItemExt>) {
     console.log("Loading pending items from storage");
     const json = await AsyncStorage.getItem(pendingItemsKey)
-    const pendingItems = json != null ? JSON.parse(json) : [];
+    const pendingItems = extendItems(json != null ? JSON.parse(json) : []);
     console.log("Pending items:", pendingItems.length);
     items.unshift(...pendingItems);
+}
+
+function extendItems(items: Array<Item>) : Array<ItemExt> {
+    return items.map(item => ({
+        ...item,
+        listKey: (item.id || "") + (item.localId || ""), // local items might not have item.id
+        searchableText: item.title.toLowerCase() + " " + (item.author || "").toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
+    }));
 }
 
 // TODO: transformer names could be more than just a name and also carry some parameters.
