@@ -16,7 +16,6 @@
         <v-container>
           <v-text-field v-model="loginData.username" label="username" auto-grow rows="1" />
           <v-text-field v-model="loginData.password" type="password" label="password" auto-grow rows="1" />
-          <v-text-field v-model="loginData.password2" type="password" label="repeat password to register" auto-grow rows="1" />
         </v-container>
       </v-card>
     </v-main>

@@ -17,17 +17,17 @@
           </v-btn>
         </template>
         <v-list>
-          <v-list-item @click="() => sortItemsWith({ property:'title', direction: 1 })">
-            <v-list-item-title>By title A-Z</v-list-item-title>
+          <v-list-item @click="() => sortItemsWith({ property:'author', direction: 1 })">
+            <v-list-item-title>By author ↑</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="() => sortItemsWith({ property:'title', direction: -1 })">
-            <v-list-item-title>By title Z-A</v-list-item-title>
+          <v-list-item @click="() => sortItemsWith({ property:'author', direction: -1 })">
+            <v-list-item-title>By author ↓</v-list-item-title>
           </v-list-item>
           <v-list-item @click="() => sortItemsWith({ property:'score', direction: 1 })">
-            <v-list-item-title>By score 0-100</v-list-item-title>
+            <v-list-item-title>By score ↑</v-list-item-title>
           </v-list-item>
           <v-list-item @click="() => sortItemsWith({ property:'score', direction: -1 })">
-            <v-list-item-title>By score 100-0</v-list-item-title>
+            <v-list-item-title>By score ↓</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -133,7 +133,7 @@ export default {
     favorites: [],
     error: { message: "", visible: false },
     loading: false,
-    sort: { property: "title", direction: 1 }
+    sort: { property: "author", direction: 1 }
   }),
   computed: {
     lowerSearch() {

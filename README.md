@@ -19,11 +19,32 @@ The frontend is being developed now in React Native (previously it was in Vue).
   - [React Navigation](https://reactnavigation.org)
   - [Expo](https://expo.dev)
 
-- Webapp (development abandoned)
+- Webapp (might be outdated)
   - [Vue.js](https://vuejs.org)
   - [Vuetify.js](https://vuetifyjs.com)
   - [Vue Router](https://router.vuejs.org/)
 
+## Current deploy
+
+Now the Vue/API is hosted at https://linklist.onrender.com.
+That link should open the webapp. But it also has an API ([test endpoint](https://linklist.onrender.com/test/message)).
+
+Instructions for Vue/API:
+- Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
+- Run API from IDE or with `./mvnw compile quarkus:dev`
+- Deploy Vue or API changes like this:
+  - `./build-vue.sh` - if you changed Vue 
+  - `./mvnw package`
+  - `docker build -f src/main/docker/Dockerfile.jvm -t fmaylinch/linklist .`
+  - `docker push fmaylinch/linklist`
+- Then push git changes
+  - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
+  - If you pushed changes before, manually re-deploy app from [render](https://render.com)
+
+Instructions for ReactNative app:
+- Go to [src/main/react-app](src/main/react-app)
+- Run it in dev mode with `yarn start`
+- Publish it with `expo publish`
 
 ## Sample calls
 
@@ -139,9 +160,6 @@ Or, if you don't have GraalVM installed, you can run the native executable build
 You can then execute your native executable with: `./target/linklist-1.0.0-SNAPSHOT-runner`
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.html.
-
-## Related guides
-
 
 ## Provided examples
 

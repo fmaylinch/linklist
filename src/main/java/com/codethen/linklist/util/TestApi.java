@@ -26,7 +26,7 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-        return new Message("Last change: private key from env var PRIVATE_KEY");
+        return new Message("Last change: Update Vue app");
     }
 
     @GET @Path("files")

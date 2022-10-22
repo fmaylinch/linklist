@@ -1,13 +1,16 @@
 <template>
     <v-list-item-content>
-      <v-list-item-title>
+      <v-list-item-title style="color: #d7d451">
         {{ item.title }}
       </v-list-item-title>
-      <v-list-item-subtitle>
-        {{ subtitle }}
+      <v-list-item-subtitle style="color: #50b5cc">
+        {{ item.author }}
       </v-list-item-subtitle>
-      <v-list-item-subtitle style="color: #6d6d6d">
-        {{ subtitle2 }}
+      <v-list-item-subtitle style="color: #8c8c8c">
+        {{ item.notes }}
+      </v-list-item-subtitle>
+      <v-list-item-subtitle style="color: #8d65ab">
+        {{ tags }}
       </v-list-item-subtitle>
       <v-progress-linear
         height="1"
@@ -26,10 +29,7 @@ export default {
     item: Object
   },
   computed: {
-    subtitle() {
-      return this.item.notes;
-    },
-    subtitle2() {
+    tags() {
       return Util.getTagsString(this.item);
     }
   },

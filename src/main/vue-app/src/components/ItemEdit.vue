@@ -15,6 +15,7 @@
         </v-container>
         <v-container>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
+          <v-text-field :readonly="readonly" v-model="itemForm.author" label="Author" />
           <v-text-field :readonly="readonly" v-model="itemForm.url" label="Url"
               :append-outer-icon="itemForm.url ? 'mdi-open-in-new' : ''" @click:append-outer="openUrl"
               :append-icon="itemForm.url ? 'mdi-cloud-download' : ''" @click:append="getMetadataFromUrl" />
@@ -153,6 +154,7 @@ export default {
                   if (!this.itemForm.tags) { // keep existing tags
                     this.itemForm.tags = itemForm.tags;
                   }
+                  this.itemForm.author = itemForm.author;
                   this.itemForm.image = itemForm.image;
                   this.itemForm.notes = itemForm.notes;
                   this.itemForm.score = itemForm.score;
@@ -177,6 +179,7 @@ export default {
         id: form.id,
         userId: form.userId,
         title: form.title,
+        author: form.author,
         url: form.url,
         image: form.image,
         notes: form.notes,
@@ -193,6 +196,7 @@ export default {
           id: item.id,
           userId: item.userId,
           title: item.title,
+          author: item.author,
           url: item.url,
           image: item.image,
           notes: item.notes,
@@ -204,6 +208,7 @@ export default {
           id: null,
           userId: null,
           title: "",
+          author: "",
           url: "",
           image: "",
           notes: "",
