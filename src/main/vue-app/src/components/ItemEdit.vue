@@ -14,6 +14,11 @@
           <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
         </v-container>
         <v-container>
+          <v-card flat tile v-if="itemForm.image">
+            <v-container>
+              <v-img :src="itemForm.image" />
+            </v-container>
+          </v-card>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
           <v-text-field :readonly="readonly" v-model="itemForm.author" label="Author" />
           <v-text-field :readonly="readonly" v-model="itemForm.url" label="Url"
@@ -34,11 +39,6 @@
                     min="0" max="100">
             <!-- <template v-slot:append>{{ itemForm.score }}</template> -->
           </v-slider>
-        </v-container>
-      </v-card>
-      <v-card flat tile v-if="itemForm.image">
-        <v-container>
-          <v-img :src="itemForm.image" />
         </v-container>
       </v-card>
       <v-card flat tile>
