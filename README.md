@@ -32,14 +32,11 @@ That link should open the webapp. But it also has an API ([test endpoint](https:
 Instructions for Vue/API:
 - Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
 - Run API from IDE or with `./mvnw compile quarkus:dev`
-- Deploy Vue or API changes like this:
-  - `./build-vue.sh` - if you changed Vue 
-  - `./mvnw package`
-  - `docker build -f src/main/docker/Dockerfile.jvm -t fmaylinch/linklist .`
-  - `docker push fmaylinch/linklist`
+- Deploy Vue/API changes with `./build-push-docker.sh`
+  - You may skip building Vue if not necessary
 - Then push git changes
   - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
-  - If you pushed changes before, manually re-deploy app from [render](https://render.com)
+  - If you pushed changes before, manually re-deploy app from [render dashboard](https://dashboard.render.com)
 
 Instructions for ReactNative app:
 - Go to [src/main/react-app](src/main/react-app)
