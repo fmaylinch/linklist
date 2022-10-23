@@ -1,7 +1,7 @@
 export default class Util {
 
   static fillItemCalculatedData(item) {
-    const raw = item.title + " " + item.url + " " + item.image + " " + item.notes + " " + item.score;
+    const raw = item.title + " " + item.author + " " + item.url + " " + item.image + " " + item.notes + " " + item.score;
     item.rawContent = raw.toLowerCase();
 
     item.tagSet = new Set();
