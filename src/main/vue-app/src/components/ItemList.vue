@@ -86,9 +86,6 @@
             v-for="item in searchedItems"
             :key="item.id"
             @click="openItem(item)">
-            <v-list-item-icon>
-              <v-icon v-text="item.icon" />
-            </v-list-item-icon>
             <ItemListItem :item="item" />
           </v-list-item>
         </v-list>
@@ -349,6 +346,8 @@ export default {
   margin-left: 10px;
 }
 .v-application--is-ltr .v-list-item__icon:first-child {
-  margin-right: 15px; /* default icon margin-right: 32px; */
+}
+.v-list-item.v-list-item--link {
+  padding: 0;
 }
 </style>
