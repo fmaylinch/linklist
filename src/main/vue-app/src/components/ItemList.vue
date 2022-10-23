@@ -203,8 +203,10 @@ export default {
     sortAndSetItems(items) {
       let property = this.sort.property;
       let sortFunction = (x,y) => {
-        if (x[property] < y[property]) return -this.sort.direction;
-        if (x[property] > y[property]) return this.sort.direction;
+        const px = x[property] || x.title; // fallback to title
+        const py = y[property] || y.title; // fallback to title
+        if (px < py) return -this.sort.direction;
+        if (px > py) return this.sort.direction;
         return 0;
       };
       items.sort(sortFunction);
