@@ -16,7 +16,7 @@
         <v-container>
           <v-card flat tile v-if="itemForm.image">
             <v-container>
-              <v-img :src="itemForm.image" />
+              <v-img class="image" :src="itemForm.image" />
             </v-container>
           </v-card>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
@@ -226,6 +226,6 @@ export default {
   margin-left: 10px;
 }
 .image {
-  margin-top: 20px;
+  margin-bottom: 20px;
 }
 </style>

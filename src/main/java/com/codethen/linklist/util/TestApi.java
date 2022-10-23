@@ -26,7 +26,7 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-        return new Message("Last change: Update Vue app");
+            return new Message("Last change: Update Vue app - images in list");
     }
 
     @GET @Path("files")
