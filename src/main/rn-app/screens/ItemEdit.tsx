@@ -1,6 +1,4 @@
-import {
-    Button, Dimensions, Linking, ScrollView, StyleSheet,
-    Text, TextInput, Alert} from 'react-native';
+import {Alert, Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput} from 'react-native';
 import Image from 'react-native-scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
@@ -196,7 +194,7 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
         console.log("Trying to load url: " + url);
         const resp = await axios.get(url);
         const html = resp.data;
-        //console.log(html);
+        console.log(html);
         const $ = cheerio.load(html);
 
         const titleMeta = getMeta($, "property", "og:title");
@@ -220,6 +218,8 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
             fillFromYandexMusic(item);
         } else if (url.indexOf(".imdb.com/") >= 0) {
             fillFromImdb($, item);
+        } else if (url.indexOf(".steampowered.com/") >= 0) {
+            fillFromSteam(item);
         }
 
         console.log("item: ", item);
@@ -234,29 +234,35 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
 }
 
 const musicYoutubeLink = "https://music.youtube.com/watch?v=";
-const youtubeSuffix = " - YouTube Music";
 
 function fillFromYoutube(item: Item) {
-    if (item.title.endsWith(youtubeSuffix)) {
-        item.title = item.title.substr(0, item.title.length - youtubeSuffix.length)
-    }
+    item.title = removeSuffix(" - YouTube Music", item.title);
     item.tags = ["music", "top", "dance", "song"];
     item.notes = ""; // useless
 }
 
+function fillFromSteam(item: Item) {
+    item.title = removeSuffix(" on Steam", item.title);
+    item.tags = ["computer", "game", "indie"];
+}
+
 function fillFromSpotify($: CheerioAPI, item: Item) {
     const authorPrefix = "song and lyrics by ";
-    const spotifySuffix = " | Spotify";
     item.author = $('head > title').text();
     const authorIndex = item.author.indexOf(authorPrefix);
     if (authorIndex >= 0) {
         item.author = item.author.substr(authorIndex + authorPrefix.length);
     }
-    if (item.author.endsWith(spotifySuffix)) {
-        item.author = item.author.substr(0, item.author.length - spotifySuffix.length)
-    }
+    item.author = removeSuffix(" | Spotify", item.author);
     item.tags = ["music", "top", "dance", "song"];
     item.notes = ""; // useless
+}
+
+function removeSuffix(suffix: string, str: string) {
+    if (str.endsWith(suffix)) {
+        return str.substr(0, str.length - suffix.length)
+    }
+    return str;
 }
 
 function fillFromYandexMusic(item: Item) {
