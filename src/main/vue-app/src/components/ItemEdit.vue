@@ -9,16 +9,12 @@
       <v-btn @click="cancel" icon><v-icon>mdi-close</v-icon></v-btn>
     </v-app-bar>
     <v-main>
+      <v-img v-if="itemForm.image" class="image" :src="itemForm.image" />
       <v-card flat tile>
         <v-container>
           <v-alert v-model="error.visible" color="red" dismissible type="error">{{ error.message }}</v-alert>
         </v-container>
         <v-container>
-          <v-card flat tile v-if="itemForm.image">
-            <v-container>
-              <v-img class="image" :src="itemForm.image" />
-            </v-container>
-          </v-card>
           <v-text-field :readonly="readonly" v-model="itemForm.title" label="Title" />
           <v-text-field :readonly="readonly" v-model="itemForm.author" label="Author" />
           <v-text-field :readonly="readonly" v-model="itemForm.url" label="Url"
@@ -55,6 +51,14 @@
     </v-main>
   </div>
 </template>
+
+
+<style scoped lang="scss">
+.load-progress {
+  margin-left: 10px;
+}
+</style>
+
 
 <script>
 import Util from "@/util";
@@ -220,12 +224,3 @@ export default {
   }
 };
 </script>
-
-<style scoped lang="scss">
-.load-progress {
-  margin-left: 10px;
-}
-.image {
-  margin-bottom: 20px;
-}
-</style>
