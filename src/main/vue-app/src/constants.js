@@ -5,5 +5,7 @@ const devMode = Vue.config.devtools;
 console.log("Development mode?", devMode);
 
 export default {
-  apiUrl: "https://linklist.onrender.com" // Don't forget http:// or https://
+  // Don't forget http:// or https://
+  //apiUrl: "https://linklist.onrender.com"
+  apiUrl: "https://linklistz.herokuapp.com/"
 };

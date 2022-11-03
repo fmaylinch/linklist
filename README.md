@@ -37,6 +37,7 @@ Instructions for Vue/API:
 - Then push git changes
   - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
   - If you pushed changes before, manually re-deploy app from [render dashboard](https://dashboard.render.com)
+- See how to [deploy on Heroku](https://devcenter.heroku.com/articles/container-registry-and-runtime#getting-started)
 
 Instructions for ReactNative app:
 - Go to [src/main/react-app](src/main/react-app)

@@ -7,4 +7,5 @@ docker build -f src/main/docker/Dockerfile.jvm -t fmaylinch/linklist .
 docker push fmaylinch/linklist
 
 echo ""
-echo "Now push changes to Git or deploy manually in https://dashboard.render.com"
+echo "For Render: push changes to Git or deploy manually from https://dashboard.render.com"
+echo "For Heroku: heroku container:push web && heroku container:release web"
