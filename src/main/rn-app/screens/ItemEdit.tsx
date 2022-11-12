@@ -1,5 +1,5 @@
 import {Alert, Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput} from 'react-native';
-import Image from 'react-native-scalable-image';
+import Image from '../components/scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
 import React, {useState} from "react";
