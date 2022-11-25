@@ -37,20 +37,19 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                       await saveItemsToStorage(items);
                   }
                   let itemsExt = extendItems(items);
-                  // Randomize once in the beginning, to see random items when opening the app
-                  if (!randomized) {
-                      randomizeItems(itemsExt);
-                      // There are many songs, so put them at the end to show other items
-                      const isSong = (i: ItemExt) => i.tags.indexOf("song") >= 0
-                      putItemsAtTheEnd(itemsExt, isSong);
-                      setRandomized(true);
-                  } else {
-                      sortItems(itemsExt);
-                  }
+                  sortItems(itemsExt);
                   await addPendingLocalItems(itemsExt);
                   setItems(itemsExt);
                   setLoading(false);
-                  setFilteredItems(filteredData(itemsExt, search))
+                  // Randomize once in the beginning, to see random items when opening the app
+                  if (!randomized) {
+                      const initialSearch = "-song. :: rnd";
+                      setSearch(initialSearch);
+                      setFilteredItems(filteredData(itemsExt, initialSearch))
+                      setRandomized(true);
+                  } else {
+                      setFilteredItems(filteredData(itemsExt, search))
+                  }
               }
           } catch(e) {
               Alert.alert("Error loading items", `${e}`);
@@ -68,13 +67,6 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     );
 
     function onSearchUpdated(search: string) {
-        // Sort items once we search, since items
-        // are randomized in the beginning.
-        if (!sorted) {
-            sortItems(items);
-            setItems(items);
-            setSorted(true);
-        }
         setSearch(search);
         setFilteredItems(filteredData(items, search));
     }
@@ -111,13 +103,6 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         />
     </View>
   );
-}
-
-/** Items that pass the check will be put at the end */
-function putItemsAtTheEnd(items: Array<ItemExt>, check: (i: ItemExt) => boolean) {
-    items.sort((a, b) => {
-        return (check(a) ? 1 : 0) - (check(b) ? 1 : 0);
-    });
 }
 
 function openUrl(item: Item) {
