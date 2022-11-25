@@ -37,10 +37,12 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                       await saveItemsToStorage(items);
                   }
                   let itemsExt = extendItems(items);
-                  // Randomize once in the beginning, to see random items
-                  // when opening the app.
+                  // Randomize once in the beginning, to see random items when opening the app
                   if (!randomized) {
                       randomizeItems(itemsExt);
+                      // There are many songs, so put them at the end to show other items
+                      const isSong = (i: ItemExt) => i.tags.indexOf("song") >= 0
+                      putItemsAtTheEnd(itemsExt, isSong);
                       setRandomized(true);
                   } else {
                       sortItems(itemsExt);
@@ -109,6 +111,13 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
         />
     </View>
   );
+}
+
+/** Items that pass the check will be put at the end */
+function putItemsAtTheEnd(items: Array<ItemExt>, check: (i: ItemExt) => boolean) {
+    items.sort((a, b) => {
+        return (check(a) ? 1 : 0) - (check(b) ? 1 : 0);
+    });
 }
 
 function openUrl(item: Item) {
@@ -293,7 +302,6 @@ function matches(item: ItemExt, condition: QueryCondition) {
         if (item.tags.indexOf(tag) >= 0) return false;
     }
     return true;
-
 }
 
 type QueryParts = {
