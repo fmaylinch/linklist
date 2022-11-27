@@ -184,7 +184,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                     </View>
                 }
                 {/* dummy margin, because notes input might get hidden behind the keyboard */}
-                <View style={{height: 200}} />
+                <View style={{height: 300}} />
             </View>
         </ScrollView>
   );
@@ -433,7 +433,6 @@ const styles = StyleSheet.create({
     inputFlex: {
         color: "#aaa",
         backgroundColor: '#171717',
-        marginTop: 10,
         padding: 10,
         flexGrow: 1,
         flexShrink: 1,
