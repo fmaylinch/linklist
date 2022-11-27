@@ -43,7 +43,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   setLoading(false);
                   // Randomize once in the beginning, to see random items when opening the app
                   if (!randomized) {
-                      const initialSearch = "-song. :: rnd";
+                      const initialSearch = "-song. | rnd";
                       setSearch(initialSearch);
                       setFilteredItems(filteredData(itemsExt, initialSearch))
                       setRandomized(true);
@@ -90,7 +90,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
             </View>
         ) : (
             <View style={styles.searchContainer}>
-                <TextInput style={styles.search} placeholder={"word tag. -not, other :: func"}
+                <TextInput style={styles.search} placeholder={"word tag. -not, other | func"}
                     value={search} onChangeText={onSearchUpdated} />
                 {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
                 <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
@@ -215,7 +215,7 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     console.log("query", query);
 
     // The regex starts with " *" to allow using transformers without queryWords.
-    const splitQuery = query.split(/ *:: +/);
+    const splitQuery = query.split(/ *\| +/);
 
     const queryWords = splitQuery[0].trim();
     const transformerNames = splitQuery.slice(1);
