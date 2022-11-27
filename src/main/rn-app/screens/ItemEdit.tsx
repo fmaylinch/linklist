@@ -9,6 +9,7 @@ import {apiService} from "../service/ApiService";
 import * as cheerio from 'cheerio';
 import {CheerioAPI} from 'cheerio';
 import axios from "axios";
+import {FontAwesome} from "@expo/vector-icons";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
     console.log("route", route.name);
@@ -139,11 +140,12 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                 <View style={{height: 20}} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"author"} value={author} onChangeText={author => setAuthor(author)} />
-                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
-                <View style={{flex:1, flexDirection:"row"}}>
-                    <Button title={"Open url"} color={urlButtonColor} onPress={openUrl} />
-                    <View style={{width: 20}}/>
-                    <Button title={"Get metadata"} color={urlButtonColor} onPress={retrieveMetadataFromUrl} />
+                <View style={{display:"flex", flexDirection:"row", width: "100%", alignItems: "center", marginTop: 10}}>
+                    <TextInput style={{...styles.inputFlex}} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
+                    <FontAwesome name="link" style={{...styles.icon, color: urlButtonColor}}
+                        onPress={openUrl} />
+                    <FontAwesome name="cloud-download" style={{...styles.iconEnd, color: urlButtonColor}}
+                        onPress={retrieveMetadataFromUrl} />
                 </View>
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"image"} value={image} onChangeText={setImage} />
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
@@ -427,6 +429,23 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 10,
         width: '100%',
+    },
+    inputFlex: {
+        color: "#aaa",
+        backgroundColor: '#171717',
+        marginTop: 10,
+        padding: 10,
+        flexGrow: 1,
+        flexShrink: 1,
+    },
+    icon: {
+        fontSize: 20,
+        marginLeft: 15,
+    },
+    iconEnd: {
+        fontSize: 20,
+        marginLeft: 15,
+        marginEnd: 10,
     },
     text: {
         color: "#444",
