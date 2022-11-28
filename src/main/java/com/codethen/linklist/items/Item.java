@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Item {
 
-    public static final int DEFAULT_SCORE = 50;
+    public static final int DEFAULT_SCORE = 0;
     public static final List<String> DEFAULT_TAGS = List.of("untagged");
 
     String id;

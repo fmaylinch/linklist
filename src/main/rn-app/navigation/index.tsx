@@ -83,7 +83,7 @@ function buildNewItem() : Item {
     return {
         image: "",
         notes: "",
-        score: 50,
+        score: 0,
         tags: [],
         title: "",
         url: ""

@@ -10,6 +10,7 @@ import * as cheerio from 'cheerio';
 import {CheerioAPI} from 'cheerio';
 import axios from "axios";
 import {FontAwesome} from "@expo/vector-icons";
+import {colorFromScore} from "../util/util";
 
 export default function ItemEdit({ navigation, route }: RootStackScreenProps<'ItemEdit'>) {
     console.log("route", route.name);
@@ -125,13 +126,7 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
 
     const urlButtonColor = url ? "#099" : "#003333";
     const placeHolderColor = '#444';
-
-    // Higher score is more green, lower score is more red.
-    // When the score is in the middle, it will be a bit blue.
-    const greenWeight = Math.max(0, Math.round((score[0]-10)/10));
-    const redWeight = Math.max(0, 7 - greenWeight);
-    const blueWeight = Math.max(0, 6 - Math.abs(6 - greenWeight));
-    const sliderColor = "#" + redWeight + greenWeight + blueWeight;
+    const sliderColor = colorFromScore(score[0]);
 
     return (
         <ScrollView>
@@ -209,7 +204,7 @@ async function scrapUrl(url: string) : Promise<{data?: Item}> {
             tags: [],
             image: getMeta($, "property", "og:image"),
             notes: getMeta($, "property", "og:description"),
-            score: 50
+            score: 0
         };
 
         if (url.indexOf("youtube.com/") >= 0) {

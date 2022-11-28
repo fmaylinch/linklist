@@ -8,6 +8,7 @@ import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "../service/ApiService";
 import * as Clipboard from 'expo-clipboard';
+import {colorFromScore} from "../util/util";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
     console.log("route", route.key);
@@ -17,7 +18,6 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
     const [search, setSearch] = useState("");
     const [loading, setLoading] = useState(false);
     const [randomized, setRandomized] = useState(false);
-    const [sorted, setSorted] = useState(false);
 
     useEffect(() => {
       (async () => {
@@ -206,7 +206,7 @@ function dummyInfoItem(title: string, info: string) : ItemExt {
         title: title,
         author: "",
         notes: info,
-        image: "", listKey: "",  score: 50, searchableText: "", tags: ["info"], url: ""
+        image: "", listKey: "",  score: 0, searchableText: "", tags: ["info"], url: ""
     };
 }
 
@@ -299,18 +299,27 @@ type QueryCondition = {
     negative: QueryParts;
 }
 
-const ItemRow : React.FC<Item> = (item: Item) => (
-    <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
-        <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
-            <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
-                <Text style={styles.title}>{item.title}</Text>
-                <Text style={prepareStyle(styles.author, item.author)}>{item.author}</Text>
-                <Text style={styles.tags}>{item.tags.join(" ")}</Text>
-                <Text style={prepareStyle(styles.text, item.notes)}>{item.notes}</Text>
+const ItemRow : React.FC<Item> = (item: Item) => {
+    const scoreColor = item.score > 0 ? colorFromScore(item.score) : "clear";
+    const scoreColorFaded = item.score > 0 ? scoreColor + "77" : "clear";
+    return (
+        <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
+            <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
+                <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
+                    <Text style={styles.title}>{item.title}</Text>
+                    <Text style={prepareStyle(styles.author, item.author)}>{item.author}</Text>
+                    <Text style={styles.tags}>{item.tags.join(" ")}</Text>
+                    <Text style={prepareStyle(styles.text, item.notes)}>{item.notes}</Text>
+                </View>
+            </ImageBackground>
+            <View style={{flex: 1, flexDirection: "row"}}>
+                <View style={{height: 2, backgroundColor: scoreColor, width: item.score + "%"}} />
+                <View style={{height: 2, backgroundColor: scoreColorFaded, width: (100 - item.score) + "%"}} />
             </View>
-        </ImageBackground>
-    </View>
-);
+
+        </View>
+    );
+}
 
 
 function prepareStyle(style: any, value?: string) {
@@ -349,6 +358,7 @@ const styles = StyleSheet.create({
     },
     item: {
         marginVertical: 7,
+        display: "flex",
     },
     title: {
         color: '#b9b940',
