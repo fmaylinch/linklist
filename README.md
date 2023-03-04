@@ -27,19 +27,23 @@ The frontend is being developed now in React Native (previously it was in Vue).
 ## Current deploy
 
 Now the Vue/API is hosted at https://dashboard.heroku.com/apps/linklistz.
-Check [test endpoint](https://linklistz.herokuapp.com/test/message).
 
 Development for Vue/API:
 - Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
 - Run API from IDE or with `./mvnw compile quarkus:dev`
 
 Deploy:
-- Deploy Vue/API changes with `./build-push-docker.sh`
-  - You may skip building Vue if not necessary
-- Then push git changes
+- Build Vue/Docker:
+  - `./build-vue.sh` if you changed Vue
+  - `./build-push-docker.sh`
+- New deploy on Heroku:
+  - See [deploy on Heroku](https://devcenter.heroku.com/articles/container-registry-and-runtime#getting-started), usually:
+    - `heroku container:push web`
+    - `heroku container:release web`
+- Old deploy on render.com:
   - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
   - If you pushed changes before, manually re-deploy app from [render dashboard](https://dashboard.render.com)
-- See how to [deploy on Heroku](https://devcenter.heroku.com/articles/container-registry-and-runtime#getting-started)
+- Check [test endpoint](https://linklistz.herokuapp.com/test/message).
 
 Instructions for ReactNative app:
 - Go to [src/main/react-app](src/main/react-app)
