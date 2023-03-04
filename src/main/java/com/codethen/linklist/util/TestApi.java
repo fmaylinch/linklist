@@ -14,6 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.codethen.telegram.lanxatbot.RegisterBots;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
 @Path("test")
@@ -26,7 +28,25 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-            return new Message("Last change: Setup for Heroku");
+        return new Message("Last change: added Telegram bot");
+    }
+
+    @GET @Path("bots")
+    @PermitAll
+    public Message bots() throws Exception {
+
+        if (RegisterBots.getBotSession() != null) {
+            return new Message("bots already registered");
+        }
+
+        final String connectionString = ConfigProvider.getConfig().getValue("mongo.url", String.class);
+        final String databaseName = ConfigProvider.getConfig().getValue("mongo.database", String.class);
+        final String telegramBotName = ConfigProvider.getConfig().getValue("telegram.lanxat.name", String.class);
+        final String telegramBotApiToken = ConfigProvider.getConfig().getValue("telegram.lanxat.token", String.class);
+
+        RegisterBots.registerBots(connectionString, databaseName, telegramBotName, telegramBotApiToken);
+
+        return new Message("bots registered");
     }
 
     @GET @Path("files")
