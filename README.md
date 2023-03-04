@@ -26,12 +26,14 @@ The frontend is being developed now in React Native (previously it was in Vue).
 
 ## Current deploy
 
-Now the Vue/API is hosted at https://linklist.onrender.com.
-That link should open the webapp. But it also has an API ([test endpoint](https://linklist.onrender.com/test/message)).
+Now the Vue/API is hosted at https://dashboard.heroku.com/apps/linklistz.
+Check [test endpoint](https://linklistz.herokuapp.com/test/message).
 
-Instructions for Vue/API:
+Development for Vue/API:
 - Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
 - Run API from IDE or with `./mvnw compile quarkus:dev`
+
+Deploy:
 - Deploy Vue/API changes with `./build-push-docker.sh`
   - You may skip building Vue if not necessary
 - Then push git changes
