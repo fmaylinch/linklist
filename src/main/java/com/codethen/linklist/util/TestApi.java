@@ -28,7 +28,7 @@ public class TestApi {
     @GET @Path("message")
     @PermitAll
     public Message message() {
-        return new Message("Last change: Telegram bot Java 11");
+        return new Message("Last change: Telegram bot Java 17 with system.properties and build.yml");
     }
 
     @GET @Path("bots")
