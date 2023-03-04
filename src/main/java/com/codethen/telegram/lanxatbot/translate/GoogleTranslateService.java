@@ -19,6 +19,8 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
+import static java.util.stream.Collectors.toList;
+
 /**
  * This service needs a key to work.
  * The GOOGLE_APPLICATION_CREDENTIALS env var should point to the key file.
@@ -80,7 +82,7 @@ public class GoogleTranslateService implements TranslationService {
 
         var response = client.detectLanguage(req);
 
-        var langs = response.getLanguagesList().stream().map(DetectedLanguage::getLanguageCode).toList();
+        var langs = response.getLanguagesList().stream().map(DetectedLanguage::getLanguageCode).collect(toList());
         System.out.println("Detected languages: " + langs);
         return new DetectResponse(langs);
     }
