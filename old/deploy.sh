@@ -1,5 +1,8 @@
-# Exit on error
-set -e
+# Exit on error or undefined variable
+set -eu
+
+echo "This is an old deploy"
+exit 1
 
 PROJECT_FOLDER=$(pwd)
 
@@ -7,8 +10,7 @@ echo "--- Building Vue app ---"
 cd src/main/vue-app
 npm run build
 
-# Now the S3 website is not used. I removed it.
-# We use a L7 balancer that points to the VM. The L7 has a DNS certificate for HTTPS.
+# First I was using a S3 website. But I removed it because I couldn't configure HTTPS.
 # If I want to use the S3 website, https://linklist.es should go to the S3 website, but apiUrl should go to the L7.
 #AWS_OPTIONS="--endpoint-url=https://storage.yandexcloud.net"
 #BUCKET="s3://www.linklist.es"
@@ -17,6 +19,9 @@ npm run build
 #aws $AWS_OPTIONS s3 rm  --recursive $BUCKET/css
 #echo "--- Uploading new resources to cloud bucket ---"
 #aws $AWS_OPTIONS s3 cp --recursive dist $BUCKET
+
+# Then I used a L7 balancer that pointed to the VM. The L7 had a DNS certificate for HTTPS.
+# But I removed the cloud due to high expenses.
 
 echo "--- Copying Vue app to resources ---"
 TARGET="$PROJECT_FOLDER/src/main/resources/META-INF/resources"
