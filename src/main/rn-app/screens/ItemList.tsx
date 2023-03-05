@@ -305,7 +305,7 @@ const ItemRow : React.FC<Item> = (item: Item) => {
     return (
         <View style={StyleSheet.flatten([styles.item, dynamicStyleForItem(item)])}>
             <ImageBackground source={{uri: item.image || undefined}} style={{flex: 1}}>
-                <View style={{flex: 1, alignItems: "flex-start", padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
+                <View style={{flex: 1, alignItems: "flex-start", minHeight: 175, padding: 10, backgroundColor: "rgba(0,0,0,0.40)"}}>
                     <Text style={styles.title}>{item.title}</Text>
                     <Text style={prepareStyle(styles.author, item.author)}>{item.author}</Text>
                     <Text style={styles.tags}>{item.tags.join(" ")}</Text>
