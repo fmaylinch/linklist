@@ -20,9 +20,10 @@ export type RootStackParamList = {
   NotFound: undefined;
   ItemList: {
     lastUpdateTime: number, // used to refresh the component
-    loadItemsFromLocalStorage?: boolean
+    loadItemsFromLocalStorage?: boolean,
+    search?: string
   };
-  ItemEdit: {item: Item};
+  ItemEdit: {item: Item, lastUpdateTime?: number};
   Login: undefined;
 };
 

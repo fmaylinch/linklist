@@ -76,10 +76,27 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
         goBackToList(true);
     }
 
-    function goBackToList(itemModifiedLocally: boolean = false) {
+    function searchAuthor() {
+        goBackAndSearch(item.author)
+    }
+
+    function searchTags() {
+        goBackAndSearch(item.tags.map(tag => tag + ".").join(" "))
+    }
+
+    function goBackAndSearch(search?: string) {
+        if (search) {
+            goBackToList(false, search!, route.params?.lastUpdateTime);
+        }
+    }
+
+    function goBackToList(itemModifiedLocally: boolean = false, search?: string, lastUpdateTime?: number) {
+        const time = lastUpdateTime || new Date().getTime();
+        console.log(`Navigating to ItemList with time: ${time}`);
         navigation.navigate('ItemList', {
-            lastUpdateTime: new Date().getTime(),
-            loadItemsFromLocalStorage: itemModifiedLocally
+            lastUpdateTime: time,
+            loadItemsFromLocalStorage: itemModifiedLocally,
+            search: search
         });
     }
 
@@ -131,17 +148,25 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
             <View style={styles.container}>
                 {image ? <Image source={{uri: image}} width={Dimensions.get('window').width - 10} /> : <View/>}
                 <View style={{height: 20}} />
-                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={title => setTitle(title)} />
-                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"author"} value={author} onChangeText={author => setAuthor(author)} />
-                <View style={{display:"flex", flexDirection:"row", width: "100%", alignItems: "center", marginTop: 10}}>
-                    <TextInput style={{...styles.inputFlex}} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
+                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"title"} value={title} onChangeText={setTitle} />
+                <View style={styles.inputContainer}>
+                    <TextInput style={styles.inputFlex} placeholderTextColor={placeHolderColor} placeholder={"author"} value={author} onChangeText={setAuthor} />
+                    <FontAwesome name="search" style={{...styles.icon, color: urlButtonColor}}
+                        onPress={() => searchAuthor()} />
+                </View>
+                <View style={styles.inputContainer}>
+                    <TextInput style={styles.inputFlex} placeholderTextColor={placeHolderColor} placeholder={"url"} value={url} onChangeText={setUrl} />
                     <FontAwesome name="link" style={{...styles.icon, color: urlButtonColor}}
                         onPress={openUrl} />
                     <FontAwesome name="cloud-download" style={{...styles.iconEnd, color: urlButtonColor}}
                         onPress={retrieveMetadataFromUrl} />
                 </View>
                 <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"image"} value={image} onChangeText={setImage} />
-                <TextInput style={styles.input} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
+                <View style={styles.inputContainer}>
+                    <TextInput style={styles.inputFlex} placeholderTextColor={placeHolderColor} placeholder={"tags"} value={tags} onChangeText={setTags} />
+                    <FontAwesome name="search" style={{...styles.icon, color: urlButtonColor}}
+                        onPress={() => searchTags()} />
+                </View>
                 <View style={styles.slider}>
                   <Slider
                       thumbTintColor={sliderColor}
@@ -266,6 +291,13 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 10,
         width: '100%',
+    },
+    inputContainer: {
+        display: "flex",
+        flexDirection: "row",
+        width: "100%",
+        alignItems: "center",
+        marginTop: 10,
     },
     inputFlex: {
         color: "#aaa",

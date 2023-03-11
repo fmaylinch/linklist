@@ -15,7 +15,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(route.params?.search || "");
     const [loading, setLoading] = useState(false);
     const [randomized, setRandomized] = useState(false);
 
@@ -42,7 +42,7 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
                   setItems(itemsExt);
                   setLoading(false);
                   // Randomize once in the beginning, to see random items when opening the app
-                  if (!randomized) {
+                  if (!search && !randomized) {
                       const initialSearch = "-song. | rnd";
                       setSearch(initialSearch);
                       setFilteredItems(filteredData(itemsExt, initialSearch))
@@ -55,11 +55,21 @@ export default function ItemList({ navigation, route }: RootStackScreenProps<'It
               Alert.alert("Error loading items", `${e}`);
           }
       })();
-    }, [route.params?.lastUpdateTime]); // used to force refresh
+    }, [route.params?.lastUpdateTime]);
+
+    useEffect(() => {
+        (async () => {
+            console.log("Search detected: " + route.params?.search);
+            if (route.params?.search) {
+                console.log("Updating search: " + route.params?.search);
+                onSearchUpdated(route.params!.search);
+            }
+        })();
+    }, [route.params?.search])
 
     const renderItem = (item : Item) => (
         <TouchableOpacity
-            onPress={() => navigation.navigate("ItemEdit", {item})}
+            onPress={() => navigation.navigate("ItemEdit", {item, lastUpdateTime: route.params?.lastUpdateTime})}
             onLongPress={() => openUrl(item)}
         >
             <ItemRow {...item} />
@@ -259,7 +269,7 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     if (items.length == 0) {
         return [dummyInfoItem(
             "Nothing found",
-            "Examples:\ntop. album.\nmovie. -watched. : random")];
+            "Examples:\ntop. album.\nmovie. -watched. | random")];
     }
 
     return items;
