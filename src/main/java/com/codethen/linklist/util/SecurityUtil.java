@@ -30,6 +30,7 @@ public class SecurityUtil {
     }
 
     public static PrivateKey getPrivateKey() {
+        //return getSigningKeyFromKeyLocation(getKeyLocationFromConfig());
         return getSigningKeyFromKeyContent(getPrivateKeyFromConfig());
     }
 

@@ -29,18 +29,21 @@ The frontend is being developed now in React Native (previously it was in Vue).
 Now the Vue/API is hosted at https://dashboard.heroku.com/apps/linklistz.
 
 Development for Vue/API:
-- Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
 - Run API from IDE or with `./mvnw compile quarkus:dev`
+  - I think that for local startup it's needed to load key by location from `getPrivateKey` in [SecurityUtil](./src/main/java/com/codethen/linklist/util/SecurityUtil.java). 
+- Run Vue in dev mode from [src/main/vue-app](src/main/vue-app) with `npm run serve`
+  - By default, the Vue webapp is configured to connect to the real server
+  - If you want to connect to localhost, change `apiUrl` in [constants.js](src/main/vue-app/src/constants.js).
 
 Deploy:
 - Build Vue/Docker:
   - `./build-vue.sh` if you changed Vue
-  - `./build-push-docker.sh`
-- New deploy on Heroku:
+  - `./build-push-docker.sh` (Docker desktop must be open)
+- Deploy on Heroku:
   - See [deploy on Heroku](https://devcenter.heroku.com/articles/container-registry-and-runtime#getting-started), usually:
     - `heroku container:push web`
     - `heroku container:release web`
-- Old deploy on render.com:
+- Old deploy on Render:
   - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
   - If you pushed changes before, manually re-deploy app from [render dashboard](https://dashboard.render.com)
 - Check [test endpoint](https://linklistz.herokuapp.com/test/message).

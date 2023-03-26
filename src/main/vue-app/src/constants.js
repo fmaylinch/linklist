@@ -7,5 +7,6 @@ console.log("Development mode?", devMode);
 export default {
   // Don't forget http:// or https://
   //apiUrl: "https://linklist.onrender.com"
-  apiUrl: "https://linklistz.herokuapp.com/"
+  //apiUrl: "http://localhost:8090"
+  apiUrl: "https://linklistz.herokuapp.com"
 };

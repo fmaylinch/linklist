@@ -8,4 +8,4 @@ docker push fmaylinch/linklist
 
 echo ""
 echo "For Render: Deploy manually from https://dashboard.render.com (auto-deploy is disabled)"
-echo "For Heroku: heroku container:push web && heroku container:release web"
+echo "For Heroku: heroku container:push web / heroku container:release web"
