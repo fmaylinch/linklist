@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "rn-app",
-    "slug": "rn-app",
+    "slug": "linklist-new",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "updates": {
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/c9d85427-e5cd-4c3d-ab9b-70f40da1e495"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -29,6 +30,15 @@
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "c9d85427-e5cd-4c3d-ab9b-70f40da1e495"
+      }
+    },
+    "owner": "fmaylinch",
+    "runtimeVersion": {
+      "policy": "appVersion"
     }
   }
 }
