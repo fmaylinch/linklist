@@ -9,7 +9,7 @@ import axios from "axios";
 export default function Login({ navigation, route }: RootStackScreenProps<'Login'>) {
   console.log("route", route.name);
 
-  const [baseUrl, setBaseUrl] = useState<string>('https://linklistz.herokuapp.com');
+  const [baseUrl, setBaseUrl] = useState<string>('http://158.160.43.18:8090');
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [message, setMessage] = useState<string>('');
