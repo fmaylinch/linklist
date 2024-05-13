@@ -24,9 +24,16 @@ The frontend is being developed now in React Native (previously it was in Vue).
   - [Vuetify.js](https://vuetifyjs.com)
   - [Vue Router](https://router.vuejs.org/)
 
-## Current deploy
+## React app
 
-Now the Vue/API is hosted at https://dashboard.heroku.com/apps/linklistz.
+Instructions for ReactNative app:
+- Go to [src/main/rn-app](src/main/rn-app)
+- Run it in dev mode with `npm start`
+- Use `npm start-tunnel` to use ngrok (could be insecure)
+- publish with `eas update`
+
+
+## Vue instructions
 
 Development for Vue/API:
 - Run API from IDE or with `./mvnw compile quarkus:dev`
@@ -47,11 +54,6 @@ Deploy:
   - [render](https://render.com) will re-deploy automatically, because it pulls [Dockerfile](Dockerfile)
   - If you pushed changes before, manually re-deploy app from [render dashboard](https://dashboard.render.com)
 - Check [test endpoint](https://linklistz.herokuapp.com/test/message).
-
-Instructions for ReactNative app:
-- Go to [src/main/react-app](src/main/react-app)
-- Run it in dev mode with `yarn start`
-- Publish it with `expo publish`
 
 ## Sample calls
 

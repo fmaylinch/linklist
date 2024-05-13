@@ -17,7 +17,7 @@ import NotFoundScreen from '../screens/NotFoundScreen';
 import TabOneScreen from '../screens/TabOneScreen';
 import TabTwoScreen from '../screens/TabTwoScreen';
 import {Item, RootStackParamList, RootStackScreenProps, RootTabParamList, RootTabScreenProps} from '../types';
-import LinkingConfiguration from './LinkingConfiguration';
+//import LinkingConfiguration from './LinkingConfiguration';
 import ItemList from "../screens/ItemList";
 import Login from "../screens/Login";
 import ItemEdit from "../screens/ItemEdit";
@@ -25,7 +25,7 @@ import ItemEdit from "../screens/ItemEdit";
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
     <NavigationContainer
-      linking={LinkingConfiguration}
+
       theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <RootNavigator />
     </NavigationContainer>
