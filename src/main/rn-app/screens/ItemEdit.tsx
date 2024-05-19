@@ -3,7 +3,7 @@ import Image from '../components/scalable-image';
 import {View} from '../components/Themed';
 import {Item, RootStackScreenProps} from "../types";
 import React, {useState} from "react";
-import {Slider} from "@miblanchard/react-native-slider";
+//import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "../service/ApiService";
 import {FontAwesome} from "@expo/vector-icons";
@@ -167,14 +167,14 @@ export default function ItemEdit({ navigation, route }: RootStackScreenProps<'It
                     <FontAwesome name="search" style={{...styles.icon, color: urlButtonColor}}
                         onPress={() => searchTags()} />
                 </View>
-                <View style={styles.slider}>
-                  <Slider
+                {/* <View style={styles.slider}>
+                    <Slider
                       thumbTintColor={sliderColor}
                       minimumTrackTintColor={sliderColor}
                       maximumTrackTintColor={sliderColor}
                       step={1} minimumValue={0} maximumValue={100}
                       value={score} onValueChange={s => setScore(s as number[])} />
-                </View>
+                </View> */}
                 <Text style={styles.sliderText}>{score}</Text>
                 <TextInput
                     style={styles.input}
