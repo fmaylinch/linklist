@@ -7,7 +7,7 @@ import {Credentials, Item, ItemExt, RootStackScreenProps} from "../types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "../service/ApiService";
-//import * as Clipboard from 'expo-clipboard';
+//import * as Clipboard from 'expo-clipboard'; // TODO - find update or another lib
 import {colorFromScore} from "../util/util";
 
 export default function ItemList({ navigation, route }: RootStackScreenProps<'ItemList'>) {
