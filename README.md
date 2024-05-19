@@ -28,6 +28,7 @@ The frontend is being developed now in React Native (previously it was in Vue).
 
 Instructions for ReactNative app:
 - Go to [src/main/rn-app](src/main/rn-app)
+  - I'm moving it to `rn-app2` because now `rn-app` doesn't work on my iPhone.
 - Run it in dev mode with `npm start`
 - Use `npm start-tunnel` to use ngrok (could be insecure)
 - publish with `eas update`
