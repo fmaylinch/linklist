@@ -1,4 +1,4 @@
-import {Credentials} from "../types";
+import { Credentials } from "../types";
 import axios, {Axios} from "axios";
 
 class ApiService {
