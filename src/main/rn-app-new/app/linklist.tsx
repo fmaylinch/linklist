@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { View, StyleSheet, Text, Button, Image } from 'react-native';
-import {Link, router, useLocalSearchParams} from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,7 +20,7 @@ export default function Linklist() {
             const credentials: Credentials|null = json != null ? JSON.parse(json) : null;
             if (credentials != null) {
                 // TODO: Update this when we login
-                setMessage("Logged for API: " + credentials.baseUrl);
+                setMessage("Logged in: " + credentials.baseUrl);
                 setLoggedIn(true);
             } else {
                 setMessage("Not logged")
@@ -61,7 +61,7 @@ export default function Linklist() {
 
             <ThemedView style={styles.mainContainer}>
                 <ThemedText type="title">Linklist!</ThemedText>
-                <Text>{message}</Text>
+                <ThemedText type="default">{message}</ThemedText>
                 <View style={{margin: 10}}/>
                 {loggedIn
                     ? <>
@@ -73,7 +73,6 @@ export default function Linklist() {
                     </>}
                 <Button title="Load items from local storage" onPress={() => loadItems(false)} />
                 <View style={{margin: 10}}/>
-                <Link href="other">sample link</Link>
             </ThemedView>
         </ParallaxScrollView>
     );

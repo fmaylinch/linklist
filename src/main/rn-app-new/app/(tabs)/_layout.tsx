@@ -1,5 +1,5 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import { Tabs, router } from 'expo-router';
+import React, {useEffect, useState} from 'react';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
@@ -8,21 +8,23 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
+    const [goToLinklist, setGoToLinklist] = useState(false);
+
+    useEffect(() => {
+        if (goToLinklist) {
+            router.push("/linklist");
+        }
+        // navigate later, to avoid this error:
+        //   Attempted to navigate before mounting the Root Layout component
+        setGoToLinklist(true);
+    }, [goToLinklist]);
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
       }}>
-      <Tabs.Screen
-          name="linklist"
-          options={{
-              title: 'Linklist',
-              tabBarIcon: ({ color, focused }) => (
-                  <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-              ),
-          }}
-      />
       <Tabs.Screen
         name="index"
         options={{

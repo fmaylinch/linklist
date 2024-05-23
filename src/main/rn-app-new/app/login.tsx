@@ -23,7 +23,7 @@ export default function Login() {
             await AsyncStorage.setItem('credentials', JSON.stringify(credentials));
             // TODO - doesn't refresh because I guess this params go to the tabs layout component.
             //  I could add an intermediate screen out of the tabs, to make sure we go back there.
-            router.navigate({ pathname: '/', params: {
+            router.navigate({ pathname: '/linklist', params: {
                     lastUpdateTime: new Date().getTime()
                 } });
         } catch (e) {

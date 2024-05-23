@@ -1,25 +1,24 @@
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { useLocalSearchParams, router } from 'expo-router';
 
 import {
     Button, FlatList, ImageBackground, Linking, StatusBar, StyleSheet,
-    TextInput, TouchableOpacity, ViewStyle, Alert, Text, SafeAreaView, View
+    TextInput, TouchableOpacity, ViewStyle, Alert, Text, SafeAreaView, View, DimensionValue
 } from 'react-native';
-import {Credentials, Item, ItemExt } from "../types";
+import {Credentials, Item, ItemExt } from "@/types";
 import React, {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {apiService} from "../service/ApiService";
+import {apiService} from "@/service/ApiService";
 //import * as Clipboard from 'expo-clipboard'; // TODO - does it work? maybe install UseHooks?
-import {colorFromScore} from "../util/util";
+import {colorFromScore} from "@/util/util";
 
 export default function ItemList() {
 
     const { lastUpdateTime, loadItemsFromLocalStorage, initialSearch } = useLocalSearchParams();
+    const initialSearchStr = initialSearch?.toString() || "";
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
-    const [search, setSearch] = useState(initialSearch || "");
+    const [search, setSearch] = useState(initialSearchStr);
     const [loading, setLoading] = useState(false);
     const [randomized, setRandomized] = useState(false);
 
@@ -61,8 +60,8 @@ export default function ItemList() {
         (async () => {
             console.log("Search detected: " + initialSearch);
             if (initialSearch) {
-                console.log("Updating search: " + initialSearch);
-                onSearchUpdated(initialSearch);
+                console.log("Updating search: " + initialSearchStr);
+                onSearchUpdated(initialSearchStr);
             }
         })();
     }, [initialSearch])
@@ -325,8 +324,8 @@ const ItemRow : React.FC<Item> = (item: Item) => {
                 </View>
             </ImageBackground>
             <View style={{flex: 1, flexDirection: "row"}}>
-                <View style={{height: 2, backgroundColor: scoreColor, width: item.score + "%"}} />
-                <View style={{height: 2, backgroundColor: scoreColorFaded, width: (100 - item.score) + "%"}} />
+                <View style={{height: 2, backgroundColor: scoreColor, width: (item.score + "%") as DimensionValue}} />
+                <View style={{height: 2, backgroundColor: scoreColorFaded, width: ((100 - item.score) + "%") as DimensionValue}} />
             </View>
 
         </View>
