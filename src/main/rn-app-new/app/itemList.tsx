@@ -1,16 +1,28 @@
 import {
-    Button, FlatList, ImageBackground, Linking, StatusBar, StyleSheet,
-    TextInput, TouchableOpacity, ViewStyle, Alert, Text, SafeAreaView, View, DimensionValue
+    Alert,
+    Button,
+    DimensionValue,
+    FlatList,
+    ImageBackground,
+    Linking,
+    StatusBar,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+    ViewStyle
 } from 'react-native';
-import {Credentials, Item, ItemExt } from "@/types";
-import { useEffect, useState } from "react";
+import {Credentials, Item, ItemExt} from "@/types";
+import {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiService } from "@/service/ApiService";
+import {apiService} from "@/service/ApiService";
 //import * as Clipboard from 'expo-clipboard'; // TODO - does it work? maybe install UseHooks?
-import { colorFromScore } from "@/util/util";
-import { useLocalSearchParams, router } from 'expo-router';
+import {colorFromScore} from "@/util/util";
+import {router, Stack, useLocalSearchParams} from 'expo-router';
 
 export default function ItemList() {
+
 
     const { lastUpdateTime, loadItemsFromLocalStorage, initialSearch } = useLocalSearchParams();
 
@@ -64,19 +76,38 @@ export default function ItemList() {
         })();
     }, [initialSearch])
 
+    function openItemEdit(item: Item) {
+        router.push({
+            pathname: 'itemEdit', params: {
+                itemAsJson: JSON.stringify(item),
+                lastUpdateTime: new Date().getTime()
+            }
+        });
+    }
+
     const renderItem = (item : Item) => (
         <TouchableOpacity
-            onPress={() => {
-                router.push({ pathname: 'itemEdit', params: {
-                    itemAsJson: JSON.stringify(item),
-                    lastUpdateTime: new Date().getTime()
-                } });
-            }}
+            onPress={() => openItemEdit(item)}
             onLongPress={() => openUrl(item)}
         >
             <ItemRow {...item} />
         </TouchableOpacity>
     );
+
+    function addNewItem() {
+        openItemEdit(buildNewItem());
+    }
+
+    function buildNewItem() {
+        return {
+            image: "",
+            notes: "",
+            score: 0,
+            tags: [],
+            title: "",
+            url: ""
+        };
+    }
 
     function onSearchUpdated(search: string) {
         setSearch(search);
@@ -95,25 +126,32 @@ export default function ItemList() {
     }
 
     return (
-        <View style={styles.container}>
-            {loading ? (
-                <View style={styles.searchContainer}>
-                    <Text style={styles.loading}>Loading items...</Text>
-                </View>
-            ) : (
-                <View style={styles.searchContainer}>
-                    <TextInput style={styles.search} placeholder={"word tag. -not, other | func"}
-                               value={search} onChangeText={onSearchUpdated} />
-                    {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
-                    <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
-                </View>
-            )}
-            <FlatList
-                data={filteredItems}
-                renderItem={listItem => renderItem(listItem.item)}
-                keyExtractor={item => item.listKey}
+        <>
+            <Stack.Screen
+                options={{
+                    headerRight: () => <Button onPress={addNewItem} title="Add" />,
+                }}
             />
-        </View>
+            <View style={styles.container}>
+                {loading ? (
+                    <View style={styles.searchContainer}>
+                        <Text style={styles.loading}>Loading items...</Text>
+                    </View>
+                ) : (
+                    <View style={styles.searchContainer}>
+                        <TextInput style={styles.search} placeholder={"word tag. -not, other | func"}
+                                   value={search} onChangeText={onSearchUpdated} />
+                        {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
+                        <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
+                    </View>
+                )}
+                <FlatList
+                    data={filteredItems}
+                    renderItem={listItem => renderItem(listItem.item)}
+                    keyExtractor={item => item.listKey}
+                />
+            </View>
+        </>
     );
 }
 
