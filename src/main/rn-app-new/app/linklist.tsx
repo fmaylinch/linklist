@@ -31,7 +31,8 @@ export default function Linklist() {
     function loadItems(fromApi: boolean) {
         router.push({ pathname: 'itemList', params: {
                 lastUpdateTime: new Date().getTime(),
-                loadItemsFromLocalStorage: fromApi ? "no" : "yes" // can't use boolean in router.push()
+                loadItemsFromLocalStorage: fromApi ? "no" : "yes", // can't use boolean in router.push(),
+                initialSearch: ""
         } });
     }
 

@@ -1,24 +1,22 @@
-import { useLocalSearchParams, router } from 'expo-router';
-
 import {
     Button, FlatList, ImageBackground, Linking, StatusBar, StyleSheet,
     TextInput, TouchableOpacity, ViewStyle, Alert, Text, SafeAreaView, View, DimensionValue
 } from 'react-native';
 import {Credentials, Item, ItemExt } from "@/types";
-import React, {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {apiService} from "@/service/ApiService";
+import { apiService } from "@/service/ApiService";
 //import * as Clipboard from 'expo-clipboard'; // TODO - does it work? maybe install UseHooks?
-import {colorFromScore} from "@/util/util";
+import { colorFromScore } from "@/util/util";
+import { useLocalSearchParams, router } from 'expo-router';
 
 export default function ItemList() {
 
     const { lastUpdateTime, loadItemsFromLocalStorage, initialSearch } = useLocalSearchParams();
-    const initialSearchStr = initialSearch?.toString() || "";
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
-    const [search, setSearch] = useState(initialSearchStr);
+    const [search, setSearch] = useState(initialSearch as string);
     const [loading, setLoading] = useState(false);
     const [randomized, setRandomized] = useState(false);
 
@@ -60,8 +58,8 @@ export default function ItemList() {
         (async () => {
             console.log("Search detected: " + initialSearch);
             if (initialSearch) {
-                console.log("Updating search: " + initialSearchStr);
-                onSearchUpdated(initialSearchStr);
+                console.log("Updating search: " + initialSearch);
+                onSearchUpdated(initialSearch as string);
             }
         })();
     }, [initialSearch])
@@ -69,7 +67,10 @@ export default function ItemList() {
     const renderItem = (item : Item) => (
         <TouchableOpacity
             onPress={() => {
-                console.log("navigate to item:", item) // TODO - router.push("ItemEdit", {item, lastUpdateTime: route.params?.lastUpdateTime})
+                router.push({ pathname: 'itemEdit', params: {
+                    itemAsJson: JSON.stringify(item),
+                    lastUpdateTime: new Date().getTime()
+                } });
             }}
             onLongPress={() => openUrl(item)}
         >
@@ -153,7 +154,7 @@ async function saveItemsToStorage(items: Array<Item>) {
     await AsyncStorage.setItem("items", JSON.stringify(items));
 }
 
-// TODO this is also used in ItemEdit.tsx
+// TODO this is also used in itemEdit.tsx
 const pendingItemsKey = 'pendingItems';
 
 async function addPendingLocalItems(items: Array<ItemExt>) {
