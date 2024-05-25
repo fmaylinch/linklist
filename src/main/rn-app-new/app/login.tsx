@@ -1,10 +1,11 @@
-import { SafeAreaView, View, Button, StyleSheet, TextInput, Text } from 'react-native';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Credentials} from "../types";
+import {Button, SafeAreaView, StyleSheet, Text, TextInput} from 'react-native';
 import {useState} from "react";
+import {router} from 'expo-router';
+import {ThemedText} from '@/components/ThemedText';
+import {ThemedView} from '@/components/ThemedView';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Credentials} from "@/types";
+import {navigationParams} from "@/util/routerUtil";
 import axios from "axios";
 
 export default function Login() {
@@ -21,11 +22,9 @@ export default function Login() {
             const resp = await axios.post(url, loginData);
             let credentials: Credentials = {...resp.data, baseUrl};
             await AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-            // TODO - doesn't refresh because I guess this params go to the tabs layout component.
-            //  I could add an intermediate screen out of the tabs, to make sure we go back there.
-            router.navigate({ pathname: 'linklist', params: {
-                    lastUpdateTime: new Date().getTime()
-                } });
+            router.navigate(navigationParams('linklist', {
+                lastUpdateTime: new Date().getTime()
+            }));
         } catch (e) {
             setMessage('Error on login: ' + e);
         }

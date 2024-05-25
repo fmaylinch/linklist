@@ -19,12 +19,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "@/service/ApiService";
 //import * as Clipboard from 'expo-clipboard'; // TODO - does it work? maybe install UseHooks?
 import {colorFromScore} from "@/util/util";
-import {router, Stack, useLocalSearchParams} from 'expo-router';
+import {router, Stack} from 'expo-router';
+import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function ItemList() {
 
-
-    const { lastUpdateTime, loadItemsFromLocalStorage, initialSearch } = useLocalSearchParams();
+    const paramsObject = useLocalSearchParamsWithJson();
+    const lastUpdateTime: number = paramsObject.lastUpdateTime;
+    const loadItemsFromLocalStorage: boolean = paramsObject.loadItemsFromLocalStorage;
+    const initialSearch: string = paramsObject.initialSearch;
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
@@ -40,7 +43,7 @@ export default function ItemList() {
                 const credentials: Credentials|null = json != null ? JSON.parse(json) : null;
                 setLoading(true);
                 let items : Array<Item>;
-                if (loadItemsFromLocalStorage === "yes") {
+                if (loadItemsFromLocalStorage) {
                     items = await loadItemsFromStorage();
                 } else {
                     items = await loadItemsFromApi(credentials!);
@@ -77,12 +80,10 @@ export default function ItemList() {
     }, [initialSearch])
 
     function openItemEdit(item: Item) {
-        router.push({
-            pathname: 'itemEdit', params: {
-                itemAsJson: JSON.stringify(item),
-                lastUpdateTime: new Date().getTime()
-            }
-        });
+        router.push(navigationParams('itemEdit', {
+            lastUpdateTime: new Date().getTime(),
+            item
+        }));
     }
 
     const renderItem = (item : Item) => (

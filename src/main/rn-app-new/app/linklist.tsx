@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
-import { View, StyleSheet, Text, Button, Image } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import {useEffect, useState} from "react";
+import {Button, Image, StyleSheet, View} from 'react-native';
+import {router} from 'expo-router';
+import {ThemedText} from '@/components/ThemedText';
+import {ThemedView} from '@/components/ThemedView';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Credentials} from "@/types";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
+import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function Linklist() {
 
     const [message, setMessage] = useState<string>('welcome!');
     const [loggedIn, setLoggedIn] = useState(false)
-    const { lastUpdateTime } = useLocalSearchParams();
+    const paramsObject = useLocalSearchParamsWithJson();
+    const lastUpdateTime: number = paramsObject.lastUpdateTime;
 
     useEffect(() => {
         (async () => {
@@ -29,11 +31,11 @@ export default function Linklist() {
     }, [lastUpdateTime]);
 
     function loadItems(fromApi: boolean) {
-        router.push({ pathname: 'itemList', params: {
-                lastUpdateTime: new Date().getTime(),
-                loadItemsFromLocalStorage: fromApi ? "no" : "yes", // can't use boolean in router.push(),
-                initialSearch: ""
-        } });
+        router.push(navigationParams('itemList', {
+            lastUpdateTime: new Date().getTime(),
+            loadItemsFromLocalStorage: !fromApi,
+            initialSearch: ""
+        }))
     }
 
     async function logout() {
@@ -47,7 +49,7 @@ export default function Linklist() {
     }
 
     function login() {
-        router.push({ pathname: 'login' });
+        router.push(navigationParams('login'));
     }
 
     return (

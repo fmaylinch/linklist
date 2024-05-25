@@ -1,22 +1,23 @@
-import {
-    View, Alert, Button, Dimensions, Linking,
-    ScrollView, StyleSheet, Text, TextInput
-} from 'react-native';
+import {Alert, Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
 import Image from '../components/scalable-image';
-import { Item } from "@/types";
-import { useState } from "react";
-import { Slider } from "@miblanchard/react-native-slider";
+import {Item} from "@/types";
+import {useState} from "react";
+import {Slider} from "@miblanchard/react-native-slider";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { apiService } from "@/service/ApiService";
-import { FontAwesome } from "@expo/vector-icons";
-import { colorFromScore } from "@/util/util";
-import { scrapUrl } from "@/util/scrapping";
-import { useLocalSearchParams, router } from 'expo-router';
+import {apiService} from "@/service/ApiService";
+import {FontAwesome} from "@expo/vector-icons";
+import {colorFromScore} from "@/util/util";
+import {scrapUrl} from "@/util/scrapping";
+import {router} from 'expo-router';
+import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function ItemEdit() {
 
-    const { lastUpdateTime, itemAsJson } = useLocalSearchParams();
-    let item = JSON.parse(itemAsJson as string);
+    // TODO - add parameter indicating local mode, in that case hide saveButtonAction and deleteButtonAction
+    const paramsObject = useLocalSearchParamsWithJson();
+    const lastUpdateTime: number = paramsObject.lastUpdateTime;
+    const item: Item = paramsObject.item;
+
     let editingItem = !!item.id;
 
     const [title, setTitle] = useState<string>(item.title);
@@ -89,18 +90,18 @@ export default function ItemEdit() {
 
     function goBackAndSearch(search?: string) {
         if (search) {
-            goBackToList(false, search, lastUpdateTime as string);
+            goBackToList(false, search, lastUpdateTime);
         }
     }
 
-    function goBackToList(itemModifiedLocally: boolean = false, search?: string, lastUpdateTime?: string) {
+    function goBackToList(itemModifiedLocally: boolean = false, search?: string, lastUpdateTime?: number) {
         const time = lastUpdateTime || new Date().getTime();
         console.log(`Navigating to itemList with time: ${time}`);
-        router.navigate({ pathname: 'itemList', params: {
+        router.navigate(navigationParams('itemList', {
             lastUpdateTime: time,
-            loadItemsFromLocalStorage: itemModifiedLocally ? "yes" : "no",
+            loadItemsFromLocalStorage: itemModifiedLocally,
             search: search || ""
-        }});
+        }));
     }
 
     function openUrl() {
