@@ -27,7 +27,7 @@ The frontend is being developed now in React Native (previously it was in Vue).
 ## React app
 
 Instructions for ReactNative app:
-- Go to [src/main/rn-app-new](src/main/rn-app-new) (eventually remove old `rn-app`)
+- Go to [src/main/rn-app-new](src/main/rn-app-new)
 - Run it in dev mode with `npm start`
 - Use `npm start-tunnel` to use ngrok (could be insecure)
 - publish with `eas update`
