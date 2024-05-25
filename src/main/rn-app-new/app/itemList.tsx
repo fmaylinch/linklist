@@ -17,7 +17,7 @@ import {Credentials, Item, ItemExt} from "@/types";
 import {useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {apiService} from "@/service/ApiService";
-//import * as Clipboard from 'expo-clipboard'; // TODO - does it work? maybe install UseHooks?
+import * as Clipboard from 'expo-clipboard';
 import {colorFromScore} from "@/util/util";
 import {router, Stack} from 'expo-router';
 import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
@@ -113,10 +113,10 @@ export default function ItemList() {
         onSearchUpdated("");
     }
 
-    function copyItemsToClipboard() {
+    async function copyItemsToClipboard() {
         const info = filteredItems.map(item => (item.author ? item.author + " - " : "") + item.title + "\n" + item.url).join("\n\n");
         console.log(info);
-        //Clipboard.setString(info);
+        await Clipboard.setStringAsync(info);
         Alert.alert("Items copied to clipboard");
     }
 
