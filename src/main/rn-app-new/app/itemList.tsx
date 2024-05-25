@@ -29,7 +29,6 @@ export default function ItemList() {
     const loadItemsFromLocalStorage: boolean = paramsObject.loadItemsFromLocalStorage;
     const initialSearch: string = paramsObject.initialSearch;
 
-    // TODO - add last dummy item, for margin (I did it in flashcards, I think)
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
     const [search, setSearch] = useState(initialSearch as string);
@@ -72,6 +71,9 @@ export default function ItemList() {
     }, [initialSearch])
 
     function openItemEdit(item: Item) {
+        if (item.id === dummyItemId) {
+            return;
+        }
         router.push(navigationParams('itemEdit', {
             lastUpdateTime: new Date().getTime(),
             item
@@ -244,12 +246,15 @@ function sortByScore(items: Array<ItemExt>) {
     return items;
 }
 
+const dummyItemId = "dummy_id";
+
 function dummyInfoItem(title: string, info: string) : ItemExt {
     return {
+        id: dummyItemId,
         title: title,
         author: "",
         notes: info,
-        image: "", listKey: "",  score: 0, searchableText: "", tags: ["info"], url: ""
+        image: "", listKey: "",  score: 0, searchableText: "", tags: [], url: ""
     };
 }
 
@@ -293,6 +298,9 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
             }
             return false;
         });
+
+        let dummyItemForMargin = dummyInfoItem("", "");
+        items = [...items, dummyItemForMargin]
     }
 
     for (const transformer of transformers) {
