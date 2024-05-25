@@ -29,11 +29,11 @@ export default function ItemList() {
     const loadItemsFromLocalStorage: boolean = paramsObject.loadItemsFromLocalStorage;
     const initialSearch: string = paramsObject.initialSearch;
 
+    // TODO - add last dummy item, for margin (I did it in flashcards, I think)
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
     const [search, setSearch] = useState(initialSearch as string);
     const [loading, setLoading] = useState(false);
-    const [randomized, setRandomized] = useState(false);
 
     useEffect(() => {
         console.log("loadItemsFromLocalStorage", loadItemsFromLocalStorage);
@@ -54,15 +54,7 @@ export default function ItemList() {
                 await addPendingLocalItems(itemsExt);
                 setItems(itemsExt);
                 setLoading(false);
-                // Randomize once in the beginning, to see random items when opening the app
-                if (!search && !randomized) {
-                    const initialSearch = "-song. | rnd";
-                    setSearch(initialSearch);
-                    setFilteredItems(filteredData(itemsExt, initialSearch))
-                    setRandomized(true);
-                } else {
-                    setFilteredItems(filteredData(itemsExt, search))
-                }
+                setFilteredItems(filteredData(itemsExt, search))
             } catch(e) {
                 Alert.alert("Error loading items", `${e}`);
             }
