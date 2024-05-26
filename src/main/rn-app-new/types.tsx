@@ -15,6 +15,7 @@ export type Item = {
 export type ItemExt = Item & {
   listKey: string;
   searchableText: string;
+  randomIndex: number;
 }
 
 export type Credentials = {

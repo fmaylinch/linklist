@@ -200,10 +200,11 @@ async function addPendingLocalItems(items: Array<ItemExt>) {
 }
 
 function extendItems(items: Array<Item>) : Array<ItemExt> {
-    return items.map(item => ({
+    return items.map((item, index) => ({
         ...item,
-        listKey: (item.id || "") + (item.localId || ""), // local items might not have item.id
-        searchableText: item.title.toLowerCase() + " " + (item.author || "").toLowerCase() + " " + item.url + " " + item.notes.toLowerCase()
+        listKey: (item.id || "") + (item.localId || index), // local items might not have item.id
+        searchableText: item.title.toLowerCase() + " " + (item.author || "").toLowerCase() + " " + item.url + " " + item.notes.toLowerCase(),
+        randomIndex: stableRandomNumbers[index]
     }));
 }
 
@@ -212,9 +213,9 @@ function extendItems(items: Array<Item>) : Array<ItemExt> {
 function getTransformers(names: string[]) {
     const result : Array<ItemsTransformer> = [];
     for (const name of names) {
-        const f = transformersMap.get(name);
-        if (f) {
-            result.push(f);
+        const transformerFunc = transformersMap.get(name);
+        if (transformerFunc) {
+            result.push(transformerFunc);
         }
     }
     return result;
@@ -222,29 +223,56 @@ function getTransformers(names: string[]) {
 
 type ItemsTransformer = (items: Array<ItemExt>) => Array<ItemExt>;
 const transformersMap = new Map<string, ItemsTransformer>();
-transformersMap.set("random", randomizeItems);
-transformersMap.set("rnd", randomizeItems);
+transformersMap.set("random", randomizeItemsNotStable);
+transformersMap.set("rnd", randomizeItemsStable);
 transformersMap.set("score", sortByScore);
 transformersMap.set("reverse", reverseItems);
 transformersMap.set("rev", reverseItems);
 
-function randomizeItems(items: Array<ItemExt>) {
-    for (let i = items.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i+1));
-        [items[i], items[j]] = [items[j], items[i]];
+// IMPORTANT - make sure transformer functions do not modify the original array
+
+function randomizeItemsNotStable(items: Array<ItemExt>) {
+    let randomItems = items.slice();
+    shuffleArray(randomItems);
+    return randomItems;
+}
+
+function randomizeItemsStable(items: Array<ItemExt>) {
+    return items.toSorted((a, b) => {
+        return b.randomIndex - a.randomIndex;
+    });
+}
+
+// TODO - temporal hacky way to have stable randomization
+const stableRandomNumbers = getRandomArray(2000);
+
+function getRandomArray(length: number) {
+    let arr = Array.from({ length: length }, (_, index) => index);
+    shuffleArray(arr);
+    return arr;
+}
+
+function shuffleArray(arr: any[]) {
+    for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-    return items;
 }
 
 function reverseItems(items: Array<ItemExt>) {
-    return items.reverse();
+    return items.toReversed();
 }
 
 function sortByScore(items: Array<ItemExt>) {
-    items.sort((a, b) => {
+    return items.toSorted((a, b) => {
         return b.score - a.score;
     });
-    return items;
+}
+
+Array.prototype.toSorted = function(f) {
+    let result = this.slice();
+    result.sort(f);
+    return result;
 }
 
 const dummyItemId = "dummy_id";
@@ -255,7 +283,13 @@ function dummyInfoItem(title: string, info: string) : ItemExt {
         title: title,
         author: "",
         notes: info,
-        image: "", listKey: "",  score: 0, searchableText: "", tags: [], url: ""
+        image: "",
+        listKey: "dummy",
+        score: 0,
+        searchableText: "",
+        tags: [],
+        url: "",
+        randomIndex: 0
     };
 }
 
@@ -305,7 +339,7 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
     }
 
     for (const transformer of transformers) {
-        items = transformer(items.slice()); // copy array with slice, to avoid modifying the original array
+        items = transformer(items); // transformer functions should not modify the array
     }
 
     if (items.length == 0) {
