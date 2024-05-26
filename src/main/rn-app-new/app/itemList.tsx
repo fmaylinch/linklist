@@ -27,7 +27,7 @@ export default function ItemList() {
     const paramsObject = useLocalSearchParamsWithJson();
     const lastUpdateTime: number = paramsObject.lastUpdateTime;
     const loadItemsFromLocalStorage: boolean = paramsObject.loadItemsFromLocalStorage;
-    const initialSearch: string = paramsObject.initialSearch;
+    const initialSearch: string = paramsObject.search;
 
     const [items, setItems] = useState<Array<ItemExt>>([]);
     const [filteredItems, setFilteredItems] = useState<Array<ItemExt>>([]);
@@ -36,6 +36,7 @@ export default function ItemList() {
 
     useEffect(() => {
         console.log("loadItemsFromLocalStorage", loadItemsFromLocalStorage);
+        console.log("lastUpdateTime", lastUpdateTime);
         (async () => {
             try {
                 const json = await AsyncStorage.getItem('credentials')
@@ -75,7 +76,7 @@ export default function ItemList() {
             return;
         }
         router.push(navigationParams('itemEdit', {
-            lastUpdateTime: new Date().getTime(),
+            lastUpdateTime,
             item
         }));
     }

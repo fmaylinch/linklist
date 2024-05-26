@@ -34,7 +34,7 @@ export default function Linklist() {
         router.push(navigationParams('itemList', {
             lastUpdateTime: new Date().getTime(),
             loadItemsFromLocalStorage: !fromApi,
-            initialSearch: "-song. | rnd" // TODO - add options
+            search: "-song. | rnd" // TODO - add options from this same screen, so we don't need to reload items
         }))
     }
 
