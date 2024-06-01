@@ -115,11 +115,18 @@ export default function ItemList() {
     }
 
     async function copyItemsToClipboard() {
+        if (filteredItems.length > 10) {
+            Alert.alert("Too many items to copy them to clipboard")
+            return;
+        }
         const info = filteredItems.map(item => (item.author ? item.author + " - " : "") + item.title + "\n" + item.url).join("\n\n");
         console.log(info);
         await Clipboard.setStringAsync(info);
         Alert.alert("Items copied to clipboard");
     }
+
+    const dummyItemForMargin = dummyInfoItem("", "");
+    const displayedItems = [...filteredItems, dummyItemForMargin]
 
     return (
         <>
@@ -138,11 +145,13 @@ export default function ItemList() {
                         <TextInput style={styles.search} placeholder={"word tag. -not, other | func"}
                                    value={search} onChangeText={onSearchUpdated} />
                         {search.length > 0 && <Button title={"X"} onPress={clearSearch}/>}
-                        <Text onLongPress={copyItemsToClipboard} style={styles.count}>{filteredItems.length} of {items.length}</Text>
+                        <Text onLongPress={copyItemsToClipboard} style={styles.count}>
+                            {filteredItems.length} of {items.length}
+                        </Text>
                     </View>
                 )}
                 <FlatList
-                    data={filteredItems}
+                    data={displayedItems}
                     renderItem={listItem => renderItem(listItem.item)}
                     keyExtractor={item => item.listKey}
                 />
@@ -333,9 +342,6 @@ function filteredData(items: Array<ItemExt>, search: string) : Array<ItemExt> {
             }
             return false;
         });
-
-        let dummyItemForMargin = dummyInfoItem("", "");
-        items = [...items, dummyItemForMargin]
     }
 
     for (const transformer of transformers) {
