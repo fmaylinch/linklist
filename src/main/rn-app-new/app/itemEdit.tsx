@@ -1,5 +1,5 @@
 import {Alert, Button, Dimensions, Linking, ScrollView, StyleSheet, Text, TextInput, View} from 'react-native';
-import Image from '../components/scalable-image';
+import Image from 'react-native-scalable-image';
 import {Item} from "@/types";
 import {useState} from "react";
 import {Slider} from "@miblanchard/react-native-slider";
