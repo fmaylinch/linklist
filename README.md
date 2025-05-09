@@ -31,7 +31,8 @@ Instructions for ReactNative app:
 - Run it in dev mode with `npm start`
 - Use `npm start-tunnel` to use ngrok (could be insecure)
 - publish with `eas update`
-
+- To update expo, use `npx create-expo-app@latest rn-temp` and copy dependencies.
+  - I had to do `npm install --force` last time (to upgrade to expo 53.0.9).
 
 ## Vue instructions
 
