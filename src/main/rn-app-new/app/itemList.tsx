@@ -125,12 +125,9 @@ export default function ItemList() {
         Alert.alert("Items copied to clipboard");
     }
 
-    // TODO - adding this item causes a strange behaviour, why!?
-    //  maybe I could add displayedItems as useState(),
-    //  or add dummy item already in filteredData, but then count -1 in styles.count
-    // const dummyItemForMargin = dummyInfoItem("", "");
-    // const displayedItems = [...filteredItems, dummyItemForMargin]
-    const displayedItems = filteredItems;
+    const dummyItemForMargin = dummyInfoItem("----------", "");
+    const displayedItems = [...filteredItems, dummyItemForMargin]
+    //const displayedItems = filteredItems;
 
     return (
         <>
