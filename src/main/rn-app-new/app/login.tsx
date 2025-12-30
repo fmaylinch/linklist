@@ -5,7 +5,6 @@ import {ThemedText} from '@/components/ThemedText';
 import {ThemedView} from '@/components/ThemedView';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Credentials} from "@/types";
-import {navigationParams} from "@/util/routerUtil";
 import axios from "axios";
 
 export default function Login() {
@@ -22,9 +21,15 @@ export default function Login() {
             const resp = await axios.post(url, loginData);
             let credentials: Credentials = {...resp.data, baseUrl};
             await AsyncStorage.setItem('credentials', JSON.stringify(credentials));
-            router.navigate(navigationParams('linklist', {
-                lastUpdateTime: new Date().getTime()
-            }));
+            router.navigate({
+                pathname: '/linklist',
+                params: {
+                    stringifiedParams: JSON.stringify({
+                        lastUpdateTime: new Date().getTime()
+                    })
+                }
+            });
+
         } catch (e) {
             setMessage('Error on login: ' + e);
         }

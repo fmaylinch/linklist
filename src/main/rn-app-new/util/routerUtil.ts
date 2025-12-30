@@ -1,5 +1,6 @@
 import {useLocalSearchParams} from 'expo-router';
 
+// TODO: TypeScript complains about types when using this function
 export function navigationParams(pathname: string, params?: object) {
     if (!params) {
         return { pathname };

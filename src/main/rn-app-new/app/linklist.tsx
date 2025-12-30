@@ -6,7 +6,7 @@ import {ThemedView} from '@/components/ThemedView';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Credentials} from "@/types";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
-import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
+import {useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function Linklist() {
 
@@ -31,11 +31,16 @@ export default function Linklist() {
     }, [lastUpdateTime]);
 
     function loadItems(fromApi: boolean) {
-        router.push(navigationParams('itemList', {
-            lastUpdateTime: new Date().getTime(),
-            loadItemsFromLocalStorage: !fromApi,
-            search: "-song. | rnd" // TODO - add options from this same screen, so we don't need to reload items
-        }))
+        router.navigate({
+            pathname: '/itemList',
+            params: {
+                stringifiedParams: JSON.stringify({
+                    lastUpdateTime: new Date().getTime(),
+                    loadItemsFromLocalStorage: !fromApi,
+                    search: "-song. | rnd" // TODO - add options from this same screen, so we don't need to reload items
+                })
+            }
+        });
     }
 
     async function logout() {
@@ -49,7 +54,10 @@ export default function Linklist() {
     }
 
     function login() {
-        router.push(navigationParams('login'));
+        router.navigate({
+            pathname: '/login'
+        });
+
     }
 
     return (

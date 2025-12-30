@@ -9,7 +9,7 @@ import {FontAwesome} from "@expo/vector-icons";
 import {colorFromScore} from "@/util/util";
 import {scrapUrl} from "@/util/scrapping";
 import {router} from 'expo-router';
-import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
+import {useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function ItemEdit() {
 
@@ -97,11 +97,16 @@ export default function ItemEdit() {
     function goBackToList(itemModifiedLocally: boolean = false, search?: string, lastUpdateTime?: number) {
         const time = lastUpdateTime || new Date().getTime();
         console.log(`Navigating to itemList with time: ${time}`);
-        router.navigate(navigationParams('itemList', {
-            lastUpdateTime: time,
-            loadItemsFromLocalStorage: itemModifiedLocally,
-            search: search || ""
-        }));
+        router.navigate({
+            pathname: '/itemList',
+            params: {
+                stringifiedParams: JSON.stringify({
+                    lastUpdateTime: time,
+                    loadItemsFromLocalStorage: itemModifiedLocally,
+                    search: search || ""
+                })
+            }
+        });
     }
 
     function openUrl() {

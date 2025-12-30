@@ -20,7 +20,7 @@ import {apiService} from "@/service/ApiService";
 import * as Clipboard from 'expo-clipboard';
 import {colorFromScore} from "@/util/util";
 import {router, Stack} from 'expo-router';
-import {navigationParams, useLocalSearchParamsWithJson} from "@/util/routerUtil";
+import {useLocalSearchParamsWithJson} from "@/util/routerUtil";
 
 export default function ItemList() {
 
@@ -75,10 +75,15 @@ export default function ItemList() {
         if (item.id === dummyItemId) {
             return;
         }
-        router.push(navigationParams('itemEdit', {
-            lastUpdateTime,
-            item
-        }));
+        router.navigate({
+            pathname: '/itemEdit',
+            params: {
+                stringifiedParams: JSON.stringify({
+                    lastUpdateTime,
+                    item
+                })
+            }
+        });
     }
 
     const renderItem = (item : Item) => (
